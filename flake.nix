@@ -24,6 +24,9 @@
       default = pkgs.mkShell {
         packages = [
           pkgs.go
+          pkgs.gotools
+          pkgs.go-tools
+
           pkgs.antlr
         ];
       };
