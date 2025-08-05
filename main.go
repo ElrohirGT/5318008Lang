@@ -8,19 +8,6 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
-type Listener struct {
-	*p.BaseCompiscriptListener
-	Errors []string
-}
-
-func (Listener) EnterProgram(c *p.ProgramContext) {
-	fmt.Println("Got Text!", c.GetText())
-}
-
-func (l Listener) HasErrors() bool {
-	return len(l.Errors) > 0
-}
-
 func main() {
 	inputStream, err := antlr.NewFileStream(os.Args[1])
 	if err != nil {
