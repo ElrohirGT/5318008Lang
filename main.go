@@ -21,12 +21,12 @@ func main() {
 	tree := parser.Program()
 
 	walker := antlr.NewParseTreeWalker()
-	listener := Listener{}
+	listener := NewListener()
 	walker.Walk(listener, tree)
 
 	if listener.HasErrors() {
-		for _, error := range listener.Errors {
-			fmt.Fprintf(os.Stderr, "Type checking error: %s", error)
+		for _, error := range *listener.Errors {
+			fmt.Fprintf(os.Stderr, "* %s", error)
 		}
 	} else {
 		fmt.Println("No type errors found!")
