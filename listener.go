@@ -4,23 +4,23 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
 type Listener struct {
 	*p.BaseCompiscriptListener
-	KnownTypes map[string]struct{}
+	KnownTypes lib.Set[string]
 	Errors     *[]string
 }
 
 func NewListener() Listener {
-	baseTypes := map[string]struct{}{
-		"integer": {},
-		"float":   {},
-		"boolean": {},
-		"string":  {},
-		"null":    {},
-	}
+	baseTypes := lib.NewSet[string]()
+	baseTypes.Add("integer")
+	baseTypes.Add("float")
+	baseTypes.Add("boolean")
+	baseTypes.Add("string")
+	baseTypes.Add("null")
 
 	errors := []string{}
 

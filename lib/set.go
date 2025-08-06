@@ -1,7 +1,10 @@
 package lib
 
+// Represents a bag of unique values.
+// Iteration order is randomized.
 type Set[T comparable] map[T]struct{}
 
+// Creates a new Set for the given type.
 func NewSet[T comparable]() Set[T] {
 	return Set[T]{}
 }
