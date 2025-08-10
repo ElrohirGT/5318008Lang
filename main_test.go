@@ -14,7 +14,7 @@ const OUTPUT_SEPARATOR = "---"
 func Test_SnapshotTesting(t *testing.T) {
 	filePaths := []string{}
 	runOnly := []string{
-		"string",
+		// "string",
 	}
 	filepath.WalkDir("./tests/", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -39,12 +39,12 @@ func Test_SnapshotTesting(t *testing.T) {
 		}
 
 		parts := strings.Split(string(fileBytes), OUTPUT_SEPARATOR)
-		cpsContents := parts[0]
+		cpsContents := strings.TrimSpace(parts[0])
 		programOutput := strings.TrimSpace(parts[1])
 
 		reader := bytes.NewReader([]byte(cpsContents))
 		err = testableMain(reader)
-		if err != nil && programOutput != err.Error() {
+		if err != nil && programOutput != strings.TrimSpace(err.Error()) {
 			t.Errorf(
 				"\nProgram %s failed with:\n%s\nBut expected:\n%s",
 				path,

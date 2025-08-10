@@ -1,0 +1,4 @@
+let a: integer = "Flavio";
+---
+=== ERRORS ===
+* ERROR: The declaration of `a` specifies a type of `integer` but `string` was given
