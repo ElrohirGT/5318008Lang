@@ -29,6 +29,22 @@ func (l *SemanticListener) ExitIfStatement(ctx *p.IfStatementContext) {
     }
 }
 
+func (l *SemanticListener) ExitWhileStatement(ctx *p.WhileStatementContext) {
+    expr := ctx.Expression()
+    exprType := l.getTypeFromNode(expr)
+    if exprType != BOOLEAN {
+        l.Errors = append(l.Errors, "The while condition has to be boolean")
+    }
+}
+
+func (l *SemanticListener) ExitDoWhileStatement(ctx *p.DoWhileStatementContext) {
+    expr := ctx.Expression()
+    exprType := l.getTypeFromNode(expr)
+    if exprType != BOOLEAN {
+        l.Errors = append(l.Errors, "The do while condition has to be boolean")
+    }
+}
+
 func (l *SemanticListener) getTypeFromNode(node antlr.Tree) int {
     if leaf, ok := node.(antlr.TerminalNode); ok {
         text := leaf.GetText()

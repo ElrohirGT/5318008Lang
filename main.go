@@ -18,14 +18,14 @@ func main() {
   	symbols.Variables["x"] = s.Content{DataType: s.INTEGER}
 	symbols.Variables["y"] = s.Content{DataType: s.INTEGER}
 
-  	input := "if (x > 5 || (y == y)) {}"
+  	input := "do {} while (x > 5 || (y == y));"
 
   	is := antlr.NewInputStream(input)
   	lexer := p.NewCompiscriptLexer(is)
   	tokens := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
   	p := p.NewCompiscriptParser(tokens)
 
-  	tree := p.IfStatement()
+  	tree := p.DoWhileStatement()
 
   	listener := s.NewSemanticListener(symbols)
   	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
