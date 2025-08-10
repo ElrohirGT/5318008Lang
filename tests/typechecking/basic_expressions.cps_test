@@ -1,3 +1,4 @@
-let a: integer = 2 + 2;
+let a: integer = 2 + 2 + 7;
 let b: integer = 4 + 4;
+let c = a+b+6;
 ---

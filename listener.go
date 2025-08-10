@@ -96,7 +96,37 @@ func (l Listener) AddTypeByExpr(expr string, t string) {
 	(*l.TypesByExpression)[expr] = t
 }
 
-func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
+func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
+	exprs := ctx.AllMultiplicativeExpr()
+	firstExpr := exprs[0]
+	firstType, available := (*l.TypesByExpression)[firstExpr.GetText()]
+	if !available {
+		l.AddError(fmt.Sprintf("`%s` doesn't have a type!", firstExpr.GetText()))
+		return
+	}
+
+	for _, expr := range exprs[1:] {
+		exprType, available := (*l.TypesByExpression)[expr.GetText()]
+		if !available {
+			l.AddError(fmt.Sprintf("`%s` doesn't have a type!", exprType))
+		}
+
+		if exprType != firstType {
+			l.AddError(fmt.Sprintf(
+				"Can't add:\n * leftSide: `%s` of type `%s`\n * rightSide: `%s` of type `%s`",
+				firstExpr.GetText(),
+				firstType,
+				expr.GetText(),
+				exprType,
+			))
+		}
+	}
+
+	log.Printf("Adding expression `%s` of type `%s`", ctx.GetText(), firstType)
+	l.AddTypeByExpr(ctx.GetText(), firstType)
+}
+
+func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	strRepresentation := ctx.GetText()
 	switch strRepresentation {
 	case "null":
@@ -162,7 +192,17 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 
 	if !hasAnnotation {
 		log.Println("Variable", name.GetText(), "does NOT have a type! We need to infer it...")
-		// TODO: Infer variable type and check if it exists
+		if hasInitialExpr {
+			declarationText := declarationExpr.Expression().GetText()
+			inferedType, found := (*l.TypesByExpression)[declarationText]
+			if !found {
+				l.AddError(fmt.Sprintf("Couldn't infer the type of variable `%s`, initialized with: `%s`", name.GetText(), declarationText))
+			} else {
+				l.AddTypeByExpr(name.GetText(), inferedType)
+			}
+		}
+		// FIXME: What type does a variable hold if it doesn't defines type or initializer?
+		// Maybe null?
 	} else {
 		declarationType := typeAnnot.Type_().GetText()
 		log.Println("Variable", name.GetText(), "has type", declarationType)
@@ -183,6 +223,9 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 				l.AddError(fmt.Sprintf("The declaration of `%s` specifies a type of `%s` but `%s` was given", name, declarationType, initialExprType))
 			}
 		}
+
+		// FIXME: This variable declaration should be added only to the current active scope!
+		l.AddTypeByExpr(name.GetText(), declarationType)
 	}
 }
 

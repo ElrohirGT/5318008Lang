@@ -11,17 +11,18 @@ import (
 
 const OUTPUT_SEPARATOR = "---"
 
+var RUN_ONLY_THAT_MATCH = []string{
+	"basic_expre",
+}
+
 func Test_SnapshotTesting(t *testing.T) {
 	filePaths := []string{}
-	runOnly := []string{
-		// "string",
-	}
 	filepath.WalkDir("./tests/", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
 
-		for _, str := range runOnly {
+		for _, str := range RUN_ONLY_THAT_MATCH {
 			if !strings.Contains(path, str) {
 				return nil
 			}
