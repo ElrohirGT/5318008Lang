@@ -18,7 +18,7 @@ func main() {
   	symbols.Variables["x"] = s.Content{DataType: s.INTEGER}
 	symbols.Variables["y"] = s.Content{DataType: s.INTEGER}
 
-  	input := "if (x > y) {}"
+  	input := "if (x > 5 || (y == y)) {}"
 
   	is := antlr.NewInputStream(input)
   	lexer := p.NewCompiscriptLexer(is)
