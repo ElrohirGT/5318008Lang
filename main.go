@@ -26,7 +26,7 @@ func main() {
 
 	if listener.HasErrors() {
 		for _, error := range *listener.Errors {
-			fmt.Fprintf(os.Stderr, "* %s", error)
+			fmt.Fprintf(os.Stderr, "* %s\n", error)
 		}
 	} else {
 		fmt.Println("No type errors found!")

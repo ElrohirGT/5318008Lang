@@ -16,4 +16,4 @@ class Dog : Animal {
   }
 }
 
-let abc: ABC = Animal("Flavio");
+let abc: ABC = new Animal("Flavio");
