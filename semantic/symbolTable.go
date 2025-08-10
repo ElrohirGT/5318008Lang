@@ -10,30 +10,30 @@ const (
 )
 
 type SymbolTable struct {
-  variables map[string]Content
+  Variables map[string]Content
 }
 
 type Content struct {
-  dataType int 
-  class string
-  scope string
+  DataType int 
+  Class string
+  Scope string
 }
 
 func NewSymbolTable() *SymbolTable {
   return &SymbolTable{
-    variables: make(map[string]Content),
+    Variables: make(map[string]Content),
   }
 }
 
 func (st *SymbolTable) Add(name string, content Content) error {
-  if _, exists := st.variables[name]; exists {
+  if _, exists := st.Variables[name]; exists {
     return fmt.Errorf("variable '%s' already declared", name)
   }
-  st.variables[name] = content
+  st.Variables[name] = content
   return nil
 }
 
 func (st *SymbolTable) Get(name string) (Content, bool) {
-  val, exists := st.variables[name]
+  val, exists := st.Variables[name]
   return val, exists
 }
