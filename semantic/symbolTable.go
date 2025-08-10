@@ -37,3 +37,8 @@ func (st *SymbolTable) Get(name string) (Content, bool) {
   val, exists := st.Variables[name]
   return val, exists
 }
+
+func (st *SymbolTable) GetType(name string) (int, bool) {
+  t, ok := st.Variables[name]
+  return t.DataType, ok
+}

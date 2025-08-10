@@ -14,22 +14,23 @@ func (Listener) EnterProgram(c *p.ProgramContext) {
 }
 
 func main() {
-  symbols := s.NewSymbolTable()
-  symbols.Variables["x"] = s.Content{DataType: s.BOOLEAN}
+  	symbols := s.NewSymbolTable()
+  	symbols.Variables["x"] = s.Content{DataType: s.INTEGER}
+	symbols.Variables["y"] = s.Content{DataType: s.INTEGER}
 
-  input := "if (x) {}"
+  	input := "if (x > y) {}"
 
-  is := antlr.NewInputStream(input)
-  lexer := p.NewCompiscriptLexer(is)
-  tokens := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-  p := p.NewCompiscriptParser(tokens)
+  	is := antlr.NewInputStream(input)
+  	lexer := p.NewCompiscriptLexer(is)
+  	tokens := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+  	p := p.NewCompiscriptParser(tokens)
 
-  tree := p.IfStatement()
+  	tree := p.IfStatement()
 
-  listener := s.NewSemanticListener(symbols)
-  antlr.ParseTreeWalkerDefault.Walk(listener, tree)
+  	listener := s.NewSemanticListener(symbols)
+  	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-  if len(listener.Errors) > 0 {
+  	if len(listener.Errors) > 0 {
 		fmt.Println("Errores semánticos:")
 		for _, err := range listener.Errors {
 			fmt.Println(" -", err)
