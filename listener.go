@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -48,6 +49,21 @@ type Listener struct {
 	Scopes            *lib.Stack[Scope]
 }
 
+var BASE_TYPES = struct {
+	INTEGER string
+	FLOAT   string
+	BOOLEAN string
+	STRING  string
+	NULL    string
+}{
+
+	INTEGER: "integer",
+	FLOAT:   "float",
+	BOOLEAN: "boolean",
+	STRING:  "string",
+	NULL:    "null",
+}
+
 func NewListener() Listener {
 	baseTypes := lib.NewSet[string]()
 	baseTypes.Add("integer")
@@ -58,7 +74,7 @@ func NewListener() Listener {
 
 	errors := []string{}
 	scopes := lib.NewStack[Scope]()
-	typesByExpr := map[string]string{}
+	typesByExpr := make(map[string]string)
 
 	return Listener{
 		KnownTypes:        baseTypes,
@@ -74,6 +90,33 @@ func (l Listener) AddError(content string) {
 
 func (l Listener) AddWarning(content string) {
 	*l.Errors = append(*l.Errors, fmt.Sprintf("WARNING: %s", content))
+}
+
+func (l Listener) AddTypeByExpr(expr string, t string) {
+	(*l.TypesByExpression)[expr] = t
+}
+
+func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
+	strRepresentation := ctx.GetText()
+	switch strRepresentation {
+	case "null":
+		l.AddTypeByExpr(strRepresentation, BASE_TYPES.NULL)
+	case "true", "false":
+		l.AddTypeByExpr(strRepresentation, BASE_TYPES.BOOLEAN)
+	default:
+		literal := ctx.Literal()
+		if literal != nil {
+			literalExpr := literal.GetText()
+			_, err := strconv.ParseInt(literalExpr, 10, 64)
+			if err != nil {
+				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.STRING)
+				l.AddTypeByExpr(literalExpr, BASE_TYPES.STRING)
+			} else {
+				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.INTEGER)
+				l.AddTypeByExpr(literalExpr, BASE_TYPES.INTEGER)
+			}
+		}
+	}
 }
 
 func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
@@ -93,7 +136,7 @@ func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
 	expr := ctx.GetText()
 	exprType := className.GetText()
 	log.Println("Adding", expr, "as an expresion of type", exprType)
-	(*l.TypesByExpression)[expr] = exprType
+	l.AddTypeByExpr(expr, exprType)
 }
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
@@ -108,7 +151,7 @@ func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 	l.Scopes.Pop()
 }
 
-func (l Listener) EnterVariableDeclaration(ctx *p.VariableDeclarationContext) {
+func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	name := ctx.Identifier()
 
 	typeAnnot := ctx.TypeAnnotation()
