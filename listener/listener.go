@@ -47,28 +47,13 @@ type Listener struct {
 	Scopes            *lib.Stack[Scope]
 }
 
-var BASE_TYPES = struct {
-	INTEGER string
-	FLOAT   string
-	BOOLEAN string
-	STRING  string
-	NULL    string
-}{
-
-	INTEGER: "integer",
-	FLOAT:   "float",
-	BOOLEAN: "boolean",
-	STRING:  "string",
-	NULL:    "null",
-}
-
 func NewListener() Listener {
 	baseTypes := lib.NewSet[string]()
-	baseTypes.Add("integer")
-	baseTypes.Add("float")
-	baseTypes.Add("boolean")
-	baseTypes.Add("string")
-	baseTypes.Add("null")
+	baseTypes.Add(BASE_TYPES.INTEGER)
+	baseTypes.Add(BASE_TYPES.FLOAT)
+	baseTypes.Add(BASE_TYPES.BOOLEAN)
+	baseTypes.Add(BASE_TYPES.STRING)
+	baseTypes.Add(BASE_TYPES.NULL)
 
 	errors := []string{}
 	scopes := lib.NewStack[Scope]()

@@ -8,6 +8,20 @@ import (
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
+var BASE_TYPES = struct {
+	INTEGER string
+	FLOAT   string
+	BOOLEAN string
+	STRING  string
+	NULL    string
+}{
+	INTEGER: "integer",
+	FLOAT:   "float",
+	BOOLEAN: "boolean",
+	STRING:  "string",
+	NULL:    "null",
+}
+
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	exprs := ctx.AllMultiplicativeExpr()
 	firstExpr := exprs[0]
