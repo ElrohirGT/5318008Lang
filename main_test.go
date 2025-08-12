@@ -12,7 +12,7 @@ import (
 const OUTPUT_SEPARATOR = "---"
 
 var RUN_ONLY_THAT_MATCH = []string{
-	"basic_expre",
+	// "basic_expre",
 }
 
 func Test_SnapshotTesting(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/listener"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -30,11 +31,11 @@ func testableMain(reader io.Reader) error {
 	tree := parser.Program()
 
 	walker := antlr.NewParseTreeWalker()
-	listener := NewListener()
-	walker.Walk(listener, tree)
+	lis := listener.NewListener()
+	walker.Walk(lis, tree)
 
-	if listener.HasErrors() {
-		return generateErrorOutput(*listener.Errors)
+	if lis.HasErrors() {
+		return generateErrorOutput(*lis.Errors)
 	}
 
 	return nil
