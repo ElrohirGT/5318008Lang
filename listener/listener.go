@@ -39,32 +39,49 @@ func NewScope(name string, _type string) Scope {
 	}
 }
 
+type TypeIdentifier string
+
 type Listener struct {
 	*p.BaseCompiscriptListener
-	KnownTypes        lib.Set[string]
-	TypesByExpression *map[string]string
+	KnownTypes        *map[TypeIdentifier]TypeInfo
+	TypesByExpression *map[string]TypeIdentifier
 	Errors            *[]string
 	Scopes            *lib.Stack[Scope]
 }
 
 func NewListener() Listener {
-	baseTypes := lib.NewSet[string]()
-	baseTypes.Add(BASE_TYPES.INTEGER)
-	baseTypes.Add(BASE_TYPES.FLOAT)
-	baseTypes.Add(BASE_TYPES.BOOLEAN)
-	baseTypes.Add(BASE_TYPES.STRING)
-	baseTypes.Add(BASE_TYPES.NULL)
+	baseTypes := make(map[TypeIdentifier]TypeInfo)
+	baseTypes[TypeIdentifier(BASE_TYPES.INTEGER)] = NewTypeInfo_Base()
+	baseTypes[TypeIdentifier(BASE_TYPES.BOOLEAN)] = NewTypeInfo_Base()
+	baseTypes[TypeIdentifier(BASE_TYPES.STRING)] = NewTypeInfo_Base()
+	baseTypes[TypeIdentifier(BASE_TYPES.NULL)] = NewTypeInfo_Base()
 
 	errors := []string{}
 	scopes := lib.NewStack[Scope]()
-	typesByExpr := make(map[string]string)
+	typesByExpr := make(map[string]TypeIdentifier)
 
 	return Listener{
-		KnownTypes:        baseTypes,
+		KnownTypes:        &baseTypes,
 		Errors:            &errors,
 		TypesByExpression: &typesByExpr,
 		Scopes:            &scopes,
 	}
+}
+
+func (l Listener) AddTypeInfo(identifier TypeIdentifier, info TypeInfo) {
+	(*l.KnownTypes)[identifier] = info
+}
+
+func (l Listener) GetTypeInfo(identifier TypeIdentifier) (TypeInfo, bool) {
+	info, found := (*l.KnownTypes)[identifier]
+	return info, found
+}
+
+func (l Listener) ModifyClassTypeInfo(identifier TypeIdentifier, exe func(*ClassTypeInfo)) {
+	info := (*l.KnownTypes)[identifier]
+	classInfo := info.ClassType.GetValue()
+	exe(&classInfo)
+	(*l.KnownTypes)[identifier] = NewTypeInfo_Class(classInfo)
 }
 
 func (l Listener) AddError(content string) {
@@ -75,10 +92,15 @@ func (l Listener) AddWarning(content string) {
 	*l.Errors = append(*l.Errors, fmt.Sprintf("WARNING: %s", content))
 }
 
-func (l Listener) AddTypeByExpr(expr string, t string) {
+func (l Listener) AddTypeByExpr(expr string, t TypeIdentifier) {
 	(*l.TypesByExpression)[expr] = t
 }
 
 func (l Listener) HasErrors() bool {
 	return len(*l.Errors) > 0
+}
+
+func (l Listener) TypeExists(identifier TypeIdentifier) bool {
+	_, found := l.GetTypeInfo(identifier)
+	return found
 }

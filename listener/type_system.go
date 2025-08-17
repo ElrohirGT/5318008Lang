@@ -9,17 +9,19 @@ import (
 )
 
 var BASE_TYPES = struct {
-	INTEGER string
-	FLOAT   string
-	BOOLEAN string
-	STRING  string
-	NULL    string
+	INTEGER TypeIdentifier
+	BOOLEAN TypeIdentifier
+	STRING  TypeIdentifier
+	NULL    TypeIdentifier
+	// Type used when the type system can't define the type yet
+	// After evaluating the whole program NOTHING can have an unknown type
+	UNKNOWN TypeIdentifier
 }{
 	INTEGER: "integer",
-	FLOAT:   "float",
 	BOOLEAN: "boolean",
 	STRING:  "string",
 	NULL:    "null",
+	UNKNOWN: "unknown",
 }
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
@@ -75,17 +77,6 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	}
 }
 
-func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
-	className := ctx.Identifier()
-	log.Println("Instantiating class", className.GetText())
-
-	// FIXME: We assume the constructor is called correctly!
-	expr := ctx.GetText()
-	exprType := className.GetText()
-	log.Println("Adding", expr, "as an expresion of type", exprType)
-	l.AddTypeByExpr(expr, exprType)
-}
-
 func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	name := ctx.Identifier()
 
@@ -109,10 +100,10 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		// FIXME: What type does a variable hold if it doesn't defines type or initializer?
 		// Maybe null?
 	} else {
-		declarationType := typeAnnot.Type_().GetText()
+		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
 		log.Println("Variable", name.GetText(), "has type", declarationType)
 
-		if !l.KnownTypes.Exists(declarationType) {
+		if !l.TypeExists(declarationType) {
 			l.AddError(fmt.Sprintf("%s doesn't exist!", declarationType))
 		}
 
