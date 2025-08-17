@@ -212,3 +212,149 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		}
 	}
 }
+
+func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
+	log.Println("General Assignment!", ctx.GetText())
+	line := ctx.GetStart().GetLine()
+
+	isPropertyAssignment := len(ctx.AllExpression()) > 1
+	classScope, _ := l.ScopeManager.SearchClassScope()
+	if isPropertyAssignment {
+		firstExpr := ctx.Expression(0)
+		t, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Undeclared variable `%s`",
+				line,
+				firstExpr.GetText(),
+			))
+			return
+		}
+
+		info, found := l.GetTypeInfo(t)
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Undeclared type `%s` for variable `%s`",
+				line,
+				t,
+				firstExpr.GetText(),
+			))
+			return
+		}
+
+		if !info.ClassType.HasValue() {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Trying to access a field `%s` from type `%s` but `%s` is not a class!",
+				line,
+				firstExpr.GetText(),
+				t,
+				firstExpr.GetText(),
+			))
+			return
+		}
+
+		identifier := ctx.Identifier()
+		classInfo := info.ClassType.GetValue()
+		fieldType, hasField := classInfo.Fields[identifier.GetText()]
+		if !hasField {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Trying to access field `%s` not defined in class `%s`!",
+				line,
+				identifier.GetText(),
+				classInfo.Name,
+			))
+			return
+		}
+
+		assignExpr := ctx.Expression(1)
+		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Type of expression `%s` not found!",
+				line,
+				assignExpr.GetText(),
+			))
+			return
+		}
+
+		if fieldType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Trying to assign `%s` into `%s` but I don't know the types of both! Please give me hints!",
+				line,
+				assignExpr.GetText(),
+				identifier.GetText(),
+			))
+			return
+		}
+
+		if fieldType == BASE_TYPES.UNKNOWN {
+			log.Printf("Inferring `%s` as type `%s`", "this."+identifier.GetText(), assignType)
+			classScope.UpsertExpressionType("this."+identifier.GetText(), assignType)
+			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
+				cti.UpsertField(identifier.GetText(), assignType)
+			})
+			fieldType = assignType
+		}
+
+		if fieldType != assignType {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Trying to assign `%s` to field `%s` but types don't match! (`%s` != `%s`)",
+				line,
+				assignExpr.GetText(),
+				identifier.GetText(),
+				fieldType,
+				assignType,
+			))
+			return
+		}
+	} else {
+		identifier := ctx.Identifier()
+		identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier.GetText())
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Undeclared variable `%s`!",
+				line,
+				identifier.GetText(),
+			))
+			return
+		}
+
+		assignExpr := ctx.Expression(0)
+		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Expression `%s` doesn't have a type!",
+				line,
+				assignExpr,
+			))
+		}
+
+		if identifierType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Can't assign `%s` = `%s` because both type are unknown! Use one of them first or write type hints!",
+				line,
+				identifier.GetText(),
+				assignExpr.GetText(),
+			))
+			return
+		}
+
+		if identifierType == BASE_TYPES.UNKNOWN {
+			log.Printf("Inferring type of `%s` as `%s`\n", identifier.GetText(), assignType)
+			l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
+			identifierType = assignType
+		}
+
+		if identifierType != assignType {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
+				line,
+				assignExpr.GetText(),
+				identifier.GetText(),
+				identifierType,
+				assignType,
+			))
+			return
+		}
+	}
+}
