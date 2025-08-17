@@ -4,11 +4,13 @@ import (
 	"github.com/ElrohirGT/5318008Lang/lib"
 )
 
+type ScopeType string
+
 var SCOPE_TYPES = struct {
-	GLOBAL   string
-	CLASS    string
-	FUNCTION string
-	BLOCK    string
+	GLOBAL   ScopeType
+	CLASS    ScopeType
+	FUNCTION ScopeType
+	BLOCK    ScopeType
 }{
 	GLOBAL:   "GLOBAL",
 	CLASS:    "CLASS",
@@ -24,7 +26,7 @@ type Scope struct {
 	Children []*Scope
 	Father   *Scope
 
-	Type              string
+	Type              ScopeType
 	Name              string
 	definitions       map[string]FunctionInfo
 	typesByExpression map[string]TypeIdentifier
@@ -35,6 +37,7 @@ type ScopeManager struct {
 	// Current scope at time of writing
 	CurrentScope *Scope
 	// Quick reference to the global scope
+	// In case anyone needs it
 	GlobaScope *Scope
 }
 
@@ -53,7 +56,15 @@ func (sc *ScopeManager) ReplaceCurrent(newScope *Scope) {
 	sc.CurrentScope = newScope
 }
 
-func NewScope(name string, _type string) *Scope {
+func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
+	if sc.CurrentScope.Type == SCOPE_TYPES.CLASS {
+		return sc.CurrentScope, true
+	}
+
+	return sc.CurrentScope.Father.SearchClassScope()
+}
+
+func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{
 		Type:              _type,
 		Name:              name,
@@ -68,7 +79,7 @@ func (s *Scope) AddChildScope(childScope *Scope) {
 	childScope.Father = s
 }
 
-func (s *Scope) AddExpressionType(expr string, _type TypeIdentifier) {
+func (s *Scope) UpsertExpressionType(expr string, _type TypeIdentifier) {
 	s.typesByExpression[expr] = _type
 }
 
@@ -81,7 +92,24 @@ func (s *Scope) GetExpressionType(expr string) (TypeIdentifier, bool) {
 	return t, found
 }
 
+func (s *Scope) ContainsExpression(expr string) bool {
+	_, found := s.typesByExpression[expr]
+	return found
+}
+
 // Returns true if the constant is a new constant, otherwise it returns false
 func (s *Scope) AddConstant(exprName string) bool {
 	return s.constants.Add(exprName)
+}
+
+func (s *Scope) SearchClassScope() (*Scope, bool) {
+	if s.Type == SCOPE_TYPES.CLASS {
+		return s, true
+	}
+
+	if s.Father != nil {
+		return s.Father.SearchClassScope()
+	}
+
+	return nil, false
 }

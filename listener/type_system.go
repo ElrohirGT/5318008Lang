@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
@@ -25,42 +26,86 @@ var BASE_TYPES = struct {
 }
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
+	line := ctx.GetStart().GetLine()
 	exprs := ctx.AllMultiplicativeExpr()
 	firstExpr := exprs[0]
-	firstType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+	referenceType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 	if !available {
-		l.AddError(fmt.Sprintf("`%s` doesn't have a type!", firstExpr.GetText()))
+		l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, firstExpr.GetText()))
 		return
+	}
+
+	defineLater := make([]p.IMultiplicativeExprContext, 0, len(exprs))
+
+	if referenceType == BASE_TYPES.UNKNOWN {
+		defineLater = append(defineLater, firstExpr)
+
+		for _, expr := range exprs[1:] {
+			exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+			if !available {
+				l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, exprType))
+			}
+
+			if exprType != BASE_TYPES.UNKNOWN {
+				referenceType = exprType
+				break
+			}
+		}
+
+		if referenceType == BASE_TYPES.UNKNOWN {
+			l.AddError(fmt.Sprintf("(line: %d) Can't infer the value of multiplication/addition! All types were unknown...", line))
+			return
+		}
 	}
 
 	for _, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 		if !available {
-			l.AddError(fmt.Sprintf("`%s` doesn't have a type!", exprType))
+			l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, exprType))
 		}
 
-		if exprType != firstType {
+		if exprType == BASE_TYPES.UNKNOWN {
+			defineLater = append(defineLater, expr)
+			continue
+		}
+
+		if exprType != referenceType {
 			l.AddError(fmt.Sprintf(
-				"Can't add:\n * leftSide: `%s` of type `%s`\n * rightSide: `%s` of type `%s`",
+				"(line: %d) Can't add:\n * leftSide: `%s` of type `%s`\n * rightSide: `%s` of type `%s`",
+				line,
 				firstExpr.GetText(),
-				firstType,
+				referenceType,
 				expr.GetText(),
 				exprType,
 			))
 		}
 	}
 
-	log.Printf("Adding expression `%s` of type `%s`", ctx.GetText(), firstType)
-	l.ScopeManager.CurrentScope.AddExpressionType(ctx.GetText(), firstType)
+	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
+	for _, expr := range defineLater {
+		log.Printf("Infering `%s` as type of `%s`\n", expr.GetText(), referenceType)
+		// FIXME: There should be a better way to manage `this.`
+		exprStartsWithThis := strings.HasPrefix(expr.GetText(), "this.")
+		if isInsideClassDeclaration && exprStartsWithThis {
+			fieldName := expr.GetText()[len("this."):]
+			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
+				cti.UpsertField(fieldName, referenceType)
+			})
+		}
+		l.ScopeManager.CurrentScope.UpsertExpressionType(expr.GetText(), referenceType)
+	}
+
+	log.Printf("Adding expression `%s` of type `%s`", ctx.GetText(), referenceType)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
 }
 
 func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	strRepresentation := ctx.GetText()
 	switch strRepresentation {
 	case "null":
-		l.ScopeManager.CurrentScope.AddExpressionType(strRepresentation, BASE_TYPES.NULL)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.NULL)
 	case "true", "false":
-		l.ScopeManager.CurrentScope.AddExpressionType(strRepresentation, BASE_TYPES.BOOLEAN)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.BOOLEAN)
 	default:
 		literal := ctx.Literal()
 		if literal != nil {
@@ -68,10 +113,10 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 			_, err := strconv.ParseInt(literalExpr, 10, 64)
 			if err != nil {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.STRING)
-				l.ScopeManager.CurrentScope.AddExpressionType(literalExpr, BASE_TYPES.STRING)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.STRING)
 			} else {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.INTEGER)
-				l.ScopeManager.CurrentScope.AddExpressionType(literalExpr, BASE_TYPES.INTEGER)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.INTEGER)
 			}
 		}
 	}
@@ -87,6 +132,8 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	declarationExpr := ctx.Initializer()
 	hasInitialExpr := declarationExpr != nil
 
+	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
+
 	if !hasAnnotation {
 		log.Println("Variable", name.GetText(), "does NOT have a type! We need to infer it...")
 		if hasInitialExpr {
@@ -100,10 +147,24 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 					declarationText,
 				))
 			} else {
-				l.ScopeManager.CurrentScope.AddExpressionType(name.GetText(), inferedType)
+				if isInsideClassDeclaration {
+					l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+						cti.UpsertField(name.GetText(), inferedType)
+					})
+					l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), inferedType)
+				} else {
+					l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
+				}
 			}
 		} else {
-			l.ScopeManager.CurrentScope.AddExpressionType(name.GetText(), BASE_TYPES.UNKNOWN)
+			if isInsideClassDeclaration {
+				l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+					cti.UpsertField(name.GetText(), BASE_TYPES.UNKNOWN)
+				})
+				l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), BASE_TYPES.UNKNOWN)
+			} else {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), BASE_TYPES.UNKNOWN)
+			}
 		}
 	} else {
 		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
@@ -140,6 +201,13 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			}
 		}
 
-		l.ScopeManager.CurrentScope.AddExpressionType(name.GetText(), declarationType)
+		if isInsideClassDeclaration {
+			l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+				cti.UpsertField(name.GetText(), declarationType)
+			})
+			l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), declarationType)
+		} else {
+			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
+		}
 	}
 }

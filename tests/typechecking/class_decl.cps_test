@@ -1,8 +1,19 @@
 class Animal {
-	let name: string;
+	let name;
+	let age;
 
 	function speak(): string {
 		return this.name + " makes a sound.";
 	}
+
+	function setAge(newAge: integer) {
+		this.age = newAge;
+		let a = (this.age = newAge);
+	}
+
+	function printAge(): string {
+		return this.name + " is " + this.age +" years old!";
+	}
+
 }
 ---
