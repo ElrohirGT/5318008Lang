@@ -31,6 +31,10 @@ type ClassTypeInfo struct {
 	Constructor  MethodInfo
 }
 
+func (c *ClassTypeInfo) AddField(name string, _type TypeIdentifier) {
+	c.Fields[name] = _type
+}
+
 func NewClassTypeInfo(className string) ClassTypeInfo {
 	return ClassTypeInfo{
 		Name:    TypeIdentifier(className),
@@ -69,14 +73,21 @@ func NewTypeInfo_Class(classInfo ClassTypeInfo) TypeInfo {
 	}
 }
 
+func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
+	if l.CurrentScope.Type != SCOPE_TYPES.CLASS {
+		panic("Trying to exit a class declaration but the scope is not of type class!")
+	}
+
+	l.CurrentScope = *l.CurrentScope.Father
+}
+
 func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	identifiers := ctx.AllIdentifier()
 	className := identifiers[0]
 	log.Println("Declaring", className)
 	line := ctx.GetStart().GetLine()
 
-	// FIXME: Check if we're currently on the global scope, if not throw error!
-	onGlobaScope := true
+	onGlobaScope := l.CurrentScope.Type == SCOPE_TYPES.GLOBAL
 	if !onGlobaScope {
 		l.AddError(fmt.Sprintf(
 			"(line: %d) Can't define class `%s` inside scope! Classes can only be defined on global scope!",
@@ -85,8 +96,16 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 		))
 	}
 
+	classScope := NewScope(className.GetText(), SCOPE_TYPES.CLASS)
+	l.CurrentScope.AddChildScope(&classScope)
+	l.CurrentScope = classScope
+
 	if _, found := l.GetTypeInfo(TypeIdentifier(className.GetText())); found {
-		l.AddError(fmt.Sprintf("(line: %d) Can't redefine existing class! `%s` already exists!", line, className.GetText()))
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Can't redefine existing class! `%s` already exists!",
+			line,
+			className.GetText(),
+		))
 	} else {
 		classInfo := NewClassTypeInfo(className.GetText())
 		l.AddTypeInfo(TypeIdentifier(className.GetText()), NewTypeInfo_Class(classInfo))
@@ -121,6 +140,100 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 }
 
+func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
+	line := ctx.GetStart().GetLine()
+
+	isFunctionDecl := ctx.FunctionDeclaration() != nil
+	isVarDecl := ctx.VariableDeclaration() != nil
+	isConstantDecl := ctx.ConstantDeclaration() != nil
+
+	if l.CurrentScope.Type != SCOPE_TYPES.CLASS {
+		panic("Trying declare a class member but not inside a class!")
+	}
+	classType := TypeIdentifier(l.CurrentScope.Name)
+
+	if isVarDecl {
+		varDeclCtx := ctx.VariableDeclaration()
+		name := varDeclCtx.Identifier()
+
+		typeAnnot := varDeclCtx.TypeAnnotation()
+		hasAnnotation := typeAnnot != nil
+
+		declarationExpr := varDeclCtx.Initializer()
+		hasInitialExpr := declarationExpr != nil
+
+		if !hasAnnotation {
+			log.Println("Field", name.GetText(), "does NOT have a type! We need to infer it...")
+			if hasInitialExpr {
+				declarationText := declarationExpr.Expression().GetText()
+				inferedType, found := l.CurrentScope.GetExpressionType(declarationText)
+				if !found {
+					l.AddError(fmt.Sprintf(
+						"(line: %d) Couldn't infer the type of variable `%s`, initialized with: `%s`",
+						line,
+						name.GetText(),
+						declarationText,
+					))
+				} else {
+					l.ModifyClassTypeInfo(classType, func(info *ClassTypeInfo) {
+						info.AddField(name.GetText(), inferedType)
+					})
+				}
+			} else {
+				l.ModifyClassTypeInfo(classType, func(info *ClassTypeInfo) {
+					info.AddField(name.GetText(), BASE_TYPES.UNKNOWN)
+				})
+			}
+		} else {
+			declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
+			log.Println("Field", name.GetText(), "has type", declarationType)
+
+			if !l.TypeExists(declarationType) {
+				l.AddError(fmt.Sprintf(
+					"(line: %d) %s doesn't exist!",
+					line,
+					declarationType,
+				))
+			}
+
+			if hasInitialExpr {
+				exprText := declarationExpr.Expression().GetText()
+				log.Println("Known expressions", l.CurrentScope.typesByExpression)
+
+				initialExprType, exists := l.CurrentScope.GetExpressionType(exprText)
+				if !exists {
+					l.AddError(fmt.Sprintf(
+						"(line: %d) `%s` doesn't have a type!",
+						line,
+						exprText,
+					))
+				}
+
+				if initialExprType != declarationType {
+					l.AddError(fmt.Sprintf(
+						"(line: %d) The declaration of `%s` specifies a type of `%s` but `%s` was given",
+						line,
+						name,
+						declarationType,
+						initialExprType,
+					))
+				}
+			}
+
+			l.CurrentScope.AddExpressionType(name.GetText(), declarationType)
+			l.ModifyClassTypeInfo(classType, func(cti *ClassTypeInfo) {
+				cti.AddField(name.GetText(), declarationType)
+			})
+		}
+	} else if isFunctionDecl {
+
+	} else if isConstantDecl {
+
+	} else {
+		panic("Class member must be a function, variable or constant declaration!")
+	}
+}
+
 func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
 	className := ctx.Identifier()
 	log.Println("Instantiating class", className.GetText())
@@ -129,5 +242,5 @@ func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
 	expr := ctx.GetText()
 	exprType := className.GetText()
 	log.Println("Adding", expr, "as an expresion of type", exprType)
-	l.AddTypeByExpr(expr, TypeIdentifier(exprType))
+	l.CurrentScope.AddExpressionType(expr, TypeIdentifier(exprType))
 }

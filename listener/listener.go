@@ -3,50 +3,16 @@ package listener
 import (
 	"fmt"
 
-	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
-
-type DefinitionInfo struct {
-	Name string
-	Type string
-}
-
-var SCOPE_TYPES = struct {
-	GLOBAL   string
-	CLASS    string
-	FUNCTION string
-	BLOCK    string
-}{
-	GLOBAL:   "GLOBAL",
-	CLASS:    "CLASS",
-	FUNCTION: "FUNCTION",
-	BLOCK:    "BLOCK",
-}
-
-type Scope struct {
-	// Obtained from SCOPE_TYPES
-	Type        string
-	Name        string
-	Definitions map[string]DefinitionInfo
-}
-
-func NewScope(name string, _type string) Scope {
-	return Scope{
-		Type:        _type,
-		Name:        name,
-		Definitions: map[string]DefinitionInfo{},
-	}
-}
 
 type TypeIdentifier string
 
 type Listener struct {
 	*p.BaseCompiscriptListener
-	KnownTypes        *map[TypeIdentifier]TypeInfo
-	TypesByExpression *map[string]TypeIdentifier
-	Errors            *[]string
-	Scopes            *lib.Stack[Scope]
+	KnownTypes   *map[TypeIdentifier]TypeInfo
+	Errors       *[]string
+	CurrentScope Scope
 }
 
 func NewListener() Listener {
@@ -57,14 +23,12 @@ func NewListener() Listener {
 	baseTypes[TypeIdentifier(BASE_TYPES.NULL)] = NewTypeInfo_Base()
 
 	errors := []string{}
-	scopes := lib.NewStack[Scope]()
-	typesByExpr := make(map[string]TypeIdentifier)
+	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
 
 	return Listener{
-		KnownTypes:        &baseTypes,
-		Errors:            &errors,
-		TypesByExpression: &typesByExpr,
-		Scopes:            &scopes,
+		KnownTypes:   &baseTypes,
+		Errors:       &errors,
+		CurrentScope: currentScope,
 	}
 }
 
@@ -90,10 +54,6 @@ func (l Listener) AddError(content string) {
 
 func (l Listener) AddWarning(content string) {
 	*l.Errors = append(*l.Errors, fmt.Sprintf("WARNING: %s", content))
-}
-
-func (l Listener) AddTypeByExpr(expr string, t TypeIdentifier) {
-	(*l.TypesByExpression)[expr] = t
 }
 
 func (l Listener) HasErrors() bool {
