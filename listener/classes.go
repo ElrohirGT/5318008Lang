@@ -228,6 +228,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
 				cti.UpsertField(identifier.GetText(), assignType)
 			})
+			fieldType = assignType
 		}
 
 		if fieldType != assignType {

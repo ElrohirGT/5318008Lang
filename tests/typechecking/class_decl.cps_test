@@ -7,8 +7,7 @@ class Animal {
 	}
 
 	function setAge(newAge: integer) {
-		this.age = newAge;
-		let a = (this.age = newAge);
+		this.age = 5;
 	}
 
 	function printAge(): string {
