@@ -27,6 +27,9 @@
           pkgs.gotools
           pkgs.go-tools
 
+          pkgs.delve
+          pkgs.gdlv
+
           pkgs.antlr
         ];
       };
