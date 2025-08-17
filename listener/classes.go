@@ -74,11 +74,12 @@ func NewTypeInfo_Class(classInfo ClassTypeInfo) TypeInfo {
 }
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
-	if l.CurrentScope.Type != SCOPE_TYPES.CLASS {
+	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.CLASS {
 		panic("Trying to exit a class declaration but the scope is not of type class!")
 	}
 
-	l.CurrentScope = *l.CurrentScope.Father
+	l.ScopeManager.CurrentScope = *l.ScopeManager.CurrentScope.Father
+	fmt.Println("Escaping class declaration:", ctx.AllIdentifier()[0].GetText())
 }
 
 func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
@@ -87,7 +88,7 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	log.Println("Declaring", className)
 	line := ctx.GetStart().GetLine()
 
-	onGlobaScope := l.CurrentScope.Type == SCOPE_TYPES.GLOBAL
+	onGlobaScope := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.GLOBAL
 	if !onGlobaScope {
 		l.AddError(fmt.Sprintf(
 			"(line: %d) Can't define class `%s` inside scope! Classes can only be defined on global scope!",
@@ -97,8 +98,9 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 
 	classScope := NewScope(className.GetText(), SCOPE_TYPES.CLASS)
-	l.CurrentScope.AddChildScope(&classScope)
-	l.CurrentScope = classScope
+	l.ScopeManager.CurrentScope.AddChildScope(&classScope)
+	l.ScopeManager.CurrentScope = classScope
+	log.Printf("Scope %#v", l.ScopeManager)
 
 	if _, found := l.GetTypeInfo(TypeIdentifier(className.GetText())); found {
 		l.AddError(fmt.Sprintf(
@@ -147,10 +149,10 @@ func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
 	isVarDecl := ctx.VariableDeclaration() != nil
 	isConstantDecl := ctx.ConstantDeclaration() != nil
 
-	if l.CurrentScope.Type != SCOPE_TYPES.CLASS {
-		panic("Trying declare a class member but not inside a class!")
+	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.CLASS {
+		log.Panicf("Trying to declare a class member but not inside a class! %#v", l.ScopeManager)
 	}
-	classType := TypeIdentifier(l.CurrentScope.Name)
+	classType := TypeIdentifier(l.ScopeManager.CurrentScope.Name)
 
 	if isVarDecl {
 		varDeclCtx := ctx.VariableDeclaration()
@@ -166,7 +168,7 @@ func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
 			log.Println("Field", name.GetText(), "does NOT have a type! We need to infer it...")
 			if hasInitialExpr {
 				declarationText := declarationExpr.Expression().GetText()
-				inferedType, found := l.CurrentScope.GetExpressionType(declarationText)
+				inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
 				if !found {
 					l.AddError(fmt.Sprintf(
 						"(line: %d) Couldn't infer the type of variable `%s`, initialized with: `%s`",
@@ -198,9 +200,9 @@ func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
 
 			if hasInitialExpr {
 				exprText := declarationExpr.Expression().GetText()
-				log.Println("Known expressions", l.CurrentScope.typesByExpression)
+				log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
 
-				initialExprType, exists := l.CurrentScope.GetExpressionType(exprText)
+				initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
 				if !exists {
 					l.AddError(fmt.Sprintf(
 						"(line: %d) `%s` doesn't have a type!",
@@ -220,12 +222,22 @@ func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
 				}
 			}
 
-			l.CurrentScope.AddExpressionType(name.GetText(), declarationType)
+			l.ScopeManager.CurrentScope.AddExpressionType(name.GetText(), declarationType)
 			l.ModifyClassTypeInfo(classType, func(cti *ClassTypeInfo) {
 				cti.AddField(name.GetText(), declarationType)
 			})
 		}
 	} else if isFunctionDecl {
+		funCtx := ctx.FunctionDeclaration()
+		funName := funCtx.Identifier()
+		params := funCtx.Parameters()
+		if params == nil {
+			log.Println("No parameters supplied to function:", funName.GetText())
+		} else {
+			for _, param := range params.AllParameter() {
+				log.Println(param.GetText())
+			}
+		}
 
 	} else if isConstantDecl {
 
@@ -242,5 +254,5 @@ func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
 	expr := ctx.GetText()
 	exprType := className.GetText()
 	log.Println("Adding", expr, "as an expresion of type", exprType)
-	l.CurrentScope.AddExpressionType(expr, TypeIdentifier(exprType))
+	l.ScopeManager.CurrentScope.AddExpressionType(expr, TypeIdentifier(exprType))
 }

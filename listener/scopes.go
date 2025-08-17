@@ -1,5 +1,7 @@
 package listener
 
+import "github.com/ElrohirGT/5318008Lang/lib"
+
 var SCOPE_TYPES = struct {
 	GLOBAL   string
 	CLASS    string
@@ -24,6 +26,21 @@ type Scope struct {
 	Name              string
 	definitions       map[string]FunctionInfo
 	typesByExpression map[string]TypeIdentifier
+	constants         lib.Set[string]
+}
+
+type ScopeManager struct {
+	// Current scope at time of writing
+	CurrentScope Scope
+	// Quick reference to the global scope
+	GlobaScope *Scope
+}
+
+func NewScopeManager(current Scope, globalScope *Scope) ScopeManager {
+	return ScopeManager{
+		CurrentScope: current,
+		GlobaScope:   globalScope,
+	}
 }
 
 func NewScope(name string, _type string) Scope {
@@ -32,6 +49,7 @@ func NewScope(name string, _type string) Scope {
 		Name:              name,
 		definitions:       map[string]FunctionInfo{},
 		typesByExpression: map[string]TypeIdentifier{},
+		constants:         lib.NewSet[string](),
 	}
 }
 
@@ -51,4 +69,9 @@ func (s *Scope) GetExpressionType(expr string) (TypeIdentifier, bool) {
 	}
 
 	return t, found
+}
+
+// Returns true if the constant is a new constant, otherwise it returns false
+func (s *Scope) AddConstant(exprName string) bool {
+	return s.constants.Add(exprName)
 }

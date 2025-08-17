@@ -12,7 +12,7 @@ type Listener struct {
 	*p.BaseCompiscriptListener
 	KnownTypes   *map[TypeIdentifier]TypeInfo
 	Errors       *[]string
-	CurrentScope Scope
+	ScopeManager *ScopeManager
 }
 
 func NewListener() Listener {
@@ -24,11 +24,12 @@ func NewListener() Listener {
 
 	errors := []string{}
 	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
+	scopeManager := NewScopeManager(currentScope, &currentScope)
 
 	return Listener{
 		KnownTypes:   &baseTypes,
 		Errors:       &errors,
-		CurrentScope: currentScope,
+		ScopeManager: &scopeManager,
 	}
 }
 
