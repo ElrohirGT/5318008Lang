@@ -1,6 +1,8 @@
 package listener
 
-import "github.com/ElrohirGT/5318008Lang/lib"
+import (
+	"github.com/ElrohirGT/5318008Lang/lib"
+)
 
 var SCOPE_TYPES = struct {
 	GLOBAL   string
@@ -31,20 +33,28 @@ type Scope struct {
 
 type ScopeManager struct {
 	// Current scope at time of writing
-	CurrentScope Scope
+	CurrentScope *Scope
 	// Quick reference to the global scope
 	GlobaScope *Scope
 }
 
-func NewScopeManager(current Scope, globalScope *Scope) ScopeManager {
+func NewScopeManager(current *Scope, globalScope *Scope) ScopeManager {
 	return ScopeManager{
 		CurrentScope: current,
 		GlobaScope:   globalScope,
 	}
 }
 
-func NewScope(name string, _type string) Scope {
-	return Scope{
+func (sc *ScopeManager) AddToCurrent(child *Scope) {
+	sc.CurrentScope.AddChildScope(child)
+}
+
+func (sc *ScopeManager) ReplaceCurrent(newScope *Scope) {
+	sc.CurrentScope = newScope
+}
+
+func NewScope(name string, _type string) *Scope {
+	return &Scope{
 		Type:              _type,
 		Name:              name,
 		definitions:       map[string]FunctionInfo{},

@@ -24,7 +24,7 @@ func NewListener() Listener {
 
 	errors := []string{}
 	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
-	scopeManager := NewScopeManager(currentScope, &currentScope)
+	scopeManager := NewScopeManager(currentScope, currentScope)
 
 	return Listener{
 		KnownTypes:   &baseTypes,

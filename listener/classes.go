@@ -78,8 +78,8 @@ func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 		panic("Trying to exit a class declaration but the scope is not of type class!")
 	}
 
-	l.ScopeManager.CurrentScope = *l.ScopeManager.CurrentScope.Father
-	fmt.Println("Escaping class declaration:", ctx.AllIdentifier()[0].GetText())
+	log.Printf("Escaping class declaration: %s", ctx.AllIdentifier()[0].GetText())
+	l.ScopeManager.CurrentScope = l.ScopeManager.CurrentScope.Father
 }
 
 func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
@@ -98,9 +98,8 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 
 	classScope := NewScope(className.GetText(), SCOPE_TYPES.CLASS)
-	l.ScopeManager.CurrentScope.AddChildScope(&classScope)
-	l.ScopeManager.CurrentScope = classScope
-	log.Printf("Scope %#v", l.ScopeManager)
+	l.ScopeManager.AddToCurrent(classScope)
+	l.ScopeManager.ReplaceCurrent(classScope)
 
 	if _, found := l.GetTypeInfo(TypeIdentifier(className.GetText())); found {
 		l.AddError(fmt.Sprintf(
@@ -222,7 +221,7 @@ func (l Listener) ExitClassMember(ctx *p.ClassMemberContext) {
 				}
 			}
 
-			l.ScopeManager.CurrentScope.AddExpressionType(name.GetText(), declarationType)
+			l.ScopeManager.CurrentScope.AddExpressionType("this."+name.GetText(), declarationType)
 			l.ModifyClassTypeInfo(classType, func(cti *ClassTypeInfo) {
 				cti.AddField(name.GetText(), declarationType)
 			})
