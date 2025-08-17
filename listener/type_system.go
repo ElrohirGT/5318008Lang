@@ -58,7 +58,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		}
 	}
 
-	for _, expr := range exprs[1:] {
+	for i, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 		if !available {
 			l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, exprType))
@@ -70,12 +70,13 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		}
 
 		if exprType != referenceType {
+			stream := ctx.GetStart().GetInputStream()
 			l.AddError(fmt.Sprintf(
 				"(line: %d) Can't add:\n * leftSide: `%s` of type `%s`\n * rightSide: `%s` of type `%s`",
 				line,
-				firstExpr.GetText(),
+				stream.GetText(exprs[0].GetStart().GetStart(), exprs[i].GetStart().GetStop()),
 				referenceType,
-				expr.GetText(),
+				ctx.MultiplicativeExpr(i+1).GetText(),
 				exprType,
 			))
 		}
@@ -83,7 +84,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
 	for _, expr := range defineLater {
-		log.Printf("Infering `%s` as type of `%s`\n", expr.GetText(), referenceType)
+		log.Printf("Inferring `%s` as type of `%s`\n", expr.GetText(), referenceType)
 		// FIXME: There should be a better way to manage `this.`
 		exprStartsWithThis := strings.HasPrefix(expr.GetText(), "this.")
 		if isInsideClassDeclaration && exprStartsWithThis {

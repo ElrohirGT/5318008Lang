@@ -16,3 +16,7 @@ class Animal {
 
 }
 ---
+=== ERRORS ===
+* ERROR: (line: 14) Can't add:
+ * leftSide: `this.name + " is "` of type `string`
+ * rightSide: `this.age` of type `integer`
