@@ -1,8 +1,6 @@
 package listener
 
 import (
-	"fmt"
-
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
@@ -51,11 +49,11 @@ func (l Listener) ModifyClassTypeInfo(identifier TypeIdentifier, exe func(*Class
 }
 
 func (l Listener) AddError(content string) {
-	*l.Errors = append(*l.Errors, fmt.Sprintf("ERROR: %s", content))
+	*l.Errors = append(*l.Errors, "Error: "+content)
 }
 
 func (l Listener) AddWarning(content string) {
-	*l.Errors = append(*l.Errors, fmt.Sprintf("WARNING: %s", content))
+	*l.Errors = append(*l.Errors, "Warning: "+content)
 }
 
 func (l Listener) HasErrors() bool {

@@ -29,6 +29,7 @@
 
           pkgs.delve
           pkgs.gdlv
+          pkgs.golangci-lint
 
           pkgs.antlr
         ];

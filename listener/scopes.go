@@ -97,7 +97,7 @@ func (s *Scope) ContainsExpression(expr string) bool {
 	return found
 }
 
-// Returns true if the constant is a new constant, otherwise it returns false
+// Returns true if the constant is a new constant, otherwise it returns false.
 func (s *Scope) AddConstant(exprName string) bool {
 	return s.constants.Add(exprName)
 }

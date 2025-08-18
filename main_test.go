@@ -18,7 +18,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 
 func Test_SnapshotTesting(t *testing.T) {
 	filePaths := []string{}
-	filepath.WalkDir("./tests/", func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir("./tests/", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -32,6 +32,10 @@ func Test_SnapshotTesting(t *testing.T) {
 		filePaths = append(filePaths, path)
 		return nil
 	})
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	for _, path := range filePaths {
 		fileBytes, err := os.ReadFile(path)

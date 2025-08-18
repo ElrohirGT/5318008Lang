@@ -6,14 +6,14 @@ func NewStack[T any]() Stack[T] {
 	return []T{}
 }
 
-// Adds a value to the top of the stack
+// Adds a value to the top of the stack.
 func (stack *Stack[T]) Push(value T) {
 	*stack = append(*stack, value)
 }
 
-// Checks if the given stack is empty
+// Checks if the given stack is empty.
 func (stack *Stack[T]) IsEmpty() bool {
-	return len(*stack) <= 0
+	return len(*stack) == 0
 }
 
 // Returns the value at the top of the stack (if there is one).
