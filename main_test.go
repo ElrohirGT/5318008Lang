@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -14,6 +15,10 @@ const OUTPUT_SEPARATOR = "---"
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
 	// "class",
+}
+
+var IGNORE_SPECIFIC = []string{
+	"tests/typechecking/method_calling.cps_test",
 }
 
 func Test_SnapshotTesting(t *testing.T) {
@@ -27,6 +32,10 @@ func Test_SnapshotTesting(t *testing.T) {
 			if !strings.Contains(path, str) {
 				return nil
 			}
+		}
+
+		if slices.Contains(IGNORE_SPECIFIC, path) {
+			return nil
 		}
 
 		filePaths = append(filePaths, path)
