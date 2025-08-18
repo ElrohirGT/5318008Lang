@@ -2,9 +2,7 @@ version: "2"
 linters:
   # Disable all linters.
   # Default: false
-  disable-all: true
-  # Enable specific linter
-  # https://golangci-lint.run/usage/linters/#enabled-by-default
+  default: none
   enable:
     - govet
     - errcheck
