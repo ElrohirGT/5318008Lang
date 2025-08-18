@@ -161,11 +161,14 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 				))
 			} else {
 				if isInsideClassDeclaration {
+					newExprName := "this." + name.GetText()
+					log.Printf("Inferring type of `%s` as `%s`\n", newExprName, inferedType)
 					l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
 						cti.UpsertField(name.GetText(), inferedType)
 					})
-					l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), inferedType)
+					l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
 				} else {
+					log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
 					l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
 				}
 			}

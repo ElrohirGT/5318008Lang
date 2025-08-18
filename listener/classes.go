@@ -159,13 +159,70 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 }
 
-func (l Listener) EnterNewExpr(ctx *p.NewExprContext) {
+func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
+	line := ctx.GetStart().GetLine()
 	className := ctx.Identifier()
-	log.Println("Instantiating class", className.GetText())
+	log.Println("Trying to instantiate class:", className.GetText())
 
-	// FIXME: We assume the constructor is called correctly!
+	exprArguments := []p.IExpressionContext{}
+	if ctx.Arguments() != nil {
+		exprArguments = ctx.Arguments().AllExpression()
+	}
+
+	typeInfo, found := l.GetTypeInfo(TypeIdentifier(className.GetText()))
+	if !found || !typeInfo.ClassType.HasValue() {
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Can't create a new instance of undefined class `%s`",
+			line,
+			className.GetText(),
+		))
+		return
+	}
+
+	methodInfo := typeInfo.ClassType.GetValue().Constructor
+	if len(methodInfo.ParameterList) != len(exprArguments) {
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Constructor of `%s` asks for `%d` arguments but `%d` given!",
+			line,
+			className,
+			len(methodInfo.ParameterList),
+			len(exprArguments),
+		))
+		return
+	}
+
+	errorWithParams := false
+	for i, consParam := range methodInfo.ParameterList {
+		exprParam := exprArguments[i]
+		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(exprParam.GetText())
+		if !found {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Type of `%s` not found!",
+				line,
+				exprParam.GetText(),
+			))
+			errorWithParams = true
+		}
+
+		if consParam.Type != exprType {
+			l.AddError(fmt.Sprintf(
+				"(line: %d) Constructor for `%s` requires `%s` to be of type `%s` but it's `%s` instead!",
+				line,
+				className,
+				exprParam.GetText(),
+				consParam.Type,
+				exprType,
+			))
+			errorWithParams = true
+		}
+	}
+
+	if errorWithParams {
+		return
+	}
+
 	expr := ctx.GetText()
 	exprType := className.GetText()
-	log.Println("Adding", expr, "as an expresion of type", exprType)
+	log.Println("Adding", expr, "as an expression of type", exprType)
 	l.ScopeManager.CurrentScope.UpsertExpressionType(expr, TypeIdentifier(exprType))
 }

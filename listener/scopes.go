@@ -46,7 +46,11 @@ func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
 		return sc.CurrentScope, true
 	}
 
-	return sc.CurrentScope.Father.SearchClassScope()
+	if sc.CurrentScope.Father != nil {
+		return sc.CurrentScope.Father.SearchClassScope()
+	}
+
+	return nil, false
 }
 
 type Scope struct {
