@@ -20,9 +20,9 @@ class Animal {
 let animalVar = new Animal();
 ---
 === ERRORS ===
-* ERROR: (line: 6) Can't create a new instance of `Animal` while defining the same class!
-* ERROR: (line: 6) `newAnimal()` doesn't have a type!
-* ERROR: (line: 6) Couldn't infer the type of variable `animalVar`, initialized with: `newAnimal()`
-* ERROR: (line: 15) Can't add:
+* Error: (line: 6) Can't create a new instance of `Animal` while defining the same class!
+* Error: (line: 6) `newAnimal()` doesn't have a type!
+* Error: (line: 6) Couldn't infer the type of variable `animalVar`, initialized with: `newAnimal()`
+* Error: (line: 15) Can't add:
  * leftSide: `this.name + " is "` of type `string`
  * rightSide: `this.age` of type `integer`
