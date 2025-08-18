@@ -1,0 +1,32 @@
+class Cell {
+	let row: string = "";
+	let column: string = "";
+
+	function constructor(row: string, column: string) {
+		this.row = row;
+		this.column = column;
+	}
+
+	function setRow(row: string) {
+		this.row = row;
+	}
+
+	function setColumn(column: integer) {
+		this.column = column;
+	}
+}
+
+let cell;
+cell = new Cell("5", "10");
+cell.setRow("20");
+cell.setRow(20);
+
+let cell2 = new Cell(1, 10);
+cell2.setRow("10");
+cell2.setColumn(10);
+---
+=== ERRORS ===
+* Error: (line: 15) Trying to assign `column` to field `column` but types don't match! (`string` != `integer`)
+* Error: (line: 24) Constructor for `Cell` requires `1` to be of type `string` but it's `integer` instead!
+* Error: (line: 24) Constructor for `Cell` requires `10` to be of type `string` but it's `integer` instead!
+* Error: (line: 24) Couldn't infer the type of variable `cell2`, initialized with: `newCell(1,10)`

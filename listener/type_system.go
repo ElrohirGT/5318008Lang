@@ -43,7 +43,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	firstExpr := exprs[0]
 	referenceType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 	if !available {
-		l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, firstExpr.GetText()))
+		l.AddError(fmt.Sprintf("(line: %d) Exit Add (firstExpr): `%s` doesn't have a type!", line, firstExpr.GetText()))
 		return
 	}
 
@@ -55,7 +55,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		for _, expr := range exprs[1:] {
 			exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 			if !available {
-				l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, exprType))
+				l.AddError(fmt.Sprintf("(line: %d) Exit Add (expr): `%s` doesn't have a type!", line, exprType))
 			}
 
 			if exprType != BASE_TYPES.UNKNOWN {
@@ -73,7 +73,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	for i, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 		if !available {
-			l.AddError(fmt.Sprintf("(line: %d) `%s` doesn't have a type!", line, exprType))
+			l.AddError(fmt.Sprintf("(line: %d) Exit Add (expr - second): `%s` doesn't have a type!", line, exprType))
 		}
 
 		if exprType == BASE_TYPES.UNKNOWN {
@@ -200,7 +200,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
 			if !exists {
 				l.AddError(fmt.Sprintf(
-					"(line: %d) `%s` doesn't have a type!",
+					"(line: %d) Variable Declaration: `%s` doesn't have a type!",
 					line,
 					exprText,
 				))
@@ -454,4 +454,9 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	l.ScopeManager.ReplaceCurrent(l.ScopeManager.CurrentScope.Father)
+}
+
+func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
+	// FIXME: Methods and functions are called here!
+	// For example `cell.setRow(15)` will be evaluated here!
 }
