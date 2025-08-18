@@ -21,3 +21,6 @@ linters:
     - sloglint
     - usestdlibvars
     - usetesting
+formatters:
+  enable:
+    - gofmt
