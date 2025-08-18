@@ -169,6 +169,17 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 		exprArguments = ctx.Arguments().AllExpression()
 	}
 
+	classScope, found := l.ScopeManager.SearchClassScope()
+
+	if found && classScope.Name == className.GetText() {
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Can't create a new instance of `%s` while defining the same class!",
+			line,
+			className,
+		))
+		return
+	}
+
 	typeInfo, found := l.GetTypeInfo(TypeIdentifier(className.GetText()))
 	if !found || !typeInfo.ClassType.HasValue() {
 		l.AddError(fmt.Sprintf(
