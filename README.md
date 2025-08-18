@@ -7,9 +7,9 @@ Don't understand the reference?
 
 ## How to develop this project
 
-Honestly? You only need a Go compiler. But if you need anymore, we recommend
-[Nix](https://nixos.org/download/) and [Flakes](https://nixos.wiki/wiki/flakes)!
-Then you can simply run:
+Honestly? You only need a Go compiler. But if you need anything else, we
+recommend [Nix](https://nixos.org/download/) and
+[Flakes](https://nixos.wiki/wiki/flakes)! Then you can simply run:
 
 ```bash
 nix develop # Enters a devshell with a go compiler and other goodies (like a debugger)
