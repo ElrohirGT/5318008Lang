@@ -448,6 +448,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 }
 
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
+	// FIXME: Check if the last return found inside this function matches the function type?
 	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.FUNCTION {
 		log.Panicf("Trying to exit function scope but scope is not of type function! %#v", l.ScopeManager.CurrentScope)
 	}
