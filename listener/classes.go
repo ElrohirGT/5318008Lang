@@ -3,10 +3,13 @@ package listener
 import (
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
+
+const CONSTRUCTOR_NAME = "constructor"
 
 type ArrayTypeInfo struct {
 	Type   TypeIdentifier
@@ -33,6 +36,10 @@ type ClassTypeInfo struct {
 
 func (c *ClassTypeInfo) UpsertField(name string, _type TypeIdentifier) {
 	c.Fields[name] = _type
+}
+
+func (c *ClassTypeInfo) UpsertMethod(name string, info MethodInfo) {
+	c.Methods[name] = info
 }
 
 func NewClassTypeInfo(className string) ClassTypeInfo {
@@ -102,6 +109,15 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	l.ScopeManager.ReplaceCurrent(classScope)
 	// Add this as a valid expression with type of this class
 	classScope.UpsertExpressionType("this", TypeIdentifier(className.GetText()))
+
+	if slices.Contains(BASE_TYPE_ARRAY, TypeIdentifier(className.GetText())) {
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Can't define class `%s` because it collides with a builtin type!",
+			line,
+			className,
+		))
+		return
+	}
 
 	if _, found := l.GetTypeInfo(TypeIdentifier(className.GetText())); found {
 		l.AddError(fmt.Sprintf(

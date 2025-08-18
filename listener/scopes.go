@@ -18,21 +18,6 @@ var SCOPE_TYPES = struct {
 	BLOCK:    "BLOCK",
 }
 
-type FunctionInfo struct {
-	MethodInfo
-}
-
-type Scope struct {
-	Children []*Scope
-	Father   *Scope
-
-	Type              ScopeType
-	Name              string
-	definitions       map[string]FunctionInfo
-	typesByExpression map[string]TypeIdentifier
-	constants         lib.Set[string]
-}
-
 type ScopeManager struct {
 	// Current scope at time of writing
 	CurrentScope *Scope
@@ -64,11 +49,22 @@ func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
 	return sc.CurrentScope.Father.SearchClassScope()
 }
 
+type Scope struct {
+	Children []*Scope
+	Father   *Scope
+
+	Type              ScopeType
+	Name              string
+	definitions       map[string]MethodInfo
+	typesByExpression map[string]TypeIdentifier
+	constants         lib.Set[string]
+}
+
 func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{
 		Type:              _type,
 		Name:              name,
-		definitions:       map[string]FunctionInfo{},
+		definitions:       map[string]MethodInfo{},
 		typesByExpression: map[string]TypeIdentifier{},
 		constants:         lib.NewSet[string](),
 	}
@@ -112,4 +108,8 @@ func (s *Scope) SearchClassScope() (*Scope, bool) {
 	}
 
 	return nil, false
+}
+
+func (s *Scope) UpsertFunctionDef(funcName string, info MethodInfo) {
+	s.definitions[funcName] = info
 }

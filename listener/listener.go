@@ -21,6 +21,7 @@ func NewListener() Listener {
 	baseTypes[TypeIdentifier(BASE_TYPES.BOOLEAN)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.STRING)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.NULL)] = NewTypeInfo_Base()
+	baseTypes[TypeIdentifier(BASE_TYPES.UNKNOWN)] = NewTypeInfo_Base()
 
 	errors := []string{}
 	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)

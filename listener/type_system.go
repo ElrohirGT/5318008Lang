@@ -17,12 +17,24 @@ var BASE_TYPES = struct {
 	// Type used when the type system can't define the type yet
 	// After evaluating the whole program NOTHING can have an unknown type
 	UNKNOWN TypeIdentifier
+	// Special type used when we know for sure the type of something is invalid but still need to assign a type!
+	INVALID TypeIdentifier
 }{
 	INTEGER: "integer",
 	BOOLEAN: "boolean",
 	STRING:  "string",
 	NULL:    "null",
 	UNKNOWN: "unknown",
+	INVALID: "**invalid**",
+}
+
+var BASE_TYPE_ARRAY = []TypeIdentifier{
+	BASE_TYPES.INTEGER,
+	BASE_TYPES.BOOLEAN,
+	BASE_TYPES.STRING,
+	BASE_TYPES.NULL,
+	BASE_TYPES.UNKNOWN,
+	BASE_TYPES.INVALID,
 }
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
@@ -357,4 +369,85 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			return
 		}
 	}
+}
+
+func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
+	// FIXME: ONLY CLASS METHODS IMPLEMENTED! PLEASE IMPLEMENT GENERAL METHODS!
+	// For example, we need to infer the return type and compare it to the defined return type (if there's any)
+	// remember that unknown exists for type inference!
+	line := ctx.GetStart().GetLine()
+	funcName := ctx.Identifier()
+
+	funcParams := []ParameterInfo{}
+	if ctx.Parameters() != nil {
+		for _, paramCtx := range ctx.Parameters().AllParameter() {
+			name := paramCtx.Identifier()
+			paramType := BASE_TYPES.UNKNOWN
+			if paramCtx.Type_() != nil {
+				paramType = TypeIdentifier(paramCtx.Type_().GetText())
+			}
+
+			if !l.TypeExists(paramType) {
+				l.AddError(fmt.Sprintf(
+					"(line: %d) Parameter type `%s` doesn't exist!",
+					line,
+					paramType,
+				))
+			} else {
+				funcParams = append(funcParams, ParameterInfo{
+					Name: name.GetText(),
+					Type: paramType,
+				})
+			}
+		}
+	}
+
+	returnType := BASE_TYPES.UNKNOWN
+	if ctx.Type_() != nil {
+		returnType = TypeIdentifier(ctx.Type_().GetText())
+	}
+
+	if !l.TypeExists(returnType) {
+		l.AddError(fmt.Sprintf(
+			"(line: %d) Return type `%s` doesn't exist!",
+			line,
+			returnType,
+		))
+		returnType = BASE_TYPES.INVALID
+	}
+
+	info := MethodInfo{
+		ParameterList: funcParams,
+		ReturnType:    returnType,
+	}
+	funcScope := NewScope(funcName.GetText(), SCOPE_TYPES.FUNCTION)
+	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
+	if isInsideClassDeclaration {
+		className := l.ScopeManager.CurrentScope.Name
+		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
+
+			if funcName.GetText() == CONSTRUCTOR_NAME {
+				cti.Constructor = info
+			} else {
+				cti.UpsertMethod(funcName.GetText(), info)
+			}
+		})
+		funcScope = NewScope(className+"_"+funcName.GetText(), SCOPE_TYPES.FUNCTION)
+	} else {
+		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
+	}
+
+	for _, param := range info.ParameterList {
+		funcScope.UpsertExpressionType(param.Name, param.Type)
+	}
+	l.ScopeManager.CurrentScope.AddChildScope(funcScope)
+	l.ScopeManager.ReplaceCurrent(funcScope)
+}
+
+func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
+	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.FUNCTION {
+		log.Panicf("Trying to exit function scope but scope is not of type function! %#v", l.ScopeManager.CurrentScope)
+	}
+
+	l.ScopeManager.ReplaceCurrent(l.ScopeManager.CurrentScope.Father)
 }
