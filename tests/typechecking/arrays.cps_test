@@ -1,0 +1,5 @@
+func ArrReturn() {
+	let a: int[] = [5,4,3];
+	return a;
+}
+---
