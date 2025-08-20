@@ -1,6 +1,7 @@
 # 5318008Lang
 
 [![Go](https://github.com/ElrohirGT/5318008Lang/actions/workflows/go.yml/badge.svg)](https://github.com/ElrohirGT/5318008Lang/actions/workflows/go.yml)
+![GoReport](https://goreportcard.com/badge/github.com/ElrohirGT/5318008Lang)
 
 Don't understand the reference?
 [Watch this](https://www.youtube.com/watch?v=r4w2XUqxcBk).
