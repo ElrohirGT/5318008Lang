@@ -459,4 +459,16 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 	// FIXME: Methods and functions are called here!
 	// For example `cell.setRow(15)` will be evaluated here!
+	log.Println("LEFT HAND SIDE:", ctx.GetText())
+	log.Println("CHILD", ctx.PrimaryAtom().GetChild(0))
+	suffixes := ctx.AllSuffixOp()
+
+	if len(suffixes) == 0 {
+		// simple expression, no further evaluating is required
+		return
+	}
+
+	// for _, suffixCtx := range suffixes {
+	// 	// FIXME: Implement me!
+	// }
 }
