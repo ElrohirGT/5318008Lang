@@ -18,13 +18,13 @@ var RUN_ONLY_THAT_MATCH = []string{
 }
 
 var IGNORE_SPECIFIC = []string{
-	"tests/typechecking/method_calling.cps_test",
-	"tests/typechecking/arrays.cps_test",
+	"tests/semantic_analysis/typechecking/method_calling.cps_test",
+	"tests/semantic_analysis/typechecking/arrays.cps_test",
 }
 
 func Test_SnapshotTesting(t *testing.T) {
 	filePaths := []string{}
-	err := filepath.WalkDir("./tests/", func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir("./tests/semantic_analysis", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
