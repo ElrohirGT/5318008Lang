@@ -9,33 +9,7 @@ import (
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
-var BASE_TYPES = struct {
-	INTEGER TypeIdentifier
-	BOOLEAN TypeIdentifier
-	STRING  TypeIdentifier
-	NULL    TypeIdentifier
-	// Type used when the type system can't define the type yet
-	// After evaluating the whole program NOTHING can have an unknown type
-	UNKNOWN TypeIdentifier
-	// Special type used when we know for sure the type of something is invalid but still need to assign a type!
-	INVALID TypeIdentifier
-}{
-	INTEGER: "integer",
-	BOOLEAN: "boolean",
-	STRING:  "string",
-	NULL:    "null",
-	UNKNOWN: "unknown",
-	INVALID: "**invalid**",
-}
-
-var BASE_TYPE_ARRAY = []TypeIdentifier{
-	BASE_TYPES.INTEGER,
-	BASE_TYPES.BOOLEAN,
-	BASE_TYPES.STRING,
-	BASE_TYPES.NULL,
-	BASE_TYPES.UNKNOWN,
-	BASE_TYPES.INVALID,
-}
+// METHODS FOR HANDLING TYPE CHECKING
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	line := ctx.GetStart().GetLine()

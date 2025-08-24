@@ -6,6 +6,7 @@ import (
 
 type ScopeType string
 
+// Available types of scopes the compiler can handle.
 var SCOPE_TYPES = struct {
 	GLOBAL   ScopeType
 	CLASS    ScopeType
@@ -18,6 +19,33 @@ var SCOPE_TYPES = struct {
 	BLOCK:    "BLOCK",
 }
 
+// Representation of a scope: an isolated environment that stores
+//   - local variables
+//   - method definitions
+//   - expresion types
+//
+// Scopes follow a tree structure, when looking for the existence of a definition, we start
+// from the current scope all the way up until the global scope :
+//
+//	   GLOBAL
+//	 ┌────────┐
+//	 ▼        ▼
+//	FUN1    CLASS1
+//	          ┌──────┐
+//	          ▼      ▼
+//	        FUN3   FUN3
+type Scope struct {
+	Children []*Scope
+	Father   *Scope
+
+	Type              ScopeType
+	Name              string
+	definitions       map[string]MethodInfo
+	typesByExpression map[string]TypeIdentifier
+	constants         lib.Set[string]
+}
+
+// Manges a scope tree. Providing helpful function to handle and move arount the tree.
 type ScopeManager struct {
 	// Current scope at time of writing
 	CurrentScope *Scope
@@ -25,6 +53,10 @@ type ScopeManager struct {
 	// In case anyone needs it
 	GlobaScope *Scope
 }
+
+// =======================
+// SCOPE MANAGER
+// =======================
 
 func NewScopeManager(current *Scope, globalScope *Scope) ScopeManager {
 	return ScopeManager{
@@ -53,16 +85,9 @@ func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
 	return nil, false
 }
 
-type Scope struct {
-	Children []*Scope
-	Father   *Scope
-
-	Type              ScopeType
-	Name              string
-	definitions       map[string]MethodInfo
-	typesByExpression map[string]TypeIdentifier
-	constants         lib.Set[string]
-}
+// =======================
+// SCOPES
+// =======================
 
 func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{

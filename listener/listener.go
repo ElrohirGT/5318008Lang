@@ -4,17 +4,17 @@ import (
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
-type TypeIdentifier string
-
+// Typing system scanner, responsable of the semantic during compiscript code.
+// Handles the notion of types, definitions and scope management.
 type Listener struct {
 	*p.BaseCompiscriptListener
-	KnownTypes   *map[TypeIdentifier]TypeInfo
-	Errors       *[]string
+	KnownTypes   *TypeTable
 	ScopeManager *ScopeManager
+	Errors       *[]string
 }
 
 func NewListener() Listener {
-	baseTypes := make(map[TypeIdentifier]TypeInfo)
+	baseTypes := make(TypeTable)
 	baseTypes[TypeIdentifier(BASE_TYPES.INTEGER)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.BOOLEAN)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.STRING)] = NewTypeInfo_Base()
@@ -48,6 +48,14 @@ func (l Listener) ModifyClassTypeInfo(identifier TypeIdentifier, exe func(*Class
 	(*l.KnownTypes)[identifier] = NewTypeInfo_Class(classInfo)
 }
 
+func (l Listener) TypeExists(identifier TypeIdentifier) bool {
+	_, found := l.GetTypeInfo(identifier)
+	return found
+}
+
+// ERROR LOGGING
+// ====================
+
 func (l Listener) AddError(content string) {
 	*l.Errors = append(*l.Errors, "Error: "+content)
 }
@@ -58,9 +66,4 @@ func (l Listener) AddWarning(content string) {
 
 func (l Listener) HasErrors() bool {
 	return len(*l.Errors) > 0
-}
-
-func (l Listener) TypeExists(identifier TypeIdentifier) bool {
-	_, found := l.GetTypeInfo(identifier)
-	return found
 }

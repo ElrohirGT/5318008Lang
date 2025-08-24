@@ -5,80 +5,10 @@ import (
 	"log"
 	"slices"
 
-	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
-const CONSTRUCTOR_NAME = "constructor"
-
-type ArrayTypeInfo struct {
-	Type   TypeIdentifier
-	Length uint
-}
-
-type ParameterInfo struct {
-	Name string
-	Type TypeIdentifier
-}
-
-type MethodInfo struct {
-	ParameterList []ParameterInfo
-	ReturnType    TypeIdentifier
-}
-
-type ClassTypeInfo struct {
-	Name         TypeIdentifier
-	InheritsFrom TypeIdentifier
-	Fields       map[string]TypeIdentifier
-	Methods      map[string]MethodInfo
-	Constructor  MethodInfo
-}
-
-func (c *ClassTypeInfo) UpsertField(name string, _type TypeIdentifier) {
-	c.Fields[name] = _type
-}
-
-func (c *ClassTypeInfo) UpsertMethod(name string, info MethodInfo) {
-	c.Methods[name] = info
-}
-
-func NewClassTypeInfo(className string) ClassTypeInfo {
-	return ClassTypeInfo{
-		Name:    TypeIdentifier(className),
-		Fields:  make(map[string]TypeIdentifier),
-		Methods: make(map[string]MethodInfo),
-	}
-}
-
-type TypeInfo struct {
-	BaseType  bool
-	ArrayType lib.Optional[ArrayTypeInfo]
-	ClassType lib.Optional[ClassTypeInfo]
-}
-
-func NewTypeInfo_Base() TypeInfo {
-	return TypeInfo{
-		BaseType:  true,
-		ArrayType: lib.NewOpEmpty[ArrayTypeInfo](),
-		ClassType: lib.NewOpEmpty[ClassTypeInfo](),
-	}
-}
-
-func NewTypeInfo_Array(arrInfo ArrayTypeInfo) TypeInfo {
-	return TypeInfo{
-		BaseType:  false,
-		ArrayType: lib.NewOpValue(arrInfo),
-		ClassType: lib.NewOpEmpty[ClassTypeInfo](),
-	}
-}
-
-func NewTypeInfo_Class(classInfo ClassTypeInfo) TypeInfo {
-	return TypeInfo{
-		BaseType:  false,
-		ArrayType: lib.NewOpEmpty[ArrayTypeInfo](),
-		ClassType: lib.NewOpValue(classInfo),
-	}
-}
+// METHODS FOR CHECKING TYPE SYSTEM DURING CLASSES
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.CLASS {
