@@ -412,7 +412,7 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		log.Panicf("Trying to exit function scope but scope is not of type function! %#v", l.ScopeManager.CurrentScope)
 	}
 
-	l.ScopeManager.ReplaceCurrent(l.ScopeManager.CurrentScope.Father)
+	l.ScopeManager.ReplaceWithParent()
 }
 
 func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
@@ -430,4 +430,11 @@ func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 	// for _, suffixCtx := range suffixes {
 	// 	// FIXME: Implement me!
 	// }
+}
+
+func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
+	line := ctx.GetStart().GetLine()
+	if _, inFunctionScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION); !inFunctionScope {
+		l.AddError(line, "'return' statement out function scope.")
+	}
 }

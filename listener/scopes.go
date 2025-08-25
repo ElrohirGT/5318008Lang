@@ -1,6 +1,8 @@
 package listener
 
 import (
+	"log"
+
 	"github.com/ElrohirGT/5318008Lang/lib"
 )
 
@@ -72,7 +74,31 @@ func (sc *ScopeManager) AddToCurrent(child *Scope) {
 }
 
 func (sc *ScopeManager) ReplaceCurrent(newScope *Scope) {
+	log.Printf("Entering scope: %s - %s", newScope.Name, newScope.Type)
 	sc.CurrentScope = newScope
+}
+
+func (sc *ScopeManager) ReplaceWithParent() {
+	log.Print("Exit Scope moving returning to parent")
+	sc.CurrentScope = sc.CurrentScope.Father
+}
+
+func (sc *ScopeManager) SearchScopeByType(scopeType ScopeType) (*Scope, bool) {
+
+	scope := sc.CurrentScope
+
+	if scope.Type == scopeType {
+		return scope, true
+	}
+
+	for scope.Father != nil {
+		scope = scope.Father
+		if scope.Type == scopeType {
+			return scope, true
+		}
+	}
+
+	return nil, false
 }
 
 func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
