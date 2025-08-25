@@ -29,6 +29,7 @@
           pkgs.golangci-lint
 
           pkgs.antlr
+          pkgs.nodejs
         ];
       };
     });
