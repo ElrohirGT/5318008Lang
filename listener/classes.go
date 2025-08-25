@@ -64,7 +64,6 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 		if !found {
 			l.AddError(line, fmt.Sprintf(
 				"Can't inherit from a type that doesn't exists! `%s` wants to inherit from `%s`!",
-				line,
 				className.GetText(),
 				fatherClassName.GetText(),
 			))
@@ -132,7 +131,6 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 		if !found {
 			l.AddError(line, fmt.Sprintf(
 				"Type of `%s` not found!",
-				line,
 				exprParam.GetText(),
 			))
 			errorWithParams = true
