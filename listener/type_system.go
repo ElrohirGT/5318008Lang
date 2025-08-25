@@ -177,7 +177,6 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			if !exists {
 				l.AddError(line, fmt.Sprintf(
 					"Variable Declaration: `%s` doesn't have a type!",
-					line,
 					exprText,
 				))
 			}
@@ -215,7 +214,6 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		if !found {
 			l.AddError(line, fmt.Sprintf(
 				"Undeclared variable `%s`",
-				line,
 				firstExpr.GetText(),
 			))
 			return
