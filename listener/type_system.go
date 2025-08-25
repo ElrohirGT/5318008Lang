@@ -58,9 +58,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		if exprType != referenceType {
 			stream := ctx.GetStart().GetInputStream()
 			l.AddError(line,
-				fmt.Sprintf(
-					"Can't add:",
-				),
+				"Can't add:",
 				fmt.Sprintf("leftSide: `%s` of type `%s`",
 					stream.GetText(exprs[0].GetStart().GetStart(), exprs[i].GetStart().GetStop()),
 					referenceType),

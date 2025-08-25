@@ -64,7 +64,7 @@ func (l Listener) AddError(line int, content string, details ...string) {
 	b.WriteString(fmt.Sprintf("* Error: (line: %d) %s", line, content))
 
 	for _, v := range details {
-		b.WriteString(fmt.Sprintf("\n * %s", v))
+		b.WriteString("\n * " + v)
 	}
 
 	*l.Errors = append(*l.Errors, b.String())
