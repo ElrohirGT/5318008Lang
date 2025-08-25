@@ -38,9 +38,11 @@ type Scope struct {
 	Children []*Scope
 	Father   *Scope
 
-	Type              ScopeType
-	Name              string
-	definitions       map[string]MethodInfo
+	Type ScopeType
+	Name string
+	// functions defined within the scope
+	functions map[string]MethodInfo
+	// Stores the types of each expresion within the scope
 	typesByExpression map[string]TypeIdentifier
 	constants         lib.Set[string]
 }
@@ -93,7 +95,7 @@ func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{
 		Type:              _type,
 		Name:              name,
-		definitions:       map[string]MethodInfo{},
+		functions:         map[string]MethodInfo{},
 		typesByExpression: map[string]TypeIdentifier{},
 		constants:         lib.NewSet[string](),
 	}
@@ -140,5 +142,5 @@ func (s *Scope) SearchClassScope() (*Scope, bool) {
 }
 
 func (s *Scope) UpsertFunctionDef(funcName string, info MethodInfo) {
-	s.definitions[funcName] = info
+	s.functions[funcName] = info
 }
