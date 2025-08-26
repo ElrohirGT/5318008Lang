@@ -14,7 +14,7 @@ statement
   | classDeclaration
   | expressionStatement
   | printStatement
-  | block
+  | blockStatement
   | ifStatement
   | whileStatement
   | doWhileStatement
@@ -48,16 +48,19 @@ assignment
 expressionStatement: expression ';';
 printStatement: 'print' '(' expression ')' ';';
 
-ifStatement: 'if' '(' expression ')' block ('else' block)?;
-whileStatement: 'while' '(' expression ')' block;
-doWhileStatement: 'do' block 'while' '(' expression ')' ';';
+ifStatement: 'if' '(' conditionalExpr ')' block ('else' block)?;
+whileStatement: 'while' '(' conditionalExpr ')' block;
+doWhileStatement: 'do' block 'while' '(' conditionalExpr ')' ';';
 forStatement: 'for' '(' (variableDeclaration | assignment | ';') expression? ';' expression? ')' block;
 foreachStatement: 'foreach' '(' Identifier 'in' expression ')' block;
 breakStatement: 'break' ';';
 continueStatement: 'continue' ';';
 returnStatement: 'return' expression? ';';
+blockStatement: block;
 
-tryCatchStatement: 'try' block 'catch' '(' Identifier ')' block;
+tryCatchStatement: 'try' block catchStatement;
+catchStatement : 'catch' '(' Identifier ')' block;
+
 
 switchStatement: 'switch' '(' expression ')' '{' switchCase* defaultCase? '}';
 switchCase: 'case' expression ':' statement*;
@@ -118,7 +121,7 @@ unaryExpr
 primaryExpr
   : literalExpr
   | leftHandSide
-  | '(' expression ')'
+  | '(' conditionalExpr ')' // <-- SHOULD THIS BE THE CASE, allows weirds declarations.
   ;
 
 literalExpr

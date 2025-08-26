@@ -129,11 +129,23 @@ func (s *BaseCompiscriptListener) EnterReturnStatement(ctx *ReturnStatementConte
 // ExitReturnStatement is called when production returnStatement is exited.
 func (s *BaseCompiscriptListener) ExitReturnStatement(ctx *ReturnStatementContext) {}
 
+// EnterBlockStatement is called when production blockStatement is entered.
+func (s *BaseCompiscriptListener) EnterBlockStatement(ctx *BlockStatementContext) {}
+
+// ExitBlockStatement is called when production blockStatement is exited.
+func (s *BaseCompiscriptListener) ExitBlockStatement(ctx *BlockStatementContext) {}
+
 // EnterTryCatchStatement is called when production tryCatchStatement is entered.
 func (s *BaseCompiscriptListener) EnterTryCatchStatement(ctx *TryCatchStatementContext) {}
 
 // ExitTryCatchStatement is called when production tryCatchStatement is exited.
 func (s *BaseCompiscriptListener) ExitTryCatchStatement(ctx *TryCatchStatementContext) {}
+
+// EnterCatchStatement is called when production catchStatement is entered.
+func (s *BaseCompiscriptListener) EnterCatchStatement(ctx *CatchStatementContext) {}
+
+// ExitCatchStatement is called when production catchStatement is exited.
+func (s *BaseCompiscriptListener) ExitCatchStatement(ctx *CatchStatementContext) {}
 
 // EnterSwitchStatement is called when production switchStatement is entered.
 func (s *BaseCompiscriptListener) EnterSwitchStatement(ctx *SwitchStatementContext) {}
