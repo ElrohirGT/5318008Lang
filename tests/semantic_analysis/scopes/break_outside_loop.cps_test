@@ -1,0 +1,5 @@
+let a: integer = 2 + 2 + 7;
+break;
+---
+=== ERRORS ===
+* Error: (line: 2) 'break' statement out loop scope.

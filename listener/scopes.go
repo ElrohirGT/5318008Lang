@@ -13,11 +13,15 @@ var SCOPE_TYPES = struct {
 	GLOBAL   ScopeType
 	CLASS    ScopeType
 	FUNCTION ScopeType
+	LOOP     ScopeType
+	CATCH    ScopeType
 	BLOCK    ScopeType
 }{
 	GLOBAL:   "GLOBAL",
 	CLASS:    "CLASS",
 	FUNCTION: "FUNCTION",
+	LOOP:     "LOOP",
+	CATCH:    "CATCH",
 	BLOCK:    "BLOCK",
 }
 
