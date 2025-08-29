@@ -14,7 +14,7 @@ import (
 func generateErrorOutput(errors []string) error {
 	b := strings.Builder{}
 	for _, error := range errors {
-		b.WriteString("* ")
+		// b.WriteString("* ") <- Now added during analysis
 		b.WriteString(error)
 		b.WriteRune('\n')
 	}

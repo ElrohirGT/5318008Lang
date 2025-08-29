@@ -8,7 +8,7 @@ import (
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
-// METHODS FOR CHECKING TYPE SYSTEM DURING CLASSES
+// METHODS FOR HANDLING CLASSES TYPES
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.CLASS {
@@ -27,9 +27,8 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 
 	onGlobaScope := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.GLOBAL
 	if !onGlobaScope {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Can't define class `%s` inside scope! Classes can only be defined on global scope!",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Can't define class `%s` inside scope! Classes can only be defined on global scope!",
 			className.GetText(),
 		))
 	}
@@ -41,18 +40,16 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	classScope.UpsertExpressionType("this", TypeIdentifier(className.GetText()))
 
 	if slices.Contains(BASE_TYPE_ARRAY, TypeIdentifier(className.GetText())) {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Can't define class `%s` because it collides with a builtin type!",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Can't define class `%s` because it collides with a builtin type!",
 			className,
 		))
 		return
 	}
 
 	if _, found := l.GetTypeInfo(TypeIdentifier(className.GetText())); found {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Can't redefine existing class! `%s` already exists!",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Can't redefine existing class! `%s` already exists!",
 			className.GetText(),
 		))
 	} else {
@@ -65,17 +62,15 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 		log.Println("Class inherits from", fatherClassName)
 		info, found := l.GetTypeInfo(TypeIdentifier(fatherClassName.GetText()))
 		if !found {
-			l.AddError(fmt.Sprintf(
-				"(line: %d) Can't inherit from a type that doesn't exists! `%s` wants to inherit from `%s`!",
-				line,
+			l.AddError(line, fmt.Sprintf(
+				"Can't inherit from a type that doesn't exists! `%s` wants to inherit from `%s`!",
 				className.GetText(),
 				fatherClassName.GetText(),
 			))
 		} else {
 			if !info.ClassType.HasValue() {
-				l.AddError(fmt.Sprintf(
-					"(line: %d) Can't make a nonexistent class inherit from another! `%s` wants to inherit from `%s` but `%s` is not a class!",
-					line,
+				l.AddError(line, fmt.Sprintf(
+					"Can't make a nonexistent class inherit from another! `%s` wants to inherit from `%s` but `%s` is not a class!",
 					className.GetText(),
 					fatherClassName.GetText(),
 					className.GetText(),
@@ -102,9 +97,8 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 	classScope, found := l.ScopeManager.SearchClassScope()
 
 	if found && classScope.Name == className.GetText() {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Can't create a new instance of `%s` while defining the same class!",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Can't create a new instance of `%s` while defining the same class!",
 			className,
 		))
 		return
@@ -112,9 +106,8 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 
 	typeInfo, found := l.GetTypeInfo(TypeIdentifier(className.GetText()))
 	if !found || !typeInfo.ClassType.HasValue() {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Can't create a new instance of undefined class `%s`",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Can't create a new instance of undefined class `%s`",
 			className.GetText(),
 		))
 		return
@@ -122,9 +115,8 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 
 	methodInfo := typeInfo.ClassType.GetValue().Constructor
 	if len(methodInfo.ParameterList) != len(exprArguments) {
-		l.AddError(fmt.Sprintf(
-			"(line: %d) Constructor of `%s` asks for `%d` arguments but `%d` given!",
-			line,
+		l.AddError(line, fmt.Sprintf(
+			"Constructor of `%s` asks for `%d` arguments but `%d` given!",
 			className,
 			len(methodInfo.ParameterList),
 			len(exprArguments),
@@ -137,18 +129,16 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 		exprParam := exprArguments[i]
 		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(exprParam.GetText())
 		if !found {
-			l.AddError(fmt.Sprintf(
-				"(line: %d) Type of `%s` not found!",
-				line,
+			l.AddError(line, fmt.Sprintf(
+				"Type of `%s` not found!",
 				exprParam.GetText(),
 			))
 			errorWithParams = true
 		}
 
 		if consParam.Type != exprType {
-			l.AddError(fmt.Sprintf(
-				"(line: %d) Constructor for `%s` requires `%s` to be of type `%s` but it's `%s` instead!",
-				line,
+			l.AddError(line, fmt.Sprintf(
+				"Constructor for `%s` requires `%s` to be of type `%s` but it's `%s` instead!",
 				className,
 				exprParam.GetText(),
 				consParam.Type,

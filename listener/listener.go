@@ -1,6 +1,9 @@
 package listener
 
 import (
+	"fmt"
+	"strings"
+
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
@@ -56,11 +59,18 @@ func (l Listener) TypeExists(identifier TypeIdentifier) bool {
 // ERROR LOGGING
 // ====================
 
-func (l Listener) AddError(content string) {
-	*l.Errors = append(*l.Errors, "Error: "+content)
+func (l Listener) AddError(line int, content string, details ...string) {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("* Error: (line: %d) %s", line, content))
+
+	for _, v := range details {
+		b.WriteString("\n * " + v)
+	}
+
+	*l.Errors = append(*l.Errors, b.String())
 }
 
-func (l Listener) AddWarning(content string) {
+func (l Listener) AddWarning(content string, line string, details ...string) {
 	*l.Errors = append(*l.Errors, "Warning: "+content)
 }
 

@@ -6,7 +6,7 @@ import "github.com/ElrohirGT/5318008Lang/lib"
 // WHAT IS A TYPE
 // =====================
 
-// Id given for each defined type
+// Id given for each defined type.
 type TypeIdentifier string
 
 // Metadata about a type. It works as an enum, all types share common attributes

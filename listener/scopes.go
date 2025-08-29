@@ -1,6 +1,8 @@
 package listener
 
 import (
+	"log"
+
 	"github.com/ElrohirGT/5318008Lang/lib"
 )
 
@@ -11,11 +13,15 @@ var SCOPE_TYPES = struct {
 	GLOBAL   ScopeType
 	CLASS    ScopeType
 	FUNCTION ScopeType
+	LOOP     ScopeType
+	CATCH    ScopeType
 	BLOCK    ScopeType
 }{
 	GLOBAL:   "GLOBAL",
 	CLASS:    "CLASS",
 	FUNCTION: "FUNCTION",
+	LOOP:     "LOOP",
+	CATCH:    "CATCH",
 	BLOCK:    "BLOCK",
 }
 
@@ -38,9 +44,11 @@ type Scope struct {
 	Children []*Scope
 	Father   *Scope
 
-	Type              ScopeType
-	Name              string
-	definitions       map[string]MethodInfo
+	Type ScopeType
+	Name string
+	// functions defined within the scope
+	functions map[string]MethodInfo
+	// Stores the types of each expresion within the scope
 	typesByExpression map[string]TypeIdentifier
 	constants         lib.Set[string]
 }
@@ -70,7 +78,31 @@ func (sc *ScopeManager) AddToCurrent(child *Scope) {
 }
 
 func (sc *ScopeManager) ReplaceCurrent(newScope *Scope) {
+	log.Printf("Entering scope: %s - %s", newScope.Name, newScope.Type)
 	sc.CurrentScope = newScope
+}
+
+func (sc *ScopeManager) ReplaceWithParent() {
+	log.Print("Exit Scope moving returning to parent")
+	sc.CurrentScope = sc.CurrentScope.Father
+}
+
+func (sc *ScopeManager) SearchScopeByType(scopeType ScopeType) (*Scope, bool) {
+
+	scope := sc.CurrentScope
+
+	if scope.Type == scopeType {
+		return scope, true
+	}
+
+	for scope.Father != nil {
+		scope = scope.Father
+		if scope.Type == scopeType {
+			return scope, true
+		}
+	}
+
+	return nil, false
 }
 
 func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
@@ -93,7 +125,7 @@ func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{
 		Type:              _type,
 		Name:              name,
-		definitions:       map[string]MethodInfo{},
+		functions:         map[string]MethodInfo{},
 		typesByExpression: map[string]TypeIdentifier{},
 		constants:         lib.NewSet[string](),
 	}
@@ -140,5 +172,5 @@ func (s *Scope) SearchClassScope() (*Scope, bool) {
 }
 
 func (s *Scope) UpsertFunctionDef(funcName string, info MethodInfo) {
-	s.definitions[funcName] = info
+	s.functions[funcName] = info
 }
