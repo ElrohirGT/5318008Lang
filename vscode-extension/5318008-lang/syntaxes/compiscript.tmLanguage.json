@@ -6,14 +6,41 @@
 			"include": "#keywords"
 		},
 		{
+			"include": "#types"
+		},
+		{
+			"include": "#constants"
+		},
+		{
 			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#identifiers"
 		}
 	],
 	"repository": {
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.compiscript",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "\\b(let|var|const|function|class|if|else|while|do|for|foreach|in|break|continue|return|try|catch|switch|case|default|new|this|print)\\b"
+			}]
+		},
+		"types": {
+			"patterns": [{
+				"name": "storage.type.compiscript",
+				"match": "\\b(boolean|integer|string)\\b"
+			}]
+		},
+		"constants": {
+			"patterns": [{
+				"name": "constant.language.compiscript",
+				"match": "\\b(true|false|null)\\b"
 			}]
 		},
 		"strings": {
@@ -26,6 +53,31 @@
 					"match": "\\\\."
 				}
 			]
+		},
+		"numbers": {
+			"patterns": [{
+				"name": "constant.numeric.compiscript",
+				"match": "\\b[0-9]+\\b"
+			}]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.compiscript",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.compiscript",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
+		},
+		"identifiers": {
+			"patterns": [{
+				"name": "variable.other.compiscript",
+				"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+			}]
 		}
 	},
 	"scopeName": "source.compiscript"
