@@ -1,0 +1,25 @@
+{
+  "name": "compiscript-5318008",
+  "displayName": "compiscript-5318008",
+  "description": "Extension for Compiscript language, developed by Jose Prince",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "compiscript",
+      "aliases": ["Compiscript", "compiscript"],
+      "extensions": ["cps"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "compiscript",
+      "scopeName": "source.compiscript",
+      "path": "./syntaxes/compiscript.tmLanguage.json"
+    }]
+  }
+}
