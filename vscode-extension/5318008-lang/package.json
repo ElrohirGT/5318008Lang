@@ -11,6 +11,12 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "snippets": [
+      {
+        "language": "compiscript",
+        "path": "./snippets/compiscript.json"
+      }
+    ],
     "menus": {
       "editor/title": [
         {
