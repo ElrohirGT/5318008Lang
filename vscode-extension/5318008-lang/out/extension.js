@@ -22,16 +22,21 @@ function runSemanticAnalyzer(document, diagnostics) {
         const output = stdout + "\n" + stderr;
         const lines = output.split("\n");
         for (const line of lines) {
-            let match = line.match(/^\s*\*? ?Error: \(line: (\d+)\) (.+)/);
-            if (!match) {
-                match = line.match(/^\s*line (\d+):\d+ (.+)$/);
-            }
-            if (match) {
-                const lineNum = parseInt(match[1], 10) - 1;
-                const message = match[2];
-                console.log("Match found:", match);
+            const semanticMatch = line.match(/^\s*\*?\s*Error: \(line: (\d+)\)\s+(.+)/);
+            const syntaxMatch = line.match(/^\s*line (\d+):(\d+)\s+(.+)$/);
+            if (semanticMatch) {
+                const lineNum = parseInt(semanticMatch[1], 10) - 1;
+                const message = semanticMatch[2];
                 const textLine = document.lineAt(lineNum);
                 const range = new vscode.Range(lineNum, 0, lineNum, textLine.text.length);
+                diags.push(new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error));
+            }
+            else if (syntaxMatch) {
+                const lineNum = parseInt(syntaxMatch[1], 10) - 1;
+                const colNum = parseInt(syntaxMatch[2], 10) - 1;
+                const message = syntaxMatch[3];
+                const textLine = document.lineAt(lineNum);
+                const range = new vscode.Range(lineNum, Math.max(colNum, 0), lineNum, Math.min(colNum + 1, textLine.text.length));
                 diags.push(new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error));
             }
         }
