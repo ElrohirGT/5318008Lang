@@ -22,7 +22,10 @@ function runSemanticAnalyzer(document, diagnostics) {
         const output = stdout + "\n" + stderr;
         const lines = output.split("\n");
         for (const line of lines) {
-            const match = line.match(/^\s*\*? ?Error: \(line: (\d+)\) (.+)/);
+            let match = line.match(/^\s*\*? ?Error: \(line: (\d+)\) (.+)/);
+            if (!match) {
+                match = line.match(/^\s*line (\d+):\d+ (.+)$/);
+            }
             if (match) {
                 const lineNum = parseInt(match[1], 10) - 1;
                 const message = match[2];
