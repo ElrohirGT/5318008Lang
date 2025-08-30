@@ -4,7 +4,6 @@ import * as path from "path";
 
 export function activate(context: vscode.ExtensionContext) {    
     console.log("¡Compiscript extension activated!");
-
     const diagnostic = vscode.languages.createDiagnosticCollection("compiscript");
     context.subscriptions.push(diagnostic);
 
@@ -19,16 +18,33 @@ function runSemanticAnalyzer(
     document: vscode.TextDocument,
     diagnostics: vscode.DiagnosticCollection
 ) {
-    const diags: vscode.Diagnostic[] = [];
+    const analyzePath = path.join(__dirname, "..", "bin", "compiscript-analyzer");
 
-    // Diagnóstico de prueba: línea 0, columna 0
-    const range = new vscode.Range(0, 0, 0, 5); // desde la columna 0 hasta 5
-    diags.push(
-        new vscode.Diagnostic(range, "¡Prueba: esto es un error de ejemplo!", vscode.DiagnosticSeverity.Error)
-    );
+    execFile(analyzePath, [document.fileName], (error, stdout, stderr) => {
+        if (error) {
+            console.error("Error executing the analyzer:", error);
+            return;
+        }
 
-    // Actualiza la colección de diagnósticos
-    diagnostics.set(document.uri, diags);
+        const diags: vscode.Diagnostic[] = [];
+
+        const lines = stdout.split("\n");
+        for (const line of lines) {
+            const match = line.match(/(.+):(\d+):(\d+): (.+)/);
+            if (match) {
+                const [, , lineStr, colStr, message] = match;
+                const lineNum = parseInt(lineStr) - 1;
+                const colNum = parseInt(colStr) - 1;
+
+                const range = new vscode.Range(lineNum, colNum, lineNum, colNum + 1);
+                diags.push(
+                    new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error)
+                );
+            }
+        }
+
+        diagnostics.set(document.uri, diags);
+    });
 }
 
 export function deactivate() {}
