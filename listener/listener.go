@@ -59,9 +59,9 @@ func (l Listener) TypeExists(identifier TypeIdentifier) bool {
 // ERROR LOGGING
 // ====================
 
-func (l Listener) AddError(line int, content string, details ...string) {
+func (l Listener) AddError(line int, columnStart int, columnEnd int, content string, details ...string) {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("* Error: (line: %d) %s", line, content))
+	b.WriteString(fmt.Sprintf("* Error: (line: %d, column: %d-%d) %s", line, columnStart, columnEnd, content))
 
 	for _, v := range details {
 		b.WriteString("\n * " + v)

@@ -26,15 +26,21 @@ func (l Listener) ExitIfStatement(ctx *p.IfStatementContext) {
 
 func (l Listener) ExitContinueStatement(ctx *p.ContinueStatementContext) {
 	line := ctx.GetStart().GetLine()
+	colStart := ctx.GetStart().GetColumn()
+	colEnd := colStart + len(ctx.GetText())
+
 	if _, inLoopScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.LOOP); !inLoopScope {
-		l.AddError(line, "'continue' statement out loop scope.")
+		l.AddError(line, colStart, colEnd, "'continue' statement out loop scope.")
 	}
 }
 
 func (l Listener) ExitBreakStatement(ctx *p.BreakStatementContext) {
 	line := ctx.GetStart().GetLine()
+	colStart := ctx.GetStart().GetColumn()
+	colEnd := colStart + len(ctx.GetText())
+
 	if _, inLoopScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.LOOP); !inLoopScope {
-		l.AddError(line, "'break' statement out loop scope.")
+		l.AddError(line, colStart, colEnd, "'break' statement out loop scope.")
 	}
 }
 

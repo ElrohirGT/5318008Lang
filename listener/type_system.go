@@ -15,9 +15,13 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	line := ctx.GetStart().GetLine()
 	exprs := ctx.AllMultiplicativeExpr()
 	firstExpr := exprs[0]
+
+	colStart := firstExpr.GetStart().GetColumn()
+	colEnd := colStart + len(firstExpr.GetText())
+
 	referenceType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 	if !available {
-		l.AddError(line, fmt.Sprintf("Exit Add (firstExpr): `%s` doesn't have a type!", firstExpr.GetText()))
+		l.AddError(line, colStart, colEnd, fmt.Sprintf("Exit Add (firstExpr): `%s` doesn't have a type!", firstExpr.GetText()))
 		return
 	}
 
@@ -28,8 +32,11 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 		for _, expr := range exprs[1:] {
 			exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+			exprColStart := expr.GetStart().GetColumn()
+			exprColEnd := exprColStart + len(expr.GetText())
+
 			if !available {
-				l.AddError(line, fmt.Sprintf("Exit Add (expr): `%s` doesn't have a type!", exprType))
+				l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf("Exit Add (expr): `%s` doesn't have a type!", exprType))
 			}
 
 			if exprType != BASE_TYPES.UNKNOWN {
@@ -39,15 +46,18 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		}
 
 		if referenceType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, "Can't infer the value of multiplication/addition! All types were unknown...")
+			l.AddError(line, colStart, colEnd, "Can't infer the value of multiplication/addition! All types were unknown...")
 			return
 		}
 	}
 
 	for i, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+		exprColStart := expr.GetStart().GetColumn()
+		exprColEnd := exprColStart + len(expr.GetText())
+
 		if !available {
-			l.AddError(line, fmt.Sprintf("Exit Add (expr - second): `%s` doesn't have a type!", exprType))
+			l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf("Exit Add (expr - second): `%s` doesn't have a type!", exprType))
 		}
 
 		if exprType == BASE_TYPES.UNKNOWN {
@@ -57,7 +67,11 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 		if exprType != referenceType {
 			stream := ctx.GetStart().GetInputStream()
+			leftStart := exprs[0].GetStart().GetColumn()
+			leftEnd := exprs[i].GetStop().GetColumn() + 1
 			l.AddError(line,
+				leftStart,
+				leftEnd,
 				"Can't add:",
 				fmt.Sprintf("leftSide: `%s` of type `%s`",
 					stream.GetText(exprs[0].GetStart().GetStart(), exprs[i].GetStart().GetStop()),
@@ -114,11 +128,23 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	line := ctx.GetStart().GetLine()
 	name := ctx.Identifier()
-
 	typeAnnot := ctx.TypeAnnotation()
+	declarationExpr := ctx.Initializer()
+
+	// Possible errors
+	// Error in identifier
+	colStartI := name.GetSymbol().GetColumn()
+	colEndI := colStartI + len(name.GetText())
+
+	// Error in Type
+	var colStartT, colEndT int
+	if typeAnnot != nil {
+		colStartT = typeAnnot.GetStart().GetColumn()
+		colEndT = colStartT + len(typeAnnot.GetText())
+	}
+
 	hasAnnotation := typeAnnot != nil
 
-	declarationExpr := ctx.Initializer()
 	hasInitialExpr := declarationExpr != nil
 
 	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
@@ -129,7 +155,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			declarationText := declarationExpr.Expression().GetText()
 			inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
 			if !found {
-				l.AddError(line, fmt.Sprintf(
+				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 					"Couldn't infer the type of variable `%s`, initialized with: `%s`",
 					name.GetText(),
 					declarationText,
@@ -159,28 +185,33 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		}
 	} else {
 		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
+
 		log.Println("Variable", name.GetText(), "has type", declarationType)
 
 		if !l.TypeExists(declarationType) {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartT, colEndT, fmt.Sprintf(
 				"%s doesn't exist!",
 				declarationType,
 			))
 		}
 
 		if hasInitialExpr {
+			declExpr := declarationExpr.Expression() // solo la expresión del valor
+			colStartD := declExpr.GetStart().GetColumn()
+			colEndD := colStartD + len(declExpr.GetText())
+
 			exprText := declarationExpr.Expression().GetText()
 			log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
 			initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
 			if !exists {
-				l.AddError(line, fmt.Sprintf(
+				l.AddError(line, colStartI, colStartT, fmt.Sprintf(
 					"Variable Declaration: `%s` doesn't have a type!",
 					exprText,
 				))
 			}
 
 			if initialExprType != declarationType {
-				l.AddError(line, fmt.Sprintf(
+				l.AddError(line, colStartD, colEndD, fmt.Sprintf(
 					"The declaration of `%s` specifies a type of `%s` but `%s` was given",
 					name,
 					declarationType,
@@ -208,9 +239,12 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	classScope, _ := l.ScopeManager.SearchClassScope()
 	if isPropertyAssignment {
 		firstExpr := ctx.Expression(0)
+		colStartF := firstExpr.GetStart().GetColumn()
+		colEndF := colStartF + len(firstExpr.GetText())
+
 		t, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 		if !found {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
 				"Undeclared variable `%s`",
 				firstExpr.GetText(),
 			))
@@ -219,7 +253,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 
 		info, found := l.GetTypeInfo(t)
 		if !found {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
 				"Undeclared type `%s` for variable `%s`",
 				t,
 				firstExpr.GetText(),
@@ -228,7 +262,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		if !info.ClassType.HasValue() {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
 				"Trying to access a field `%s` from type `%s` but `%s` is not a class!",
 				firstExpr.GetText(),
 				t,
@@ -238,10 +272,12 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		identifier := ctx.Identifier()
+		colStartI := identifier.GetSymbol().GetColumn()
+		colEndI := colStartI + len(identifier.GetText())
 		classInfo := info.ClassType.GetValue()
 		fieldType, hasField := classInfo.Fields[identifier.GetText()]
 		if !hasField {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 				"Trying to access field `%s` not defined in class `%s`!",
 				identifier.GetText(),
 				classInfo.Name,
@@ -250,9 +286,11 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		assignExpr := ctx.Expression(1)
+		colStartA := assignExpr.GetStart().GetColumn()
+		colEndA := colStartA + len(assignExpr.GetText())
 		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
 		if !found {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
 				"Type of expression `%s` not found!",
 				assignExpr.GetText(),
 			))
@@ -260,7 +298,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		if fieldType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 				"Trying to assign `%s` into `%s` but I don't know the types of both! Please give me hints!",
 				assignExpr.GetText(),
 				identifier.GetText(),
@@ -278,7 +316,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		if fieldType != assignType {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 				"Trying to assign `%s` to field `%s` but types don't match! (`%s` != `%s`)",
 				assignExpr.GetText(),
 				identifier.GetText(),
@@ -289,9 +327,12 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 	} else {
 		identifier := ctx.Identifier()
+		colStartI := identifier.GetSymbol().GetColumn()
+		colEndI := colStartI + len(identifier.GetText())
+
 		identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier.GetText())
 		if !found {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 				"Undeclared variable `%s`!",
 				identifier.GetText(),
 			))
@@ -299,16 +340,19 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		assignExpr := ctx.Expression(0)
+		colStartA := assignExpr.GetStart().GetColumn()
+		colEndA := colStartA + len(assignExpr.GetText())
+
 		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
 		if !found {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
 				"Expression `%s` doesn't have a type!",
 				assignExpr,
 			))
 		}
 
 		if identifierType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndA, fmt.Sprintf(
 				"Can't assign `%s` = `%s` because both type are unknown! Use one of them first or write type hints!",
 				identifier.GetText(),
 				assignExpr.GetText(),
@@ -323,7 +367,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		if identifierType != assignType {
-			l.AddError(line, fmt.Sprintf(
+			l.AddError(line, colStartI, colEndA, fmt.Sprintf(
 				"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
 				assignExpr.GetText(),
 				identifier.GetText(),
@@ -347,12 +391,14 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		for _, paramCtx := range ctx.Parameters().AllParameter() {
 			name := paramCtx.Identifier()
 			paramType := BASE_TYPES.UNKNOWN
+			typeColStart := paramCtx.Type_().GetStart().GetColumn()
+			typeColEnd := typeColStart + len(paramCtx.Type_().GetText())
 			if paramCtx.Type_() != nil {
 				paramType = TypeIdentifier(paramCtx.Type_().GetText())
 			}
 
 			if !l.TypeExists(paramType) {
-				l.AddError(line, fmt.Sprintf(
+				l.AddError(line, typeColStart, typeColEnd, fmt.Sprintf(
 					"Parameter type `%s` doesn't exist!",
 					paramType,
 				))
@@ -369,9 +415,11 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	if ctx.Type_() != nil {
 		returnType = TypeIdentifier(ctx.Type_().GetText())
 	}
+	retColStart := ctx.Type_().GetStart().GetColumn()
+	retColEnd := retColStart + len(ctx.Type_().GetText())
 
 	if !l.TypeExists(returnType) {
-		l.AddError(line, fmt.Sprintf(
+		l.AddError(line, retColStart, retColEnd, fmt.Sprintf(
 			"Return type `%s` doesn't exist!",
 			returnType,
 		))
@@ -434,7 +482,10 @@ func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 
 func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 	line := ctx.GetStart().GetLine()
+	colStart := ctx.GetStart().GetColumn()
+	colEnd := colStart + len(ctx.GetText())
+
 	if _, inFunctionScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION); !inFunctionScope {
-		l.AddError(line, "'return' statement out function scope.")
+		l.AddError(line, colStart, colEnd, "'return' statement out function scope.")
 	}
 }

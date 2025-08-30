@@ -53,15 +53,22 @@ function runSemanticAnalyzer(
         const lines = output.split("\n");
 
         for (const line of lines) {
-            const semanticMatch = line.match(/^\s*\*?\s*Error: \(line: (\d+)\)\s+(.+)/);
+            const semanticMatch = line.match(/^\s*\*?\s*Error: \(line: (\d+), column: (\d+)-(\d+)\)\s+(.+)/);
             const syntaxMatch = line.match(/^\s*line (\d+):(\d+)\s+(.+)$/);
 
             if (semanticMatch) {
                 const lineNum = parseInt(semanticMatch[1], 10) - 1;
-                const message = semanticMatch[2];
+                const colStart = parseInt(semanticMatch[2], 10);
+                const colEnd = parseInt(semanticMatch[3], 10);
+                const message = semanticMatch[4];
                 if (lineNum >= 0 && lineNum < document.lineCount) {
                     const textLine = document.lineAt(lineNum);
-                    const range = new vscode.Range(lineNum, 0, lineNum, textLine.text.length);
+                    const range = new vscode.Range(
+                        lineNum, 
+                        Math.max(colStart, 0), 
+                        lineNum, 
+                        Math.min(colEnd, textLine.text.length)
+                    );
                     diags.push(new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error));
                 }
             } else if (syntaxMatch) {
