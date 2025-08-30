@@ -11,6 +11,11 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
+const (
+	Reset = "\033[0m"
+	Red   = "\033[31m"
+)
+
 func generateErrorOutput(errors []string) error {
 	b := strings.Builder{}
 	for _, error := range errors {
@@ -18,7 +23,7 @@ func generateErrorOutput(errors []string) error {
 		b.WriteString(error)
 		b.WriteRune('\n')
 	}
-	return fmt.Errorf("=== ERRORS ===\n%s", b.String())
+	return fmt.Errorf(Red+"=== ERRORS ===\n%s"+Reset, b.String())
 }
 
 func testableMain(reader io.Reader) error {

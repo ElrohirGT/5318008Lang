@@ -11,25 +11,36 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "menus": {
+      "editor/title": [
+        {
+          "command": "extension.runAnalyzer",
+          "group": "navigation",
+          "when": "resourceLangId == compiscript"
+        }
+      ]
+    },
     "languages": [
-      {
-        "id": "compiscript",
-        "aliases": [
-          "Compiscript",
-          "compiscript"
-        ],
-        "extensions": [
-          ".cps"
-        ],
-        "configuration": "./language-configuration.json"
-      }
+        {
+            "id": "compiscript",
+            "aliases": ["Compiscript", "compiscript"],
+            "extensions": [".cps"],
+            "configuration": "./language-configuration.json"
+        }
     ],
     "grammars": [
-      {
-        "language": "compiscript",
-        "scopeName": "source.compiscript",
-        "path": "./syntaxes/compiscript.tmLanguage.json"
-      }
+        {
+            "language": "compiscript",
+            "scopeName": "source.compiscript",
+            "path": "./syntaxes/compiscript.tmLanguage.json"
+        }
+    ],
+    "commands": [
+        {
+            "command": "extension.runAnalyzer",
+            "title": "Run Compiscript File",
+            "icon": "$(play)"
+        }
     ]
   },
   "dependencies": {

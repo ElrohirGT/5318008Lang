@@ -8,6 +8,29 @@ let timeout : NodeJS.Timeout | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log("¡Compiscript extension activated!");
+
+    const disposable = vscode.commands.registerCommand("extension.runAnalyzer", () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor!");
+            return;
+        }
+
+        const file = editor.document.fileName;
+
+        const analyzePath = path.join(__dirname, "..", "bin", "compiscript-analyzer");
+
+        let terminal = vscode.window.terminals.find(t => t.name === "Compiscript Analyzer");
+        if (!terminal) {
+            terminal = vscode.window.createTerminal("Compiscript Analyzer");
+        }
+        terminal.show();
+
+        terminal.sendText(`"${analyzePath}" "${file}"`);
+    })
+
+    context.subscriptions.push(disposable);
+
     const diagnostic = vscode.languages.createDiagnosticCollection("compiscript");
     context.subscriptions.push(diagnostic);
 
@@ -53,7 +76,8 @@ function runSemanticAnalyzer(
         const lines = output.split("\n");
 
         for (const line of lines) {
-            const semanticMatch = line.match(/^\s*\*?\s*Error: \(line: (\d+), column: (\d+)-(\d+)\)\s+(.+)/);
+            const cleanLine = line.replace(/\x1b\[[0-9;]*m/g, "");
+            const semanticMatch = cleanLine.match(/^\s*\*?\s*Error: \(line: (\d+), column: (\d+)-(\d+)\)\s+(.+)/);            
             const syntaxMatch = line.match(/^\s*line (\d+):(\d+)\s+(.+)$/);
 
             if (semanticMatch) {
