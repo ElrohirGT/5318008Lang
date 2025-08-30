@@ -18,23 +18,24 @@ function activate(context) {
 function runSemanticAnalyzer(document, diagnostics) {
     const analyzePath = path.join(__dirname, "..", "bin", "compiscript-analyzer");
     (0, child_process_1.execFile)(analyzePath, [document.fileName], (error, stdout, stderr) => {
-        if (error) {
-            console.error("Error executing the analyzer:", error);
-            return;
-        }
         const diags = [];
-        const lines = stdout.split("\n");
+        const output = stdout + "\n" + stderr;
+        const lines = output.split("\n");
         for (const line of lines) {
-            const match = line.match(/(.+):(\d+):(\d+): (.+)/);
+            const match = line.match(/^\s*\*? ?Error: \(line: (\d+)\) (.+)/);
             if (match) {
-                const [, , lineStr, colStr, message] = match;
-                const lineNum = parseInt(lineStr) - 1;
-                const colNum = parseInt(colStr) - 1;
-                const range = new vscode.Range(lineNum, colNum, lineNum, colNum + 1);
+                const lineNum = parseInt(match[1], 10) - 1;
+                const message = match[2];
+                console.log("Match found:", match);
+                const textLine = document.lineAt(lineNum);
+                const range = new vscode.Range(lineNum, 0, lineNum, textLine.text.length);
                 diags.push(new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error));
             }
         }
         diagnostics.set(document.uri, diags);
+        if (error) {
+            console.error("Error executing the analyzer:", error);
+        }
     });
 }
 function deactivate() { }
