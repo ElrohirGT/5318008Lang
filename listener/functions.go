@@ -123,6 +123,14 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	funcName := ctx.Identifier().GetText()
 
 	expectedReturnType := l.ScopeManager.CurrentScope.expectedReturnType
+
+	if expectedReturnType == BASE_TYPES.UNKNOWN {
+		if l.ScopeManager.CurrentScope.inferredReturnType != BASE_TYPES.UNKNOWN {
+			expectedReturnType = l.ScopeManager.CurrentScope.inferredReturnType
+			l.updateFunctionReturnType(funcName, expectedReturnType)
+		}
+	}
+
 	if expectedReturnType != BASE_TYPES.UNKNOWN && expectedReturnType != BASE_TYPES.INVALID {
 		if !l.ScopeManager.CurrentScope.hasReturnStatement {
 			nameColStart := ctx.Identifier().GetSymbol().GetColumn()
@@ -138,6 +146,28 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	l.ScopeManager.ReplaceWithParent()
 }
 
+func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdentifier) {
+	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
+
+	if isInsideClassDeclaration {
+		className := l.ScopeManager.CurrentScope.Name
+		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
+			if funcName == CONSTRUCTOR_NAME {
+				cti.Constructor.ReturnType = returnType
+			} else if methodInfo, exists := cti.Methods[funcName]; exists {
+				methodInfo.ReturnType = returnType
+				cti.Methods[funcName] = methodInfo
+			}
+		})
+	} else {
+		if funcInfo, exists := l.ScopeManager.CurrentScope.functions[funcName]; exists {
+			funcInfo.ReturnType = returnType
+			l.ScopeManager.CurrentScope.functions[funcName] = funcInfo
+		}
+		l.ScopeManager.CurrentScope.UpsertExpressionType(funcName, returnType)
+	}
+}
+
 func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 	line := ctx.GetStart().GetLine()
 	colStart := ctx.GetStart().GetColumn()
@@ -145,7 +175,7 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 
 	funcScope, inFunctionScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION)
 	if !inFunctionScope {
-		l.AddError(line, colStart, colEnd, "'return' statement outside functionscope.")
+		l.AddError(line, colStart, colEnd, "'return' statement outside function scope.")
 		return
 	}
 
@@ -166,7 +196,11 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 		}
 
 		expectedReturnType := funcScope.expectedReturnType
-		if expectedReturnType != BASE_TYPES.UNKNOWN && expectedReturnType != returnValueType {
+
+		if expectedReturnType == BASE_TYPES.UNKNOWN {
+			funcScope.inferredReturnType = returnValueType
+			log.Printf("Inferred return type for function: %s", returnValueType)
+		} else if expectedReturnType != returnValueType {
 			l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf(
 				"Return type mismatch: expected `%s` but got `%s`",
 				expectedReturnType,
@@ -208,9 +242,9 @@ func (l Listener) EnterCallExpr(ctx *p.CallExprContext) {
 
 	log.Printf("Processing function call: %s", funcName)
 
-	exprArguments := []p.IExpressionContext{}
+	exprArguments := []p.IConditionalExprContext{}
 	if ctx.Arguments() != nil {
-		exprArguments = ctx.Arguments().AllExpression()
+		exprArguments = ctx.Arguments().AllConditionalExpr()
 	}
 
 	funcInfo, found := l.findFunctionInfo(funcName)
@@ -231,14 +265,6 @@ func (l Listener) EnterCallExpr(ctx *p.CallExprContext) {
 		))
 		return
 	}
-
-	if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
-		fullExpr := leftHandSide.GetText()
-		log.Printf("Setting return type of `%s` to `%s`", fullExpr, funcInfo.ReturnType)
-		l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
-
-		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
-	}
 }
 
 func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
@@ -258,9 +284,9 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 		return
 	}
 
-	exprArguments := []p.IExpressionContext{}
+	exprArguments := []p.IConditionalExprContext{}
 	if ctx.Arguments() != nil {
-		exprArguments = ctx.Arguments().AllExpression()
+		exprArguments = ctx.Arguments().AllConditionalExpr()
 	}
 
 	funcInfo, found := l.findFunctionInfo(funcName)
@@ -299,6 +325,13 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 				argType,
 			))
 		}
+	}
+
+	if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+		fullExpr := leftHandSide.GetText()
+		log.Printf("Setting return type of `%s` to `%s`", fullExpr, funcInfo.ReturnType)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
 	}
 }
 

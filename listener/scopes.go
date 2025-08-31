@@ -55,6 +55,7 @@ type Scope struct {
 	constants         lib.Set[string]
 	// Function fileds
 	expectedReturnType TypeIdentifier
+	inferredReturnType TypeIdentifier
 	hasReturnStatement bool
 }
 
@@ -134,6 +135,7 @@ func NewScope(name string, _type ScopeType) *Scope {
 		typesByExpression:  map[string]TypeIdentifier{},
 		constants:          lib.NewSet[string](),
 		expectedReturnType: BASE_TYPES.UNKNOWN,
+		inferredReturnType: BASE_TYPES.UNKNOWN,
 		hasReturnStatement: false,
 	}
 }
