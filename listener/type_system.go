@@ -236,7 +236,8 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	line := ctx.GetStart().GetLine()
 
 	isPropertyAssignment := len(ctx.AllExpression()) > 1
-	classScope, _ := l.ScopeManager.SearchClassScope()
+	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
+
 	if isPropertyAssignment {
 		firstExpr := ctx.Expression(0)
 		colStartF := firstExpr.GetStart().GetColumn()
@@ -307,6 +308,14 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 
 		if fieldType == BASE_TYPES.UNKNOWN {
+			if !isInsideClassDeclaration || classScope == nil {
+				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
+					"Cannot infer field type for `%s` outside of class context",
+					identifier.GetText(),
+				))
+				return
+			}
+
 			log.Printf("Inferring `%s` as type `%s`", "this."+identifier.GetText(), assignType)
 			classScope.UpsertExpressionType("this."+identifier.GetText(), assignType)
 			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
@@ -347,13 +356,14 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		if !found {
 			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
 				"Expression `%s` doesn't have a type!",
-				assignExpr,
+				assignExpr.GetText(),
 			))
+			return
 		}
 
 		if identifierType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
 			l.AddError(line, colStartI, colEndA, fmt.Sprintf(
-				"Can't assign `%s` = `%s` because both type are unknown! Use one of them first or write type hints!",
+				"Can't assign `%s` = `%s` because both types are unknown! Use one of them first or write type hints!",
 				identifier.GetText(),
 				assignExpr.GetText(),
 			))
@@ -362,7 +372,20 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 
 		if identifierType == BASE_TYPES.UNKNOWN {
 			log.Printf("Inferring type of `%s` as `%s`\n", identifier.GetText(), assignType)
-			l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
+
+			if isInsideClassDeclaration && classScope != nil {
+				if strings.HasPrefix(identifier.GetText(), "this.") {
+					fieldName := identifier.GetText()[len("this."):]
+					classScope.UpsertExpressionType(identifier.GetText(), assignType)
+					l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
+						cti.UpsertField(fieldName, assignType)
+					})
+				} else {
+					l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
+				}
+			} else {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
+			}
 			identifierType = assignType
 		}
 

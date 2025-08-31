@@ -121,18 +121,18 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 
 	line := ctx.GetStart().GetLine()
 	funcName := ctx.Identifier().GetText()
-
-	expectedReturnType := l.ScopeManager.CurrentScope.expectedReturnType
+	funcScope := l.ScopeManager.CurrentScope
+	expectedReturnType := funcScope.expectedReturnType
 
 	if expectedReturnType == BASE_TYPES.UNKNOWN {
-		if l.ScopeManager.CurrentScope.inferredReturnType != BASE_TYPES.UNKNOWN {
-			expectedReturnType = l.ScopeManager.CurrentScope.inferredReturnType
+		if funcScope.inferredReturnType != BASE_TYPES.UNKNOWN {
+			expectedReturnType = funcScope.inferredReturnType
 			l.updateFunctionReturnType(funcName, expectedReturnType)
 		}
 	}
 
 	if expectedReturnType != BASE_TYPES.UNKNOWN && expectedReturnType != BASE_TYPES.INVALID {
-		if !l.ScopeManager.CurrentScope.hasReturnStatement {
+		if !funcScope.hasReturnStatement {
 			nameColStart := ctx.Identifier().GetSymbol().GetColumn()
 			nameColEnd := nameColStart + len(funcName)
 			l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
