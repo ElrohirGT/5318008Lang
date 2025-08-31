@@ -474,7 +474,6 @@ func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 		// simple expression, no further evaluating is required
 		return
 	}
-
 	// for _, suffixCtx := range suffixes {
 	// 	// FIXME: Implement me!
 	// }
@@ -488,4 +487,15 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 	if _, inFunctionScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION); !inFunctionScope {
 		l.AddError(line, colStart, colEnd, "'return' statement out function scope.")
 	}
+}
+
+func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
+	// Primary expresion is of type conditional just pass inherit its type
+	expr := ctx.ConditionalExpr()
+	if expr == nil {
+		return
+	}
+	referenceType, _ := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
 }
