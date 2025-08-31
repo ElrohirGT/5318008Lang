@@ -69,12 +69,6 @@ func (s *BaseCompiscriptListener) EnterAssignment(ctx *AssignmentContext) {}
 // ExitAssignment is called when production assignment is exited.
 func (s *BaseCompiscriptListener) ExitAssignment(ctx *AssignmentContext) {}
 
-// EnterExpressionStatement is called when production expressionStatement is entered.
-func (s *BaseCompiscriptListener) EnterExpressionStatement(ctx *ExpressionStatementContext) {}
-
-// ExitExpressionStatement is called when production expressionStatement is exited.
-func (s *BaseCompiscriptListener) ExitExpressionStatement(ctx *ExpressionStatementContext) {}
-
 // EnterPrintStatement is called when production printStatement is entered.
 func (s *BaseCompiscriptListener) EnterPrintStatement(ctx *PrintStatementContext) {}
 

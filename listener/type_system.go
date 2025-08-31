@@ -152,7 +152,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	if !hasAnnotation {
 		log.Println("Variable", name.GetText(), "does NOT have a type! We need to infer it...")
 		if hasInitialExpr {
-			declarationText := declarationExpr.Expression().GetText()
+			declarationText := declarationExpr.ConditionalExpr().GetText()
 			inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
 			if !found {
 				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
@@ -196,11 +196,11 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		}
 
 		if hasInitialExpr {
-			declExpr := declarationExpr.Expression() // solo la expresión del valor
+			declExpr := declarationExpr.ConditionalExpr() // solo la expresión del valor
 			colStartD := declExpr.GetStart().GetColumn()
 			colEndD := colStartD + len(declExpr.GetText())
 
-			exprText := declarationExpr.Expression().GetText()
+			exprText := declarationExpr.ConditionalExpr().GetText()
 			log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
 			initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
 			if !exists {

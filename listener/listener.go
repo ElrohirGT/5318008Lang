@@ -30,6 +30,7 @@ func NewListener() Listener {
 	baseTypes[TypeIdentifier(BASE_TYPES.UNKNOWN)] = NewTypeInfo_Base()
 
 	errors := []string{}
+	// TODO: ADD PRINT function on start of global scope
 	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
 	scopeManager := NewScopeManager(currentScope, currentScope)
 

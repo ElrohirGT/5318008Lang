@@ -12,7 +12,6 @@ statement
   | assignment
   | functionDeclaration
   | classDeclaration
-  | expressionStatement
   | printStatement
   | blockStatement
   | ifStatement
@@ -34,36 +33,39 @@ variableDeclaration
   ;
 
 constantDeclaration
-  : 'const' Identifier typeAnnotation? '=' expression ';'
+  : 'const' Identifier typeAnnotation? '=' conditionalExpr ';'
   ;
 
 typeAnnotation: ':' type;
-initializer: '=' expression;
+initializer: '=' conditionalExpr;
 
 assignment
-  : Identifier '=' expression ';'
-  | expression '.' Identifier '=' expression ';' // property assignment
+  : Identifier '=' conditionalExpr ';'
+  // TODO: First expresion should just allow identifiers something like
+  //    identifier ('.' Identifier)+ = conditionalExpr
+  // Might work, not tested yet.
+  | expression '.' Identifier '=' expression ';'
   ;
 
-expressionStatement: expression ';';
-printStatement: 'print' '(' expression ')' ';';
+// expressionStatement: expression ';'; // Standalone expresions are not allowed
+printStatement: 'print' '(' conditionalExpr ')' ';';
 
 ifStatement: 'if' '(' conditionalExpr ')' block ('else' block)?;
 whileStatement: 'while' '(' conditionalExpr ')' block;
 doWhileStatement: 'do' block 'while' '(' conditionalExpr ')' ';';
-forStatement: 'for' '(' (variableDeclaration | assignment | ';') expression? ';' expression? ')' block;
-foreachStatement: 'foreach' '(' Identifier 'in' expression ')' block;
+forStatement: 'for' '(' (variableDeclaration | assignment | ';') conditionalExpr? ';' expression? ')' block;
+foreachStatement: 'foreach' '(' Identifier 'in' conditionalExpr ')' block;
 breakStatement: 'break' ';';
 continueStatement: 'continue' ';';
-returnStatement: 'return' expression? ';';
+returnStatement: 'return' conditionalExpr? ';';
 blockStatement: block;
 
 tryCatchStatement: 'try' block catchStatement;
 catchStatement : 'catch' '(' Identifier ')' block;
 
 
-switchStatement: 'switch' '(' expression ')' '{' switchCase* defaultCase? '}';
-switchCase: 'case' expression ':' statement*;
+switchStatement: 'switch' '(' conditionalExpr ')' '{' switchCase* defaultCase? '}';
+switchCase: 'case' conditionalExpr ':' statement*;
 defaultCase: 'default' ':' statement*;
 
 functionDeclaration: 'function' Identifier '(' parameters? ')' (':' type)? block;
@@ -80,13 +82,15 @@ classMember: functionDeclaration | variableDeclaration | constantDeclaration;
 expression: assignmentExpr;
 
 assignmentExpr
-  : lhs=leftHandSide '=' assignmentExpr           
-  | lhs=leftHandSide '.' Identifier '=' assignmentExpr 
-  | conditionalExpr                                
+  : lhs=leftHandSide '=' conditionalExpr
+  | lhs=leftHandSide '.' Identifier '=' assignmentExpr
+  | conditionalExpr
   ;
 
+// Ternary operators just work for assignments
+// Not as standalone expresion, in that case use if-else
 conditionalExpr
-  : logicalOrExpr ('?' expression ':' expression)? 
+  : logicalOrExpr ('?' conditionalExpr ':' conditionalExpr)? 
   ;
 
 logicalOrExpr
@@ -122,7 +126,7 @@ unaryExpr
 primaryExpr
   : literalExpr
   | leftHandSide
-  | '(' conditionalExpr ')' // <-- SHOULD THIS BE THE CASE, allows weirds declarations.
+  | '(' conditionalExpr ')'
   ;
 
 literalExpr
@@ -145,13 +149,13 @@ primaryAtom
 
 suffixOp
   : '(' arguments? ')'                        # CallExpr
-  | '[' expression ']'                        # IndexExpr
+  | '[' conditionalExpr ']'                   # IndexExpr
   | '.' Identifier                            # PropertyAccessExpr
   ;
 
-arguments: expression (',' expression)*;
+arguments: conditionalExpr (',' conditionalExpr)*;
 
-arrayLiteral: '[' (expression (',' expression)*)? ']';
+arrayLiteral: '[' (conditionalExpr (',' conditionalExpr)*)? ']';
 
 // ------------------
 // Types

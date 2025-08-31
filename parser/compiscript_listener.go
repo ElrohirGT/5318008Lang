@@ -32,9 +32,6 @@ type CompiscriptListener interface {
 	// EnterAssignment is called when entering the assignment production.
 	EnterAssignment(c *AssignmentContext)
 
-	// EnterExpressionStatement is called when entering the expressionStatement production.
-	EnterExpressionStatement(c *ExpressionStatementContext)
-
 	// EnterPrintStatement is called when entering the printStatement production.
 	EnterPrintStatement(c *PrintStatementContext)
 
@@ -187,9 +184,6 @@ type CompiscriptListener interface {
 
 	// ExitAssignment is called when exiting the assignment production.
 	ExitAssignment(c *AssignmentContext)
-
-	// ExitExpressionStatement is called when exiting the expressionStatement production.
-	ExitExpressionStatement(c *ExpressionStatementContext)
 
 	// ExitPrintStatement is called when exiting the printStatement production.
 	ExitPrintStatement(c *PrintStatementContext)

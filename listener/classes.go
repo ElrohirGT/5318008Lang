@@ -96,9 +96,9 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 	colEnd := colStart + len(className.GetText())
 	log.Println("Trying to instantiate class:", className.GetText())
 
-	exprArguments := []p.IExpressionContext{}
+	exprArguments := []p.IConditionalExprContext{}
 	if ctx.Arguments() != nil {
-		exprArguments = ctx.Arguments().AllExpression()
+		exprArguments = ctx.Arguments().AllConditionalExpr()
 	}
 
 	classScope, found := l.ScopeManager.SearchClassScope()
