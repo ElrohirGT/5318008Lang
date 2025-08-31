@@ -231,6 +231,11 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	}
 }
 
+func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
+	// TODO: Recycle variable declaration logic
+
+}
+
 func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	log.Println("General Assignment!", ctx.GetText())
 	line := ctx.GetStart().GetLine()
