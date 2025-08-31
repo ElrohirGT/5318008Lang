@@ -2,4 +2,4 @@ let a: integer = 2 + 2 + 7;
 return a;
 ---
 === ERRORS ===
-* Error: (line: 2) 'return' statement out function scope.
+* Error: (line: 2, column: 0-8) 'return' statement outside function scope.
