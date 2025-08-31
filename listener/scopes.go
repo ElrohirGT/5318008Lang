@@ -1,7 +1,9 @@
 package listener
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 )
@@ -173,4 +175,30 @@ func (s *Scope) SearchClassScope() (*Scope, bool) {
 
 func (s *Scope) UpsertFunctionDef(funcName string, info MethodInfo) {
 	s.functions[funcName] = info
+}
+
+func (s *Scope) Print(indent int) {
+	prefix := strings.Repeat("  ", indent)
+	fmt.Printf("%sScope(Name=%q, Type=%v)\n", prefix, s.Name, s.Type)
+
+	// Print functions
+	if len(s.functions) > 0 {
+		fmt.Printf("%s  Functions:\n", prefix)
+		for name, fn := range s.functions {
+			fmt.Printf("%s    - %s: %+v\n", prefix, name, fn)
+		}
+	}
+
+	// Print types by expression
+	if len(s.typesByExpression) > 0 {
+		fmt.Printf("%s  TypesByExpression:\n", prefix)
+		for expr, t := range s.typesByExpression {
+			fmt.Printf("%s    - %s: %v\n", prefix, expr, t)
+		}
+	}
+
+	// Print children
+	for _, child := range s.Children {
+		child.Print(indent + 1)
+	}
 }
