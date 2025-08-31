@@ -151,8 +151,8 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 
 	funcScope.hasReturnStatement = true
 
-	if ctx.Expression() != nil {
-		returnExpr := ctx.Expression()
+	if ctx.ConditionalExpr() != nil {
+		returnExpr := ctx.ConditionalExpr()
 		exprColStart := returnExpr.GetStart().GetColumn()
 		exprColEnd := exprColStart + len(returnExpr.GetText())
 
