@@ -28,6 +28,13 @@ go run .
 
 go test
 ```
+**Want to change the grammar?**
+
+For that, you should have [antlr4](https://github.com/antlr/antlr4) installed. Once its ready, modify the file `compiscript/program/Compiscript.g4` and run this command in the root of the repo:
+
+```bash
+antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscript.g4
+```
 
 ## 📘 Project Structure
 
