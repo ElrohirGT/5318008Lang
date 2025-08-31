@@ -7,26 +7,26 @@ grammar Compiscript;
 program: statement* EOF;
 
 statement
-  : standaloneExpresion
-  | variableDeclaration
-  | constantDeclaration
-  | assignment
-  | functionDeclaration
-  | classDeclaration
-  | printStatement
-  | blockStatement
-  | ifStatement
-  | whileStatement
-  | doWhileStatement
-  | forStatement
-  | foreachStatement
-  | tryCatchStatement
-  | switchStatement
-  | breakStatement
-  | continueStatement
-  | returnStatement
+  : standaloneExpresion // TODO: Prince
+  | variableDeclaration // TODO: Flavio
+  | constantDeclaration // TODO: Flavio
+  | assignment          // TODO: Flavio
+  | functionDeclaration // TODO: Flavio, Prince
+  | classDeclaration    // TODO: Flavio
+  | printStatement      // TODO: Rayo, Primera (y talvez única) builtin del compilador
+  | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
+  | ifStatement         // TODO: Rayo
+  | whileStatement      // TODO: Rayo
+  | doWhileStatement    // TODO: Rayo
+  | forStatement        // TODO: Rayo
+  | foreachStatement    // TODO: Rayo
+  | tryCatchStatement   // TODO: Rayo
+  | switchStatement     // TODO: Rayo
+  | breakStatement      // DONE: Rayo
+  | continueStatement   // DONE: Rayo
+  | returnStatement     // TODO: Prince, Rayo
   ;
-  
+
 block: '{' statement* '}';
 
 variableDeclaration
@@ -54,7 +54,7 @@ printStatement: 'print' '(' conditionalExpr ')' ';';
 ifStatement: 'if' '(' conditionalExpr ')' block ('else' block)?;
 whileStatement: 'while' '(' conditionalExpr ')' block;
 doWhileStatement: 'do' block 'while' '(' conditionalExpr ')' ';';
-forStatement: 'for' '(' (variableDeclaration | assignment | ';') conditionalExpr? ';' expression? ')' block;
+forStatement: 'for' '(' (variableDeclaration | assignment | ';') conditionalExpr? ';' expression? ')' block; // TODO: Change expression for assingment
 foreachStatement: 'foreach' '(' Identifier 'in' conditionalExpr ')' block;
 breakStatement: 'break' ';';
 continueStatement: 'continue' ';';
@@ -63,7 +63,6 @@ blockStatement: block;
 
 tryCatchStatement: 'try' block catchStatement;
 catchStatement : 'catch' '(' Identifier ')' block;
-
 
 switchStatement: 'switch' '(' conditionalExpr ')' '{' switchCase* defaultCase? '}';
 switchCase: 'case' conditionalExpr ':' statement*;
@@ -91,7 +90,7 @@ assignmentExpr
 // Ternary operators just work for assignments
 // Not as standalone expresion, in that case use if-else
 conditionalExpr
-  : logicalOrExpr ('?' conditionalExpr ':' conditionalExpr)? 
+  : logicalOrExpr ('?' conditionalExpr ':' conditionalExpr)?
   ;
 
 logicalOrExpr
@@ -104,7 +103,7 @@ logicalAndExpr
 
 // Values should be of the same type and just primary
 equalityExpr
-  : relationalExpr ( ('==' | '!=') relationalExpr )* 
+  : relationalExpr ( ('==' | '!=') relationalExpr )*
   ;
 
 relationalExpr
@@ -142,10 +141,10 @@ leftHandSide
   : primaryAtom (suffixOp)*
   ;
 
-standaloneExpresion 
+standaloneExpresion
   : standaloneAtom (suffixOp)* ';'
   ;
-  
+
 primaryAtom
   : Identifier                                 # IdentifierExpr
   | 'new' Identifier '(' arguments? ')'        # NewExpr
@@ -159,6 +158,7 @@ standaloneAtom
   ;
 
 suffixOp
+  // : '.' Identifier '(' arguments? ')'         # CallExpr // TODO: Consultar con Prince
   : '(' arguments? ')'                        # CallExpr
   | '[' conditionalExpr ']'                   # IndexExpr
   | '.' Identifier                            # PropertyAccessExpr
