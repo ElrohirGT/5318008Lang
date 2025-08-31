@@ -53,6 +53,9 @@ type Scope struct {
 	// Stores the types of each expresion within the scope
 	typesByExpression map[string]TypeIdentifier
 	constants         lib.Set[string]
+	// Function fileds
+	expectedReturnType TypeIdentifier
+	hasReturnStatement bool
 }
 
 // Manges a scope tree. Providing helpful function to handle and move arount the tree.
@@ -125,11 +128,13 @@ func (sc *ScopeManager) SearchClassScope() (*Scope, bool) {
 
 func NewScope(name string, _type ScopeType) *Scope {
 	return &Scope{
-		Type:              _type,
-		Name:              name,
-		functions:         map[string]MethodInfo{},
-		typesByExpression: map[string]TypeIdentifier{},
-		constants:         lib.NewSet[string](),
+		Type:               _type,
+		Name:               name,
+		functions:          map[string]MethodInfo{},
+		typesByExpression:  map[string]TypeIdentifier{},
+		constants:          lib.NewSet[string](),
+		expectedReturnType: BASE_TYPES.UNKNOWN,
+		hasReturnStatement: false,
 	}
 }
 
