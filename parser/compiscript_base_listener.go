@@ -267,6 +267,12 @@ func (s *BaseCompiscriptListener) EnterLeftHandSide(ctx *LeftHandSideContext) {}
 // ExitLeftHandSide is called when production leftHandSide is exited.
 func (s *BaseCompiscriptListener) ExitLeftHandSide(ctx *LeftHandSideContext) {}
 
+// EnterStandaloneExpresion is called when production standaloneExpresion is entered.
+func (s *BaseCompiscriptListener) EnterStandaloneExpresion(ctx *StandaloneExpresionContext) {}
+
+// ExitStandaloneExpresion is called when production standaloneExpresion is exited.
+func (s *BaseCompiscriptListener) ExitStandaloneExpresion(ctx *StandaloneExpresionContext) {}
+
 // EnterIdentifierExpr is called when production IdentifierExpr is entered.
 func (s *BaseCompiscriptListener) EnterIdentifierExpr(ctx *IdentifierExprContext) {}
 
@@ -284,6 +290,26 @@ func (s *BaseCompiscriptListener) EnterThisExpr(ctx *ThisExprContext) {}
 
 // ExitThisExpr is called when production ThisExpr is exited.
 func (s *BaseCompiscriptListener) ExitThisExpr(ctx *ThisExprContext) {}
+
+// EnterStandaloneIdentifierExpr is called when production StandaloneIdentifierExpr is entered.
+func (s *BaseCompiscriptListener) EnterStandaloneIdentifierExpr(ctx *StandaloneIdentifierExprContext) {
+}
+
+// ExitStandaloneIdentifierExpr is called when production StandaloneIdentifierExpr is exited.
+func (s *BaseCompiscriptListener) ExitStandaloneIdentifierExpr(ctx *StandaloneIdentifierExprContext) {
+}
+
+// EnterStandaloneNewExpr is called when production StandaloneNewExpr is entered.
+func (s *BaseCompiscriptListener) EnterStandaloneNewExpr(ctx *StandaloneNewExprContext) {}
+
+// ExitStandaloneNewExpr is called when production StandaloneNewExpr is exited.
+func (s *BaseCompiscriptListener) ExitStandaloneNewExpr(ctx *StandaloneNewExprContext) {}
+
+// EnterStandaloneThisExpr is called when production StandaloneThisExpr is entered.
+func (s *BaseCompiscriptListener) EnterStandaloneThisExpr(ctx *StandaloneThisExprContext) {}
+
+// ExitStandaloneThisExpr is called when production StandaloneThisExpr is exited.
+func (s *BaseCompiscriptListener) ExitStandaloneThisExpr(ctx *StandaloneThisExprContext) {}
 
 // EnterCallExpr is called when production CallExpr is entered.
 func (s *BaseCompiscriptListener) EnterCallExpr(ctx *CallExprContext) {}

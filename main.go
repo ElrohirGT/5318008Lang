@@ -26,6 +26,26 @@ func generateErrorOutput(errors []string) error {
 	return fmt.Errorf(Red+"=== ERRORS ===\n%s"+Reset, b.String())
 }
 
+type ErrorListener struct {
+	*antlr.DefaultErrorListener
+	hadError bool
+	errors   []string
+}
+
+func (l *ErrorListener) SyntaxError(recognizer antlr.Recognizer,
+	offendingSymbol interface{}, line, column int,
+	msg string, e antlr.RecognitionException) {
+
+	l.hadError = true
+
+	errMsg := fmt.Sprintf("line %d:%d %s", line, column, msg)
+
+	fmt.Println("Sintax error:", errMsg)
+
+	// also collect for later
+	l.errors = append(l.errors, errMsg)
+}
+
 func testableMain(reader io.Reader) error {
 	inputStream := antlr.NewIoStream(reader)
 
@@ -33,7 +53,17 @@ func testableMain(reader io.Reader) error {
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	parser := p.NewCompiscriptParser(stream)
 
+	// replace default console error listener
+	parser.RemoveErrorListeners()
+	errListener := &ErrorListener{}
+	parser.AddErrorListener(errListener)
+
 	tree := parser.Program()
+
+	// bail early if syntax errors
+	if errListener.hadError {
+		return fmt.Errorf("syntax errors:\n%s", strings.Join(errListener.errors, "\n"))
+	}
 
 	walker := antlr.NewParseTreeWalker()
 	lis := listener.NewListener()
@@ -42,7 +72,6 @@ func testableMain(reader io.Reader) error {
 	if lis.HasErrors() {
 		return generateErrorOutput(*lis.Errors)
 	}
-
 	return nil
 }
 

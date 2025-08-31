@@ -7,7 +7,8 @@ grammar Compiscript;
 program: statement* EOF;
 
 statement
-  : variableDeclaration
+  : standaloneExpresion
+  | variableDeclaration
   | constantDeclaration
   | assignment
   | functionDeclaration
@@ -25,7 +26,7 @@ statement
   | continueStatement
   | returnStatement
   ;
-
+  
 block: '{' statement* '}';
 
 variableDeclaration
@@ -141,10 +142,20 @@ leftHandSide
   : primaryAtom (suffixOp)*
   ;
 
+standaloneExpresion 
+  : standaloneAtom (suffixOp)*
+  ;
+  
 primaryAtom
   : Identifier                                 # IdentifierExpr
   | 'new' Identifier '(' arguments? ')'        # NewExpr
   | 'this'                                     # ThisExpr
+  ;
+
+standaloneAtom
+  : Identifier                                 # StandaloneIdentifierExpr
+  | 'new' Identifier '(' arguments? ')'        # StandaloneNewExpr        // Add custom error for this case
+  | 'this'                                     # StandaloneThisExpr
   ;
 
 suffixOp
