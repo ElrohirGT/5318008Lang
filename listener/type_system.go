@@ -237,7 +237,6 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 
 	isPropertyAssignment := len(ctx.AllExpression()) > 1
 	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
-
 	if isPropertyAssignment {
 		firstExpr := ctx.Expression(0)
 		colStartF := firstExpr.GetStart().GetColumn()
@@ -317,10 +316,13 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			}
 
 			log.Printf("Inferring `%s` as type `%s`", "this."+identifier.GetText(), assignType)
-			classScope.UpsertExpressionType("this."+identifier.GetText(), assignType)
-			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
-				cti.UpsertField(identifier.GetText(), assignType)
-			})
+			// FIX: Check if classScope is not nil before using it
+			if isInsideClassDeclaration && classScope != nil {
+				classScope.UpsertExpressionType("this."+identifier.GetText(), assignType)
+				l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
+					cti.UpsertField(identifier.GetText(), assignType)
+				})
+			}
 			fieldType = assignType
 		}
 
@@ -494,21 +496,128 @@ func (l Listener) EnterIdentifierExpr(ctx *p.IdentifierExprContext) {
 	}
 }
 
-func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
-	// FIXME: Methods and functions are called here!
-	// For example `cell.setRow(15)` will be evaluated here!
-	log.Println("LEFT HAND SIDE:", ctx.GetText())
-	log.Println("CHILD", ctx.PrimaryAtom().GetChild(0))
-	suffixes := ctx.AllSuffixOp()
+func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
+	primaryAtom := ctx.PrimaryAtom()
+	suffixOps := ctx.AllSuffixOp()
 
-	if len(suffixes) == 0 {
-		// simple expression, no further evaluating is required
+	line := ctx.GetStart().GetLine()
+	colStart := ctx.GetStart().GetColumn()
+	colEnd := colStart + len(ctx.GetText())
+
+	log.Printf("Validating leftHandSide: %s", ctx.GetText())
+
+	if !l.isValidCombination(primaryAtom, suffixOps) {
+		l.AddError(line, colStart, colEnd, fmt.Sprintf(
+			"Invalid expression structure: %s",
+			ctx.GetText(),
+		))
 		return
 	}
 
-	// for _, suffixCtx := range suffixes {
-	// 	// FIXME: Implement me!
-	// }
+	l.processValidLeftHandSide(ctx, primaryAtom, suffixOps)
+}
+
+func (l Listener) isValidCombination(primaryAtom p.IPrimaryAtomContext, suffixOps []p.ISuffixOpContext) bool {
+	switch atom := primaryAtom.(type) {
+	case *p.IdentifierExprContext:
+		// ✓ '(' arguments? ')'                    (CallExpr)
+		// ✓ '[' conditionalExpr ']'              (IndexExpr)
+		// ✓ '.' Identifier                       (PropertyAccessExpr)
+		log.Printf("✓ Identifier '%s' - all suffix operations allowed", atom.Identifier().GetText())
+		return true
+
+	case *p.NewExprContext:
+		// 'new' Identifier '(' arguments? ')' can be followed by:
+		// ✗ '(' arguments? ')'                    (CallExpr) - NOT allowed
+		// ✗ '[' conditionalExpr ']'              (IndexExpr) - NOT allowed
+		// ✗ '.' Identifier                       (PropertyAccessExpr) - NOT allowed
+
+		className := atom.Identifier().GetText()
+
+		if len(suffixOps) > 0 {
+			log.Printf("✗ NewExpr 'new %s(...)' cannot have suffix operations", className)
+			return false
+		}
+
+		log.Printf("✓ NewExpr 'new %s(...)' with no suffix operations", className)
+		return true
+
+	case *p.ThisExprContext:
+		// ✗ '(' arguments? ')'                    (CallExpr) - NOT allowed
+		// ✗ '[' conditionalExpr ']'              (IndexExpr) - NOT allowed
+		// ✗ '.' Identifier                       (PropertyAccessExpr) - NOT allowed
+
+		if len(suffixOps) > 0 {
+			log.Printf("✗ ThisExpr 'this' cannot have suffix operations")
+			return false
+		}
+
+		log.Printf("✓ ThisExpr 'this' with no suffix operations")
+		return true
+
+	default:
+		log.Printf("✗ Unknown primaryAtom type")
+		return false
+	}
+}
+
+func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAtom p.IPrimaryAtomContext, suffixOps []p.ISuffixOpContext) {
+	var currentType TypeIdentifier = BASE_TYPES.UNKNOWN
+	var currentExpr string = ctx.GetText()
+
+	switch atom := primaryAtom.(type) {
+	case *p.IdentifierExprContext:
+		identifier := atom.Identifier().GetText()
+		if foundType, exists := l.ScopeManager.CurrentScope.GetExpressionType(identifier); exists {
+			currentType = foundType
+			log.Printf("Identifier '%s' has type '%s'", identifier, currentType)
+		} else {
+			line := ctx.GetStart().GetLine()
+			colStart := atom.Identifier().GetSymbol().GetColumn()
+			colEnd := colStart + len(identifier)
+			l.AddError(line, colStart, colEnd, fmt.Sprintf(
+				"Undeclared identifier '%s'",
+				identifier,
+			))
+			return
+		}
+
+	case *p.NewExprContext:
+		className := atom.Identifier().GetText()
+		currentType = TypeIdentifier(className)
+		log.Printf("NewExpr creates instance of type '%s'", currentType)
+
+	case *p.ThisExprContext:
+		if foundType, exists := l.ScopeManager.CurrentScope.GetExpressionType("this"); exists {
+			currentType = foundType
+			log.Printf("'this' has type '%s'", currentType)
+		} else {
+			line := ctx.GetStart().GetLine()
+			colStart := ctx.GetStart().GetColumn()
+			colEnd := colStart + 4
+			l.AddError(line, colStart, colEnd, "'this' is not available in current scope")
+			return
+		}
+	}
+
+	if _, ok := primaryAtom.(*p.IdentifierExprContext); ok {
+		for i, suffixOp := range suffixOps {
+			switch suffix := suffixOp.(type) {
+			case *p.CallExprContext:
+				log.Printf("Processing CallExpr [%d] on type '%s'", i, currentType)
+
+			case *p.IndexExprContext:
+				log.Printf("Processing IndexExpr [%d] on type '%s'", i, currentType)
+
+			case *p.PropertyAccessExprContext:
+				propertyName := suffix.Identifier().GetText()
+				log.Printf("Processing PropertyAccessExpr [%d]: '.%s' on type '%s'", i, propertyName, currentType)
+			}
+		}
+	}
+
+	l.ScopeManager.CurrentScope.UpsertExpressionType(currentExpr, currentType)
+	log.Printf("Final type for '%s': '%s'", currentExpr, currentType)
 }
 
 func (l Listener) EnterAdditiveExpr(ctx *p.AdditiveExprContext) {
