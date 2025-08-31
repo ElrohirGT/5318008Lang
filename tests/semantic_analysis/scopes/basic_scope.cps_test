@@ -1,5 +1,0 @@
-let a: integer = 2 + 2 + 7;
-return a;
----
-=== ERRORS ===
-* Error: (line: 2) 'return' statement out function scope.

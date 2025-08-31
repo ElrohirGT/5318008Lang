@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -15,6 +16,8 @@ const OUTPUT_SEPARATOR = "---"
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
 	// "class",
+	// "tests/semantic_analysis/controlflow/",
+	// "tests/semantic_analysis/scopes/break_outside_loop",
 }
 
 var IGNORE_SPECIFIC = []string{
@@ -28,7 +31,6 @@ func Test_SnapshotTesting(t *testing.T) {
 		if d.IsDir() {
 			return nil
 		}
-
 		for _, str := range RUN_ONLY_THAT_MATCH {
 			if !strings.Contains(path, str) {
 				return nil
@@ -60,11 +62,15 @@ func Test_SnapshotTesting(t *testing.T) {
 
 		reader := bytes.NewReader([]byte(cpsContents))
 		err = testableMain(reader)
-		if err != nil && programOutput != strings.TrimSpace(err.Error()) {
+		errMsg := ""
+		if err != nil {
+			errMsg = strings.TrimSpace(stripANSI(err.Error()))
+		}
+		if err != nil && programOutput != errMsg {
 			t.Errorf(
 				"\nProgram %s failed with:\n%s\nBut expected:\n%s",
 				path,
-				err.Error(),
+				errMsg,
 				programOutput,
 			)
 			continue
@@ -78,4 +84,10 @@ func Test_SnapshotTesting(t *testing.T) {
 			continue
 		}
 	}
+}
+
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+func stripANSI(s string) string {
+	return ansiRegex.ReplaceAllString(s, "")
 }

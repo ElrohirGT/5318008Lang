@@ -1,0 +1,6 @@
+let b : integer = 5;
+let a : boolean =  2 < b 
+    || b <= "10"
+    && true 
+    && "hello" == false;
+---
