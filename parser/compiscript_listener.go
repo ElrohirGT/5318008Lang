@@ -131,6 +131,9 @@ type CompiscriptListener interface {
 	// EnterLeftHandSide is called when entering the leftHandSide production.
 	EnterLeftHandSide(c *LeftHandSideContext)
 
+	// EnterStandaloneExpresion is called when entering the standaloneExpresion production.
+	EnterStandaloneExpresion(c *StandaloneExpresionContext)
+
 	// EnterIdentifierExpr is called when entering the IdentifierExpr production.
 	EnterIdentifierExpr(c *IdentifierExprContext)
 
@@ -139,6 +142,15 @@ type CompiscriptListener interface {
 
 	// EnterThisExpr is called when entering the ThisExpr production.
 	EnterThisExpr(c *ThisExprContext)
+
+	// EnterStandaloneIdentifierExpr is called when entering the StandaloneIdentifierExpr production.
+	EnterStandaloneIdentifierExpr(c *StandaloneIdentifierExprContext)
+
+	// EnterStandaloneNewExpr is called when entering the StandaloneNewExpr production.
+	EnterStandaloneNewExpr(c *StandaloneNewExprContext)
+
+	// EnterStandaloneThisExpr is called when entering the StandaloneThisExpr production.
+	EnterStandaloneThisExpr(c *StandaloneThisExprContext)
 
 	// EnterCallExpr is called when entering the CallExpr production.
 	EnterCallExpr(c *CallExprContext)
@@ -284,6 +296,9 @@ type CompiscriptListener interface {
 	// ExitLeftHandSide is called when exiting the leftHandSide production.
 	ExitLeftHandSide(c *LeftHandSideContext)
 
+	// ExitStandaloneExpresion is called when exiting the standaloneExpresion production.
+	ExitStandaloneExpresion(c *StandaloneExpresionContext)
+
 	// ExitIdentifierExpr is called when exiting the IdentifierExpr production.
 	ExitIdentifierExpr(c *IdentifierExprContext)
 
@@ -292,6 +307,15 @@ type CompiscriptListener interface {
 
 	// ExitThisExpr is called when exiting the ThisExpr production.
 	ExitThisExpr(c *ThisExprContext)
+
+	// ExitStandaloneIdentifierExpr is called when exiting the StandaloneIdentifierExpr production.
+	ExitStandaloneIdentifierExpr(c *StandaloneIdentifierExprContext)
+
+	// ExitStandaloneNewExpr is called when exiting the StandaloneNewExpr production.
+	ExitStandaloneNewExpr(c *StandaloneNewExprContext)
+
+	// ExitStandaloneThisExpr is called when exiting the StandaloneThisExpr production.
+	ExitStandaloneThisExpr(c *StandaloneThisExprContext)
 
 	// ExitCallExpr is called when exiting the CallExpr production.
 	ExitCallExpr(c *CallExprContext)
