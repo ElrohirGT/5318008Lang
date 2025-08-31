@@ -183,3 +183,146 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 		}
 	}
 }
+
+func (l Listener) EnterCallExpr(ctx *p.CallExprContext) {
+	line := ctx.GetStart().GetLine()
+	parent := ctx.GetParent()
+	var funcName string
+	var funcNameColStart, funcNameColEnd int
+
+	if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+		if primaryAtom := leftHandSide.PrimaryAtom(); primaryAtom != nil {
+			if identifierExpr, ok := primaryAtom.(*p.IdentifierExprContext); ok {
+				funcName = identifierExpr.Identifier().GetText()
+				funcNameColStart = identifierExpr.Identifier().GetSymbol().GetColumn()
+				funcNameColEnd = funcNameColStart + len(funcName)
+			}
+		}
+	}
+
+	if funcName == "" {
+		l.AddError(line, ctx.GetStart().GetColumn(), ctx.GetStop().GetColumn()+1,
+			"Could not determine function name for call expression")
+		return
+	}
+
+	log.Printf("Processing function call: %s", funcName)
+
+	exprArguments := []p.IExpressionContext{}
+	if ctx.Arguments() != nil {
+		exprArguments = ctx.Arguments().AllExpression()
+	}
+
+	funcInfo, found := l.findFunctionInfo(funcName)
+	if !found {
+		l.AddError(line, funcNameColStart, funcNameColEnd, fmt.Sprintf(
+			"Undefined function `%s`",
+			funcName,
+		))
+		return
+	}
+
+	if len(funcInfo.ParameterList) != len(exprArguments) {
+		l.AddError(line, funcNameColStart, funcNameColEnd, fmt.Sprintf(
+			"Function `%s` expects %d arguments but %d given",
+			funcName,
+			len(funcInfo.ParameterList),
+			len(exprArguments),
+		))
+		return
+	}
+
+	if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+		fullExpr := leftHandSide.GetText()
+		log.Printf("Setting return type of `%s` to `%s`", fullExpr, funcInfo.ReturnType)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
+
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
+	}
+}
+
+func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
+	line := ctx.GetStart().GetLine()
+	parent := ctx.GetParent()
+	var funcName string
+
+	if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+		if primaryAtom := leftHandSide.PrimaryAtom(); primaryAtom != nil {
+			if identifierExpr, ok := primaryAtom.(*p.IdentifierExprContext); ok {
+				funcName = identifierExpr.Identifier().GetText()
+			}
+		}
+	}
+
+	if funcName == "" {
+		return
+	}
+
+	exprArguments := []p.IExpressionContext{}
+	if ctx.Arguments() != nil {
+		exprArguments = ctx.Arguments().AllExpression()
+	}
+
+	funcInfo, found := l.findFunctionInfo(funcName)
+	if !found {
+		return
+	}
+
+	if len(funcInfo.ParameterList) != len(exprArguments) {
+		return
+	}
+
+	for i, param := range funcInfo.ParameterList {
+		if i >= len(exprArguments) {
+			break
+		}
+
+		argExpr := exprArguments[i]
+		argColStart := argExpr.GetStart().GetColumn()
+		argColEnd := argColStart + len(argExpr.GetText())
+
+		argType, found := l.ScopeManager.CurrentScope.GetExpressionType(argExpr.GetText())
+		if !found {
+			l.AddError(line, argColStart, argColEnd, fmt.Sprintf(
+				"Type of argument `%s` not found",
+				argExpr.GetText(),
+			))
+			continue
+		}
+
+		if param.Type != BASE_TYPES.UNKNOWN && param.Type != argType {
+			l.AddError(line, argColStart, argColEnd, fmt.Sprintf(
+				"Function `%s` parameter `%s` expects type `%s` but got `%s`",
+				funcName,
+				param.Name,
+				param.Type,
+				argType,
+			))
+		}
+	}
+}
+
+func (l Listener) findFunctionInfo(funcName string) (MethodInfo, bool) {
+	// First check current scope and walk up
+	scope := l.ScopeManager.CurrentScope
+	for scope != nil {
+		if funcInfo, found := scope.functions[funcName]; found {
+			return funcInfo, true
+		}
+		scope = scope.Father
+	}
+
+	// Check if it's a method in the current class (if we're in a class)
+	if classScope, inClass := l.ScopeManager.SearchClassScope(); inClass {
+		if typeInfo, found := l.GetTypeInfo(TypeIdentifier(classScope.Name)); found {
+			if typeInfo.ClassType.HasValue() {
+				classInfo := typeInfo.ClassType.GetValue()
+				if methodInfo, found := classInfo.Methods[funcName]; found {
+					return methodInfo, true
+				}
+			}
+		}
+	}
+
+	return MethodInfo{}, false
+}

@@ -380,12 +380,122 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 }
 
 func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
+	var referenceType TypeIdentifier
+	var found bool
+
 	// Primary expresion is of type conditional just pass inherit its type
-	expr := ctx.ConditionalExpr()
-	if expr == nil {
+	if expr := ctx.ConditionalExpr(); expr != nil {
+		referenceType, found = l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+		if found {
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+		}
 		return
 	}
-	referenceType, _ := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 
-	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+	if lhs := ctx.LeftHandSide(); lhs != nil {
+		referenceType, found = l.ScopeManager.CurrentScope.GetExpressionType(lhs.GetText())
+		if found {
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+		}
+		return
+	}
+
+	if literal := ctx.LiteralExpr(); literal != nil {
+		referenceType, found = l.ScopeManager.CurrentScope.GetExpressionType(literal.GetText())
+		if found {
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+		}
+		return
+	}
+}
+
+func (l Listener) ExitIdentifierExpr(ctx *p.IdentifierExprContext) {
+	identifier := ctx.Identifier().GetText()
+	log.Printf("Processing identifier expression: %s", identifier)
+
+	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
+	if found {
+		parent := ctx.GetParent()
+		if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+			if len(leftHandSide.AllSuffixOp()) == 0 {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(leftHandSide.GetText(), identifierType)
+			}
+		}
+	} else {
+		line := ctx.GetStart().GetLine()
+		colStart := ctx.Identifier().GetSymbol().GetColumn()
+		colEnd := colStart + len(identifier)
+		l.AddError(line, colStart, colEnd, fmt.Sprintf(
+			"Undeclared identifier `%s`",
+			identifier,
+		))
+	}
+}
+
+func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
+	strRepresentation := ctx.GetText()
+	switch strRepresentation {
+	case "null":
+		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.NULL)
+	case "true", "false":
+		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.BOOLEAN)
+	default:
+		literal := ctx.Literal()
+		if literal != nil {
+			literalExpr := literal.GetText()
+			_, err := strconv.ParseInt(literalExpr, 10, 64)
+			if err != nil {
+				log.Println("Adding", literalExpr, "as an expression of type", BASE_TYPES.STRING)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.STRING)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.STRING)
+			} else {
+				log.Println("Adding", literalExpr, "as an expression of type", BASE_TYPES.INTEGER)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.INTEGER)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INTEGER)
+			}
+		}
+	}
+}
+
+func (l Listener) EnterIdentifierExpr(ctx *p.IdentifierExprContext) {
+	identifier := ctx.Identifier().GetText()
+
+	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
+	if found {
+		parent := ctx.GetParent()
+		if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+			if len(leftHandSide.AllSuffixOp()) == 0 {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(leftHandSide.GetText(), identifierType)
+			}
+		}
+	}
+}
+
+func (l Listener) EnterAdditiveExpr(ctx *p.AdditiveExprContext) {
+	exprs := ctx.AllMultiplicativeExpr()
+	if len(exprs) <= 1 {
+		return
+	}
+
+	var knownType TypeIdentifier = BASE_TYPES.UNKNOWN
+	allTypesKnown := true
+
+	for _, expr := range exprs {
+		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+		if !found || exprType == BASE_TYPES.UNKNOWN {
+			allTypesKnown = false
+			continue
+		}
+
+		if knownType == BASE_TYPES.UNKNOWN {
+			knownType = exprType
+		} else if knownType != exprType {
+			return
+		}
+	}
+
+	if allTypesKnown && knownType != BASE_TYPES.UNKNOWN {
+		log.Printf("Early type inference for additive expression `%s`: %s", ctx.GetText(), knownType)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), knownType)
+	}
 }
