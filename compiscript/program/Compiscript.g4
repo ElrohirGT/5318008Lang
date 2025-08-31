@@ -143,7 +143,7 @@ leftHandSide
   ;
 
 standaloneExpresion 
-  : standaloneAtom (suffixOp)*
+  : standaloneAtom (suffixOp)* ';'
   ;
   
 primaryAtom
