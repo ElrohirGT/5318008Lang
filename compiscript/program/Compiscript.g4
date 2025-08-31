@@ -80,13 +80,13 @@ classMember: functionDeclaration | variableDeclaration | constantDeclaration;
 expression: assignmentExpr;
 
 assignmentExpr
-  : lhs=leftHandSide '=' assignmentExpr            # AssignExpr
-  | lhs=leftHandSide '.' Identifier '=' assignmentExpr # PropertyAssignExpr
-  | conditionalExpr                                # ExprNoAssign
+  : lhs=leftHandSide '=' assignmentExpr           
+  | lhs=leftHandSide '.' Identifier '=' assignmentExpr 
+  | conditionalExpr                                
   ;
 
 conditionalExpr
-  : logicalOrExpr ('?' expression ':' expression)? # TernaryExpr
+  : logicalOrExpr ('?' expression ':' expression)? 
   ;
 
 logicalOrExpr
@@ -97,8 +97,9 @@ logicalAndExpr
   : equalityExpr ( '&&' equalityExpr )*
   ;
 
+// Values should be of the same type and just primary
 equalityExpr
-  : relationalExpr ( ('==' | '!=') relationalExpr )*
+  : relationalExpr ( ('==' | '!=') relationalExpr )* 
   ;
 
 relationalExpr

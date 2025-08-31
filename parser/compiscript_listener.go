@@ -98,17 +98,11 @@ type CompiscriptListener interface {
 	// EnterExpression is called when entering the expression production.
 	EnterExpression(c *ExpressionContext)
 
-	// EnterAssignExpr is called when entering the AssignExpr production.
-	EnterAssignExpr(c *AssignExprContext)
+	// EnterAssignmentExpr is called when entering the assignmentExpr production.
+	EnterAssignmentExpr(c *AssignmentExprContext)
 
-	// EnterPropertyAssignExpr is called when entering the PropertyAssignExpr production.
-	EnterPropertyAssignExpr(c *PropertyAssignExprContext)
-
-	// EnterExprNoAssign is called when entering the ExprNoAssign production.
-	EnterExprNoAssign(c *ExprNoAssignContext)
-
-	// EnterTernaryExpr is called when entering the TernaryExpr production.
-	EnterTernaryExpr(c *TernaryExprContext)
+	// EnterConditionalExpr is called when entering the conditionalExpr production.
+	EnterConditionalExpr(c *ConditionalExprContext)
 
 	// EnterLogicalOrExpr is called when entering the logicalOrExpr production.
 	EnterLogicalOrExpr(c *LogicalOrExprContext)
@@ -260,17 +254,11 @@ type CompiscriptListener interface {
 	// ExitExpression is called when exiting the expression production.
 	ExitExpression(c *ExpressionContext)
 
-	// ExitAssignExpr is called when exiting the AssignExpr production.
-	ExitAssignExpr(c *AssignExprContext)
+	// ExitAssignmentExpr is called when exiting the assignmentExpr production.
+	ExitAssignmentExpr(c *AssignmentExprContext)
 
-	// ExitPropertyAssignExpr is called when exiting the PropertyAssignExpr production.
-	ExitPropertyAssignExpr(c *PropertyAssignExprContext)
-
-	// ExitExprNoAssign is called when exiting the ExprNoAssign production.
-	ExitExprNoAssign(c *ExprNoAssignContext)
-
-	// ExitTernaryExpr is called when exiting the TernaryExpr production.
-	ExitTernaryExpr(c *TernaryExprContext)
+	// ExitConditionalExpr is called when exiting the conditionalExpr production.
+	ExitConditionalExpr(c *ConditionalExprContext)
 
 	// ExitLogicalOrExpr is called when exiting the logicalOrExpr production.
 	ExitLogicalOrExpr(c *LogicalOrExprContext)

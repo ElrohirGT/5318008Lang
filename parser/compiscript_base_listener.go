@@ -201,29 +201,17 @@ func (s *BaseCompiscriptListener) EnterExpression(ctx *ExpressionContext) {}
 // ExitExpression is called when production expression is exited.
 func (s *BaseCompiscriptListener) ExitExpression(ctx *ExpressionContext) {}
 
-// EnterAssignExpr is called when production AssignExpr is entered.
-func (s *BaseCompiscriptListener) EnterAssignExpr(ctx *AssignExprContext) {}
+// EnterAssignmentExpr is called when production assignmentExpr is entered.
+func (s *BaseCompiscriptListener) EnterAssignmentExpr(ctx *AssignmentExprContext) {}
 
-// ExitAssignExpr is called when production AssignExpr is exited.
-func (s *BaseCompiscriptListener) ExitAssignExpr(ctx *AssignExprContext) {}
+// ExitAssignmentExpr is called when production assignmentExpr is exited.
+func (s *BaseCompiscriptListener) ExitAssignmentExpr(ctx *AssignmentExprContext) {}
 
-// EnterPropertyAssignExpr is called when production PropertyAssignExpr is entered.
-func (s *BaseCompiscriptListener) EnterPropertyAssignExpr(ctx *PropertyAssignExprContext) {}
+// EnterConditionalExpr is called when production conditionalExpr is entered.
+func (s *BaseCompiscriptListener) EnterConditionalExpr(ctx *ConditionalExprContext) {}
 
-// ExitPropertyAssignExpr is called when production PropertyAssignExpr is exited.
-func (s *BaseCompiscriptListener) ExitPropertyAssignExpr(ctx *PropertyAssignExprContext) {}
-
-// EnterExprNoAssign is called when production ExprNoAssign is entered.
-func (s *BaseCompiscriptListener) EnterExprNoAssign(ctx *ExprNoAssignContext) {}
-
-// ExitExprNoAssign is called when production ExprNoAssign is exited.
-func (s *BaseCompiscriptListener) ExitExprNoAssign(ctx *ExprNoAssignContext) {}
-
-// EnterTernaryExpr is called when production TernaryExpr is entered.
-func (s *BaseCompiscriptListener) EnterTernaryExpr(ctx *TernaryExprContext) {}
-
-// ExitTernaryExpr is called when production TernaryExpr is exited.
-func (s *BaseCompiscriptListener) ExitTernaryExpr(ctx *TernaryExprContext) {}
+// ExitConditionalExpr is called when production conditionalExpr is exited.
+func (s *BaseCompiscriptListener) ExitConditionalExpr(ctx *ConditionalExprContext) {}
 
 // EnterLogicalOrExpr is called when production logicalOrExpr is entered.
 func (s *BaseCompiscriptListener) EnterLogicalOrExpr(ctx *LogicalOrExprContext) {}

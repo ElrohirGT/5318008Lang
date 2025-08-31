@@ -5567,6 +5567,19 @@ type IAssignmentExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// GetLhs returns the lhs rule contexts.
+	GetLhs() ILeftHandSideContext
+
+	// SetLhs sets the lhs rule contexts.
+	SetLhs(ILeftHandSideContext)
+
+	// Getter signatures
+	AssignmentExpr() IAssignmentExprContext
+	LeftHandSide() ILeftHandSideContext
+	Identifier() antlr.TerminalNode
+	ConditionalExpr() IConditionalExprContext
+
 	// IsAssignmentExprContext differentiates from other interfaces.
 	IsAssignmentExprContext()
 }
@@ -5574,6 +5587,7 @@ type IAssignmentExprContext interface {
 type AssignmentExprContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
+	lhs    ILeftHandSideContext
 }
 
 func NewEmptyAssignmentExprContext() *AssignmentExprContext {
@@ -5603,37 +5617,47 @@ func NewAssignmentExprContext(parser antlr.Parser, parent antlr.ParserRuleContex
 
 func (s *AssignmentExprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *AssignmentExprContext) CopyAll(ctx *AssignmentExprContext) {
-	s.CopyFrom(&ctx.BaseParserRuleContext)
+func (s *AssignmentExprContext) GetLhs() ILeftHandSideContext { return s.lhs }
+
+func (s *AssignmentExprContext) SetLhs(v ILeftHandSideContext) { s.lhs = v }
+
+func (s *AssignmentExprContext) AssignmentExpr() IAssignmentExprContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExprContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExprContext)
 }
 
-func (s *AssignmentExprContext) GetRuleContext() antlr.RuleContext {
-	return s
+func (s *AssignmentExprContext) LeftHandSide() ILeftHandSideContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ILeftHandSideContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ILeftHandSideContext)
 }
 
-func (s *AssignmentExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
+func (s *AssignmentExprContext) Identifier() antlr.TerminalNode {
+	return s.GetToken(CompiscriptParserIdentifier, 0)
 }
 
-type ExprNoAssignContext struct {
-	AssignmentExprContext
-}
-
-func NewExprNoAssignContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *ExprNoAssignContext {
-	var p = new(ExprNoAssignContext)
-
-	InitEmptyAssignmentExprContext(&p.AssignmentExprContext)
-	p.parser = parser
-	p.CopyAll(ctx.(*AssignmentExprContext))
-
-	return p
-}
-
-func (s *ExprNoAssignContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *ExprNoAssignContext) ConditionalExpr() IConditionalExprContext {
+func (s *AssignmentExprContext) ConditionalExpr() IConditionalExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IConditionalExprContext); ok {
@@ -5649,153 +5673,23 @@ func (s *ExprNoAssignContext) ConditionalExpr() IConditionalExprContext {
 	return t.(IConditionalExprContext)
 }
 
-func (s *ExprNoAssignContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterExprNoAssign(s)
-	}
-}
-
-func (s *ExprNoAssignContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitExprNoAssign(s)
-	}
-}
-
-type PropertyAssignExprContext struct {
-	AssignmentExprContext
-	lhs ILeftHandSideContext
-}
-
-func NewPropertyAssignExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *PropertyAssignExprContext {
-	var p = new(PropertyAssignExprContext)
-
-	InitEmptyAssignmentExprContext(&p.AssignmentExprContext)
-	p.parser = parser
-	p.CopyAll(ctx.(*AssignmentExprContext))
-
-	return p
-}
-
-func (s *PropertyAssignExprContext) GetLhs() ILeftHandSideContext { return s.lhs }
-
-func (s *PropertyAssignExprContext) SetLhs(v ILeftHandSideContext) { s.lhs = v }
-
-func (s *PropertyAssignExprContext) GetRuleContext() antlr.RuleContext {
+func (s *AssignmentExprContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *PropertyAssignExprContext) Identifier() antlr.TerminalNode {
-	return s.GetToken(CompiscriptParserIdentifier, 0)
+func (s *AssignmentExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *PropertyAssignExprContext) AssignmentExpr() IAssignmentExprContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignmentExprContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IAssignmentExprContext)
-}
-
-func (s *PropertyAssignExprContext) LeftHandSide() ILeftHandSideContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILeftHandSideContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(ILeftHandSideContext)
-}
-
-func (s *PropertyAssignExprContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *AssignmentExprContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterPropertyAssignExpr(s)
+		listenerT.EnterAssignmentExpr(s)
 	}
 }
 
-func (s *PropertyAssignExprContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *AssignmentExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitPropertyAssignExpr(s)
-	}
-}
-
-type AssignExprContext struct {
-	AssignmentExprContext
-	lhs ILeftHandSideContext
-}
-
-func NewAssignExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *AssignExprContext {
-	var p = new(AssignExprContext)
-
-	InitEmptyAssignmentExprContext(&p.AssignmentExprContext)
-	p.parser = parser
-	p.CopyAll(ctx.(*AssignmentExprContext))
-
-	return p
-}
-
-func (s *AssignExprContext) GetLhs() ILeftHandSideContext { return s.lhs }
-
-func (s *AssignExprContext) SetLhs(v ILeftHandSideContext) { s.lhs = v }
-
-func (s *AssignExprContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *AssignExprContext) AssignmentExpr() IAssignmentExprContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignmentExprContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IAssignmentExprContext)
-}
-
-func (s *AssignExprContext) LeftHandSide() ILeftHandSideContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILeftHandSideContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(ILeftHandSideContext)
-}
-
-func (s *AssignExprContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterAssignExpr(s)
-	}
-}
-
-func (s *AssignExprContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitAssignExpr(s)
+		listenerT.ExitAssignmentExpr(s)
 	}
 }
 
@@ -5810,14 +5704,13 @@ func (p *CompiscriptParser) AssignmentExpr() (localctx IAssignmentExprContext) {
 
 	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 23, p.GetParserRuleContext()) {
 	case 1:
-		localctx = NewAssignExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(334)
 
 			var _x = p.LeftHandSide()
 
-			localctx.(*AssignExprContext).lhs = _x
+			localctx.(*AssignmentExprContext).lhs = _x
 		}
 		{
 			p.SetState(335)
@@ -5833,14 +5726,13 @@ func (p *CompiscriptParser) AssignmentExpr() (localctx IAssignmentExprContext) {
 		}
 
 	case 2:
-		localctx = NewPropertyAssignExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(338)
 
 			var _x = p.LeftHandSide()
 
-			localctx.(*PropertyAssignExprContext).lhs = _x
+			localctx.(*AssignmentExprContext).lhs = _x
 		}
 		{
 			p.SetState(339)
@@ -5872,7 +5764,6 @@ func (p *CompiscriptParser) AssignmentExpr() (localctx IAssignmentExprContext) {
 		}
 
 	case 3:
-		localctx = NewExprNoAssignContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(344)
@@ -5902,6 +5793,12 @@ type IConditionalExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LogicalOrExpr() ILogicalOrExprContext
+	AllExpression() []IExpressionContext
+	Expression(i int) IExpressionContext
+
 	// IsConditionalExprContext differentiates from other interfaces.
 	IsConditionalExprContext()
 }
@@ -5938,37 +5835,7 @@ func NewConditionalExprContext(parser antlr.Parser, parent antlr.ParserRuleConte
 
 func (s *ConditionalExprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ConditionalExprContext) CopyAll(ctx *ConditionalExprContext) {
-	s.CopyFrom(&ctx.BaseParserRuleContext)
-}
-
-func (s *ConditionalExprContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *ConditionalExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-type TernaryExprContext struct {
-	ConditionalExprContext
-}
-
-func NewTernaryExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *TernaryExprContext {
-	var p = new(TernaryExprContext)
-
-	InitEmptyConditionalExprContext(&p.ConditionalExprContext)
-	p.parser = parser
-	p.CopyAll(ctx.(*ConditionalExprContext))
-
-	return p
-}
-
-func (s *TernaryExprContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *TernaryExprContext) LogicalOrExpr() ILogicalOrExprContext {
+func (s *ConditionalExprContext) LogicalOrExpr() ILogicalOrExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ILogicalOrExprContext); ok {
@@ -5984,7 +5851,7 @@ func (s *TernaryExprContext) LogicalOrExpr() ILogicalOrExprContext {
 	return t.(ILogicalOrExprContext)
 }
 
-func (s *TernaryExprContext) AllExpression() []IExpressionContext {
+func (s *ConditionalExprContext) AllExpression() []IExpressionContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
@@ -6005,7 +5872,7 @@ func (s *TernaryExprContext) AllExpression() []IExpressionContext {
 	return tst
 }
 
-func (s *TernaryExprContext) Expression(i int) IExpressionContext {
+func (s *ConditionalExprContext) Expression(i int) IExpressionContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
@@ -6025,15 +5892,23 @@ func (s *TernaryExprContext) Expression(i int) IExpressionContext {
 	return t.(IExpressionContext)
 }
 
-func (s *TernaryExprContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *ConditionalExprContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *ConditionalExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *ConditionalExprContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterTernaryExpr(s)
+		listenerT.EnterConditionalExpr(s)
 	}
 }
 
-func (s *TernaryExprContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *ConditionalExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitTernaryExpr(s)
+		listenerT.ExitConditionalExpr(s)
 	}
 }
 
@@ -6042,7 +5917,6 @@ func (p *CompiscriptParser) ConditionalExpr() (localctx IConditionalExprContext)
 	p.EnterRule(localctx, 62, CompiscriptParserRULE_conditionalExpr)
 	var _la int
 
-	localctx = NewTernaryExprContext(p, localctx)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(347)
