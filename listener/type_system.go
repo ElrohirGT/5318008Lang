@@ -199,10 +199,9 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 
 			if !l.TypeExists(TypeIdentifier(baseType)) {
 				// FIXME: Make error more specific
-				l.AddError(line, colStartT, colEndT, fmt.Sprintf(
-					"%s doesn't exist!",
-					baseType,
-				))
+				l.AddError(line, colStartT, colEndT,
+					baseType+" doesn't exist!",
+				)
 				declarationType = BASE_TYPES.INVALID
 			} else {
 				declarationType = NewArrayTypeIdentifier(TypeIdentifier(annotText[:len(annotText)-2]))

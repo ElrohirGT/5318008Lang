@@ -149,7 +149,7 @@ func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
 	l.ScopeManager.ReplaceWithParent()
 }
 
-// FIXME: HOW ARRAYS ARE HANDLED MUST BE CHANGE
+// FIXME: HOW ARRAYS ARE HANDLED MUST BE CHANGE.
 func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
 	line := ctx.GetStart().GetLine()
 	colStartI := ctx.GetStart().GetColumn()
