@@ -13,9 +13,40 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	nameColStart := funcName.GetSymbol().GetColumn()
 	nameColEnd := nameColStart + len(funcName.GetText())
 
-	// Check duplicates in class scope
 	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
-	if !isInsideClassDeclaration {
+
+	// Check duplicates in different contexts
+	if isInsideClassDeclaration {
+		// Check for duplicate methods in class
+		className := l.ScopeManager.CurrentScope.Name
+		typeInfo, found := l.GetTypeInfo(TypeIdentifier(className))
+		if found && typeInfo.ClassType.HasValue() {
+			classInfo := typeInfo.ClassType.GetValue()
+
+			// Check if method already exists
+			if funcName.GetText() == CONSTRUCTOR_NAME {
+				// Check if constructor is already defined
+				if classInfo.Constructor.ReturnType != BASE_TYPES.UNKNOWN || len(classInfo.Constructor.ParameterList) > 0 {
+					l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
+						"Constructor for class `%s` is already declared!",
+						className,
+					))
+					return
+				}
+			} else {
+				// Check if method already exists
+				if _, exists := classInfo.Methods[funcName.GetText()]; exists {
+					l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
+						"Method `%s` is already declared in class `%s`!",
+						funcName.GetText(),
+						className,
+					))
+					return
+				}
+			}
+		}
+	} else {
+		// Check for duplicate functions in current scope (non-class context)
 		if _, exists := l.ScopeManager.CurrentScope.functions[funcName.GetText()]; exists {
 			l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
 				"Function `%s` is already declared in this scope!",
@@ -23,8 +54,29 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 			))
 			return
 		}
+
+		scope := l.ScopeManager.CurrentScope.Father
+		for scope != nil {
+			if _, exists := scope.functions[funcName.GetText()]; exists {
+				if scope.Type == SCOPE_TYPES.GLOBAL {
+					l.AddWarning(fmt.Sprintf(
+						"Function `%s` shadows a builtin function",
+						funcName.GetText(),
+					), fmt.Sprintf("line %d", line))
+				} else {
+					l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
+						"Function `%s` conflicts with function in parent scope",
+						funcName.GetText(),
+					))
+					return
+				}
+				break
+			}
+			scope = scope.Father
+		}
 	}
 
+	// Parse function parameters
 	funcParams := []ParameterInfo{}
 	if ctx.Parameters() != nil {
 		paramNames := make(map[string]bool)
@@ -65,6 +117,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		}
 	}
 
+	// Parse return type
 	returnType := BASE_TYPES.UNKNOWN
 	if ctx.Type_() != nil {
 		returnType = TypeIdentifier(ctx.Type_().GetText())
@@ -85,7 +138,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		ReturnType:    returnType,
 	}
 
-	var funcScope *Scope
+	// Register the function/method in the appropriate place
 	if isInsideClassDeclaration {
 		className := l.ScopeManager.CurrentScope.Name
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
@@ -95,12 +148,20 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 				cti.UpsertMethod(funcName.GetText(), info)
 			}
 		})
-		funcScope = NewScope(className+"_"+funcName.GetText(), SCOPE_TYPES.FUNCTION)
 	} else {
 		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
+	}
+
+	// Create and setup function scope
+	var funcScope *Scope
+	if isInsideClassDeclaration {
+		className := l.ScopeManager.CurrentScope.Name
+		funcScope = NewScope(className+"_"+funcName.GetText(), SCOPE_TYPES.FUNCTION)
+	} else {
 		funcScope = NewScope(funcName.GetText(), SCOPE_TYPES.FUNCTION)
 	}
 
+	// Set up function scope with parameters and return type info
 	for _, param := range info.ParameterList {
 		funcScope.UpsertExpressionType(param.Name, param.Type)
 	}
@@ -108,13 +169,20 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	funcScope.expectedReturnType = returnType
 	funcScope.hasReturnStatement = false
 
-	l.ScopeManager.AddToCurrent(funcScope)
+	l.ScopeManager.CurrentScope.AddChildScope(funcScope)
 	l.ScopeManager.ReplaceCurrent(funcScope)
+
+	log.Printf("Entered function scope: %s (type: %s)", funcScope.Name, funcScope.Type)
 }
 
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
+	log.Printf("Attempting to exit function scope. Current scope: %s (type: %s)",
+		l.ScopeManager.CurrentScope.Name, l.ScopeManager.CurrentScope.Type)
+
 	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.FUNCTION {
-		log.Panicf("Trying to exit function scope but scope is not of type function! %#v", l.ScopeManager.CurrentScope)
+		log.Printf("Warning: Attempting to exit function scope but current scope is %s. This likely means the function declaration had errors during entry.",
+			l.ScopeManager.CurrentScope.Type)
+		return
 	}
 
 	line := ctx.GetStart().GetLine()
@@ -142,6 +210,8 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	l.ScopeManager.ReplaceWithParent()
+	log.Printf("Exited function scope, now in: %s (type: %s)",
+		l.ScopeManager.CurrentScope.Name, l.ScopeManager.CurrentScope.Type)
 }
 
 func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdentifier) {
