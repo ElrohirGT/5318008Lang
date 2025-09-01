@@ -24,6 +24,9 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		return
 	}
 
+	previousExprStart := firstExpr.GetStart().GetStart()
+	previousExprEnd := firstExpr.GetStop().GetStop()
+
 	for i, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 		exprColStart := expr.GetStart().GetColumn()
@@ -35,21 +38,25 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 		if exprType != referenceType {
 			stream := ctx.GetStart().GetInputStream()
-			leftStart := exprs[0].GetStart().GetColumn()
-			leftEnd := exprs[i].GetStop().GetColumn() + 1
+			leftStart := expr.GetStart().GetColumn()
+			leftEnd := ctx.MultiplicativeExpr(i + 1).GetStop().GetColumn()
 			l.AddError(line,
 				leftStart,
 				leftEnd,
 				"Can't add:",
 				fmt.Sprintf("leftSide: `%s` of type `%s`",
-					stream.GetText(exprs[0].GetStart().GetStart(), exprs[i].GetStart().GetStop()),
-					referenceType),
+					stream.GetText(previousExprStart, previousExprEnd),
+					referenceType,
+				),
 				fmt.Sprintf("rightSide: `%s` of type `%s`",
 					ctx.MultiplicativeExpr(i+1).GetText(),
 					exprType,
 				),
 			)
 		}
+
+		previousExprStart = expr.GetStart().GetStart()
+		previousExprEnd = expr.GetStop().GetStop()
 	}
 
 	log.Printf("Adding expression `%s` of type `%s`", ctx.GetText(), referenceType)
