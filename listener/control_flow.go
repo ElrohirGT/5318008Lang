@@ -154,20 +154,23 @@ func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
 
 	valueInfo, ok := l.GetTypeInfo(arrayType)
 
+	// FIXME: LIST IS NOT PROPERLY STORED
 	for k, v := range *l.KnownTypes {
 		fmt.Printf("%s %v\n", k, v)
 	}
 
+	// FIXME: SHOULD NEVER ENTER A THIS VALUE;
 	if !ok {
 		fmt.Println("------- NOT OK")
 		return
 	}
 
+	// FIXME: THIS SHOULD NOT FAIL
 	if !valueInfo.ArrayType.HasValue() {
 		fmt.Println("------- its NOT array type")
+		return
 	}
 
-	// THIS SHOULD NOT FAIL
 	l.ScopeManager.CurrentScope.UpsertExpressionType(
 		ctx.Identifier().GetText(),
 		valueInfo.ArrayType.GetValue().Type)
