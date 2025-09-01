@@ -5,5 +5,13 @@ let asdf = ["Hello", 5];
 
 let invalidArray = [];
 let validArray: string[] = [];
+
+const invalidConst=[];
+const validConst: boolean[] =[];
 ---
 === ERRORS ===
+* Error: (line: 4, column: 11-21) Can't define an array with multiple types! The following types are not equal:
+ * `"Hello"` of type `string`
+ * `5` of type `integer`
+* Error: (line: 6, column: 4-16) Can't initialize empty array variable without a type!
+* Error: (line: 9, column: 6-18) Can't initialize empty array constant without a type!

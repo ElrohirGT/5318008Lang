@@ -1,13 +1,21 @@
 package listener
 
-import "github.com/ElrohirGT/5318008Lang/lib"
+import (
+	"fmt"
+
+	"github.com/ElrohirGT/5318008Lang/lib"
+)
 
 // =====================
 // WHAT IS A TYPE
 // =====================
 
-// Id given for each defined type.
+// ID given for each defined type.
 type TypeIdentifier string
+
+func NewArrayTypeIdentifier(baseType TypeIdentifier) TypeIdentifier {
+	return TypeIdentifier(fmt.Sprintf("%s[]", baseType))
+}
 
 // Metadata about a type. It works as an enum, all types share common attributes
 // Extra attributes may be stored on its own field as an Optional.

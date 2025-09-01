@@ -28,6 +28,12 @@ func NewListener() Listener {
 	baseTypes[TypeIdentifier(BASE_TYPES.STRING)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.NULL)] = NewTypeInfo_Base()
 	baseTypes[TypeIdentifier(BASE_TYPES.UNKNOWN)] = NewTypeInfo_Base()
+	baseTypes[TypeIdentifier(BASE_TYPES.INVALID)] = NewTypeInfo_Base()
+
+	for _, v := range BASE_TYPE_ARRAY {
+		baseTypes[v] = NewTypeInfo_Base()
+		baseTypes[NewArrayTypeIdentifier(v)] = NewTypeInfo_Base()
+	}
 
 	errors := []string{}
 	// TODO: ADD PRINT function on start of global scope

@@ -11,9 +11,13 @@ import (
 // METHODS FOR HANDLING TYPE CHECKING
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
-	line := ctx.GetStart().GetLine()
 	exprs := ctx.AllMultiplicativeExpr()
+	if len(exprs) <= 1 {
+		return
+	}
+
 	firstExpr := exprs[0]
+	line := ctx.GetStart().GetLine()
 
 	colStart := firstExpr.GetStart().GetColumn()
 	colEnd := colStart + len(firstExpr.GetText())
@@ -127,14 +131,26 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			}
 		} else {
 			declarationText := declarationExpr.ConditionalExpr().GetText()
-			inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
-			if !found {
-				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-					"Couldn't infer the type of variable `%s`, initialized with: `%s`",
-					name.GetText(),
-					declarationText,
-				))
-				inferedType = BASE_TYPES.INVALID
+
+			inferedType := BASE_TYPES.INVALID
+			if declarationText == "[]" {
+				l.AddError(
+					line,
+					colStartI,
+					colEndI,
+					"Can't initialize empty array variable without a type!",
+				)
+			} else {
+				t, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
+				if !found {
+					l.AddError(line, colStartI, colEndI, fmt.Sprintf(
+						"Couldn't infer the type of variable `%s`, initialized with: `%s`",
+						name.GetText(),
+						declarationText,
+					))
+				} else {
+					inferedType = t
+				}
 			}
 
 			if isInsideClassDeclaration {
@@ -156,6 +172,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		log.Println("Variable", name.GetText(), "has type", declarationType)
 
 		if !l.TypeExists(declarationType) {
+			// FIXME: Make error more specific
 			l.AddError(line, colStartT, colEndT, fmt.Sprintf(
 				"%s doesn't exist!",
 				declarationType,
@@ -169,23 +186,25 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			colEndD := colStartD + len(declExpr.GetText())
 
 			exprText := declarationExpr.ConditionalExpr().GetText()
-			log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
-			initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
-			if !exists {
-				l.AddError(line, colStartI, colStartT, fmt.Sprintf(
-					"Variable Declaration: `%s` doesn't have a type!",
-					exprText,
-				))
-				initialExprType = BASE_TYPES.INVALID
-			}
+			if exprText != "[]" {
+				log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
+				initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
+				if !exists {
+					l.AddError(line, colStartI, colStartT, fmt.Sprintf(
+						"Variable Declaration: `%s` doesn't have a type!",
+						exprText,
+					))
+					initialExprType = BASE_TYPES.INVALID
+				}
 
-			if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
-				l.AddError(line, colStartD, colEndD, fmt.Sprintf(
-					"The declaration of `%s` specifies a type of `%s` but `%s` was given",
-					name,
-					declarationType,
-					initialExprType,
-				))
+				if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
+					l.AddError(line, colStartD, colEndD, fmt.Sprintf(
+						"The declaration of `%s` specifies a type of `%s` but `%s` was given",
+						name,
+						declarationType,
+						initialExprType,
+					))
+				}
 			}
 		}
 
@@ -225,16 +244,28 @@ func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
 
 	if !hasAnnotation {
 		log.Println("Constant", name.GetText(), "does NOT have a type! We need to infer it...")
-
 		declarationText := declarationExpr.GetText()
-		inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
-		if !found {
-			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-				"Couldn't infer the type of variable `%s`, initialized with: `%s`",
-				name.GetText(),
-				declarationText,
-			))
-			inferedType = BASE_TYPES.INVALID
+
+		inferedType := BASE_TYPES.INVALID
+		if declarationText == "[]" {
+			l.AddError(
+				line,
+				colStartI,
+				colEndI,
+				"Can't initialize empty array constant without a type!",
+			)
+		} else {
+			t, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
+			if !found {
+				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
+					"Couldn't infer the type of variable `%s`, initialized with: `%s`",
+					name.GetText(),
+					declarationText,
+				))
+				inferedType = BASE_TYPES.INVALID
+			} else {
+				inferedType = t
+			}
 		}
 
 		if isInsideClassDeclaration {
@@ -270,23 +301,25 @@ func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
 		colEndD := colStartD + len(declExpr.GetText())
 
 		exprText := declarationExpr.GetText()
-		log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
-		initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
-		if !exists {
-			l.AddError(line, colStartI, colStartT, fmt.Sprintf(
-				"Constant Declaration: `%s` doesn't have a type!",
-				exprText,
-			))
-			initialExprType = BASE_TYPES.INVALID
-		}
+		if exprText != "[]" {
+			log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
+			initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
+			if !exists {
+				l.AddError(line, colStartI, colStartT, fmt.Sprintf(
+					"Constant Declaration: `%s` doesn't have a type!",
+					exprText,
+				))
+				initialExprType = BASE_TYPES.INVALID
+			}
 
-		if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
-			l.AddError(line, colStartD, colEndD, fmt.Sprintf(
-				"The declaration of `%s` specifies a type of `%s` but `%s` was given",
-				name,
-				declarationType,
-				initialExprType,
-			))
+			if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
+				l.AddError(line, colStartD, colEndD, fmt.Sprintf(
+					"The declaration of `%s` specifies a type of `%s` but `%s` was given",
+					name,
+					declarationType,
+					initialExprType,
+				))
+			}
 		}
 
 		if isInsideClassDeclaration {
@@ -746,6 +779,10 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 }
 
 func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
+	line := ctx.GetStart().GetLine()
+	startCol := ctx.GetStart().GetColumn()
+	endCol := ctx.GetStop().GetColumn()
+
 	expressions := ctx.AllConditionalExpr()
 	if len(expressions) == 0 {
 		log.Printf("Array literal is empty! Must infer type according to usage...")
@@ -753,4 +790,49 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 	}
 
 	// FIXME: Implement non-empty array literal initalization...
+	firstExpr := expressions[0]
+	firstExprType, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+	if !found {
+		l.AddError(
+			line,
+			startCol,
+			endCol,
+			fmt.Sprintf("Expression `%s` doesn't have a type!", firstExpr.GetText()),
+		)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+		return
+	}
+
+	for _, expr := range expressions[1:] {
+		exprLine := expr.GetStart().GetLine()
+		exprStartCol := expr.GetStart().GetColumn()
+		exprEndCol := expr.GetStop().GetColumn()
+
+		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+		if !found {
+			l.AddError(
+				exprLine,
+				exprStartCol,
+				exprEndCol,
+				fmt.Sprintf("Expression `%s` doesn't have a type!", expr.GetText()),
+			)
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+			return
+		}
+
+		if exprType != firstExprType {
+			l.AddError(
+				line,
+				startCol,
+				exprEndCol,
+				"Can't define an array with multiple types! The following types are not equal:",
+				fmt.Sprintf("`%s` of type `%s`", firstExpr.GetText(), firstExprType),
+				fmt.Sprintf("`%s` of type `%s`", expr.GetText(), exprType),
+			)
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+			return
+		}
+	}
+
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), NewArrayTypeIdentifier(firstExprType))
 }

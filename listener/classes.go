@@ -56,7 +56,9 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 		))
 	} else {
 		classInfo := NewClassTypeInfo(className.GetText())
-		l.AddTypeInfo(TypeIdentifier(className.GetText()), NewTypeInfo_Class(classInfo))
+		classTypeId := TypeIdentifier(className.GetText())
+		l.AddTypeInfo(classTypeId, NewTypeInfo_Class(classInfo))
+		l.AddTypeInfo(NewArrayTypeIdentifier(classTypeId), NewTypeInfo_Base())
 	}
 
 	if len(identifiers) > 1 {
