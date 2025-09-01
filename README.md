@@ -6,10 +6,8 @@
     </h3>
 </div>
 
-
 [![Go](https://github.com/ElrohirGT/5318008Lang/actions/workflows/go.yml/badge.svg)](https://github.com/ElrohirGT/5318008Lang/actions/workflows/go.yml)
 ![GoReport](https://goreportcard.com/badge/github.com/ElrohirGT/5318008Lang)
-
 
 ## How to develop this project
 
@@ -21,16 +19,19 @@ recommend [Nix](https://nixos.org/download/) and
 nix develop # Enters a devshell with a go compiler and other goodies (like a debugger)
 ```
 
-Once you have your environment ready, you can run the project with : 
+Once you have your environment ready, you can run the project with :
 
 ```bash
 go run .
 
 go test
 ```
+
 **Want to change the grammar?**
 
-For that, you should have [antlr4](https://github.com/antlr/antlr4) installed. Once its ready, modify the file `compiscript/program/Compiscript.g4` and run this command in the root of the repo:
+For that, you should have [antlr4](https://github.com/antlr/antlr4) installed.
+Once its ready, modify the file `compiscript/program/Compiscript.g4` and run
+this command in the root of the repo:
 
 ```bash
 antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscript.g4
@@ -48,13 +49,12 @@ antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscr
 └── gui             // Awesome GUI ✨
 ```
 
-
-## 🧪 Testing 
+## 🧪 Testing
 
 Almost all project tests are defined under the directory `./tests/`. Every file
 you find here is divided in two:
 
-```ts
+```
 // Basic CPS file
 let a: string = "Hola";
 ---
@@ -62,10 +62,10 @@ let a: string = "Hola";
 ```
 
 When you execute `go test` it executes a single test that reads all these files
-and compares the output of the compiler with the expected output defined below the `---`, if
-this differ in any way it reports an error. Easy way to get a big pile of tests
-going.
+and compares the output of the compiler with the expected output defined below
+the `---`, if this differ in any way it reports an error. Easy way to get a big
+pile of tests going.
 
-## ✨ Documentation 
+## ✨ Documentation
 
 ### Semantic Analysis
