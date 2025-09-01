@@ -23,14 +23,14 @@ let animalVar = new Animal();
 * Error: (line: 2, column: 0-9) Variable `name` must have an initial expression assigned to it! Maybe try assigning a value or a type?
 * Error: (line: 3, column: 0-8) Variable `age` must have an initial expression assigned to it! Maybe try assigning a value or a type?
 * Error: (line: 6, column: 22-28) Can't create a new instance of `Animal` while defining the same class!
-* Error: (line: 7, column: 9-15) Can't add:
- * leftSide: `this` of type `**invalid**`
+* Error: (line: 7, column: 21-21) Can't add:
+ * leftSide: `this.name` of type `**invalid**`
  * rightSide: `" makes a sound."` of type `string`
 * Error: (line: 7, column: 9-36) Return type mismatch: expected `string` but got `**invalid**`
-* Error: (line: 15, column: 9-15) Can't add:
- * leftSide: `this` of type `**invalid**`
+* Error: (line: 15, column: 21-21) Can't add:
+ * leftSide: `this.name` of type `**invalid**`
  * rightSide: `" is "` of type `string`
-* Error: (line: 15, column: 9-36) Can't add:
- * leftSide: `this.name + " is " + this` of type `**invalid**`
+* Error: (line: 15, column: 40-40) Can't add:
+ * leftSide: `this.age` of type `**invalid**`
  * rightSide: `" years old!"` of type `string`
 * Error: (line: 15, column: 9-48) Return type mismatch: expected `string` but got `**invalid**`
