@@ -175,6 +175,8 @@ func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 	colStart := ctx.GetStart().GetColumn()
 	colEnd := colStart + len(ctx.GetText())
 
+	l.ScopeManager.CurrentScope.terminated = true
+
 	funcScope, inFunctionScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION)
 	if !inFunctionScope {
 		l.AddError(line, colStart, colEnd, "'return' statement outside function scope.")
@@ -384,7 +386,7 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 			l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
 		}
 	}
-	
+
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
 }
 
@@ -417,12 +419,12 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 	line := ctx.GetStart().GetLine()
 	colStart := ctx.GetStart().GetColumn()
 	colEnd := ctx.GetStop().GetColumn()
-	
+
 	log.Printf("Processing standalone expression: %s", ctx.GetText())
-	
+
 	standaloneAtom := ctx.StandaloneAtom()
 	suffixOps := ctx.AllSuffixOp()
-	
+
 	hasCallExpression := false
 	for _, suffixOp := range suffixOps {
 		if _, ok := suffixOp.(*p.CallExprContext); ok {
@@ -434,7 +436,7 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 			break
 		}
 	}
-	
+
 	if !hasCallExpression {
 		switch atom := standaloneAtom.(type) {
 		case *p.StandaloneIdentifierExprContext:
@@ -450,11 +452,11 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 			return
 		}
 	}
-	
+
 	// Check type for stand alone expression
 	exprText := ctx.GetText()
 	actualExpr := exprText[:len(exprText)-1]
-	
+
 	if hasCallExpression {
 		_, found := l.ScopeManager.CurrentScope.GetExpressionType(actualExpr)
 		if !found {
@@ -466,7 +468,7 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 func (l Listener) ExitStandaloneIdentifierExpr(ctx *p.StandaloneIdentifierExprContext) {
 	identifier := ctx.Identifier().GetText()
 	log.Printf("Processing standalone identifier: %s", identifier)
-	
+
 	// Check if the identifier exists
 	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
 	if found {
@@ -490,9 +492,9 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 	className := ctx.Identifier().GetText()
 	classColStart := ctx.Identifier().GetSymbol().GetColumn()
 	classColEnd := classColStart + len(className)
-	
+
 	log.Printf("Processing standalone new expression: new %s(...)", className)
-	
+
 	// Check if the class exists
 	if !l.TypeExists(TypeIdentifier(className)) {
 		l.AddError(line, classColStart, classColEnd, fmt.Sprintf(
@@ -501,7 +503,7 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 		))
 		return
 	}
-	
+
 	// Get class info and validate constructor call
 	typeInfo, found := l.GetTypeInfo(TypeIdentifier(className))
 	if !found {
@@ -511,7 +513,7 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 		))
 		return
 	}
-	
+
 	if !typeInfo.ClassType.HasValue() {
 		l.AddError(line, classColStart, classColEnd, fmt.Sprintf(
 			"`%s` is not a class type!",
@@ -519,15 +521,15 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 		))
 		return
 	}
-	
+
 	classInfo := typeInfo.ClassType.GetValue()
-	
+
 	// Validate constructor arguments
 	exprArguments := []p.IConditionalExprContext{}
 	if ctx.Arguments() != nil {
 		exprArguments = ctx.Arguments().AllConditionalExpr()
 	}
-	
+
 	constructor := classInfo.Constructor
 	if len(constructor.ParameterList) != len(exprArguments) {
 		l.AddError(line, classColStart, classColEnd, fmt.Sprintf(
@@ -538,17 +540,17 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 		))
 		return
 	}
-	
+
 	// Validate argument types
 	for i, param := range constructor.ParameterList {
 		if i >= len(exprArguments) {
 			break
 		}
-		
+
 		argExpr := exprArguments[i]
 		argColStart := argExpr.GetStart().GetColumn()
 		argColEnd := argColStart + len(argExpr.GetText())
-		
+
 		argType, found := l.ScopeManager.CurrentScope.GetExpressionType(argExpr.GetText())
 		if !found {
 			l.AddError(line, argColStart, argColEnd, fmt.Sprintf(
@@ -557,7 +559,7 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 			))
 			continue
 		}
-		
+
 		if param.Type != BASE_TYPES.UNKNOWN && param.Type != argType {
 			l.AddError(line, argColStart, argColEnd, fmt.Sprintf(
 				"Constructor parameter `%s` expects type `%s` but got `%s`",
@@ -567,10 +569,10 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 			))
 		}
 	}
-	
+
 	// Set the type for this expression
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), TypeIdentifier(className))
-	
+
 	// Set type for parent standalone atom
 	parent := ctx.GetParent()
 	if standaloneAtom, ok := parent.(*p.StandaloneAtomContext); ok {
@@ -580,7 +582,7 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 
 func (l Listener) ExitStandaloneThisExpr(ctx *p.StandaloneThisExprContext) {
 	log.Printf("Processing standalone this expression")
-	
+
 	classScope, isInsideClass := l.ScopeManager.SearchClassScope()
 	if !isInsideClass {
 		line := ctx.GetStart().GetLine()
@@ -589,10 +591,10 @@ func (l Listener) ExitStandaloneThisExpr(ctx *p.StandaloneThisExprContext) {
 		l.AddError(line, colStart, colEnd, "Cannot use 'this' outside of class scope")
 		return
 	}
-	
+
 	thisType := TypeIdentifier(classScope.Name)
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), thisType)
-	
+
 	parent := ctx.GetParent()
 	if standaloneAtom, ok := parent.(*p.StandaloneAtomContext); ok {
 		l.ScopeManager.CurrentScope.UpsertExpressionType(standaloneAtom.GetText(), thisType)

@@ -57,6 +57,8 @@ type Scope struct {
 	expectedReturnType TypeIdentifier
 	inferredReturnType TypeIdentifier
 	hasReturnStatement bool
+	// INdicates end of block
+	terminated bool
 }
 
 // Manges a scope tree. Providing helpful function to handle and move arount the tree.
@@ -137,6 +139,7 @@ func NewScope(name string, _type ScopeType) *Scope {
 		expectedReturnType: BASE_TYPES.UNKNOWN,
 		inferredReturnType: BASE_TYPES.UNKNOWN,
 		hasReturnStatement: false,
+		terminated:         false,
 	}
 }
 

@@ -77,6 +77,8 @@ func (l Listener) ExitContinueStatement(ctx *p.ContinueStatementContext) {
 	colStart := ctx.GetStart().GetColumn()
 	colEnd := colStart + len(ctx.GetText())
 
+	l.ScopeManager.CurrentScope.terminated = true
+
 	if _, inLoopScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.LOOP); !inLoopScope {
 		l.AddError(line, colStart, colEnd, "'continue' statement out loop scope.")
 	}
@@ -86,6 +88,8 @@ func (l Listener) ExitBreakStatement(ctx *p.BreakStatementContext) {
 	line := ctx.GetStart().GetLine()
 	colStart := ctx.GetStart().GetColumn()
 	colEnd := colStart + len(ctx.GetText())
+
+	l.ScopeManager.CurrentScope.terminated = true
 
 	if _, inLoopScope := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.LOOP); !inLoopScope {
 		l.AddError(line, colStart, colEnd, "'break' statement out loop scope.")
@@ -292,4 +296,35 @@ func (l Listener) ExitUnaryExpr(ctx *p.UnaryExprContext) {
 	}
 
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.BOOLEAN)
+}
+
+func (l Listener) ExitStatement(ctx *p.StatementContext) {
+	scope := l.ScopeManager.CurrentScope
+
+	if l.isTerminator(ctx) {
+		scope.terminated = true
+		return
+	}
+
+	if scope.terminated {
+		line := ctx.GetStart().GetLine()
+		startCol := ctx.GetStart().GetColumn()
+		endCol := ctx.GetStop().GetColumn() + len(ctx.GetStop().GetText())
+
+		//FIXME: For death code may be a warning not an error
+		l.AddError(line, startCol, endCol, "Code unusued after: break, continue or return")
+	}
+
+}
+
+func (l Listener) isTerminator(ctx *p.StatementContext) bool {
+	switch {
+	case ctx.ReturnStatement() != nil:
+		return true
+	case ctx.BreakStatement() != nil:
+		return true
+	case ctx.ContinueStatement() != nil:
+		return true
+	}
+	return false
 }
