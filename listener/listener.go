@@ -36,9 +36,21 @@ func NewListener() Listener {
 	}
 
 	errors := []string{}
-	// TODO: ADD PRINT function on start of global scope
 	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
 	scopeManager := NewScopeManager(currentScope, currentScope)
+
+	// ADD BUILTINS
+	scopeManager.CurrentScope.UpsertFunctionDef("print",
+		MethodInfo{ParameterList: []ParameterInfo{{"s", BASE_TYPES.STRING}}, ReturnType: BASE_TYPES.NULL})
+	scopeManager.CurrentScope.UpsertFunctionDef("parseInt",
+		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.INTEGER}}, ReturnType: BASE_TYPES.STRING})
+	scopeManager.CurrentScope.UpsertFunctionDef("parseBool",
+		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.BOOLEAN}}, ReturnType: BASE_TYPES.STRING})
+
+	// FIXME: A function should not be registered in tye typesExpresion register
+	scopeManager.CurrentScope.UpsertExpressionType("print", BASE_TYPES.NULL)
+	scopeManager.CurrentScope.UpsertExpressionType("parseInt", BASE_TYPES.STRING)
+	scopeManager.CurrentScope.UpsertExpressionType("parseBool", BASE_TYPES.STRING)
 
 	return Listener{
 		KnownTypes:   &baseTypes,
