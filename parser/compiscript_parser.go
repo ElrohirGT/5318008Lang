@@ -63,7 +63,7 @@ func compiscriptParserInit() {
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 62, 505, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 62, 512, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
@@ -110,40 +110,41 @@ func compiscriptParserInit() {
 		41, 1, 41, 5, 41, 432, 8, 41, 10, 41, 12, 41, 435, 9, 41, 1, 41, 1, 41,
 		1, 42, 1, 42, 1, 42, 1, 42, 1, 42, 3, 42, 444, 8, 42, 1, 42, 1, 42, 3,
 		42, 448, 8, 42, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 3, 43, 455, 8, 43, 1,
-		43, 1, 43, 3, 43, 459, 8, 43, 1, 44, 1, 44, 3, 44, 463, 8, 44, 1, 44, 1,
-		44, 1, 44, 1, 44, 1, 44, 1, 44, 1, 44, 3, 44, 472, 8, 44, 1, 45, 1, 45,
-		1, 45, 5, 45, 477, 8, 45, 10, 45, 12, 45, 480, 9, 45, 1, 46, 1, 46, 1,
-		46, 1, 46, 5, 46, 486, 8, 46, 10, 46, 12, 46, 489, 9, 46, 3, 46, 491, 8,
-		46, 1, 46, 1, 46, 1, 47, 1, 47, 1, 47, 5, 47, 498, 8, 47, 10, 47, 12, 47,
-		501, 9, 47, 1, 48, 1, 48, 1, 48, 0, 0, 49, 0, 2, 4, 6, 8, 10, 12, 14, 16,
-		18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
-		54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88,
-		90, 92, 94, 96, 0, 7, 1, 0, 3, 4, 1, 0, 34, 35, 1, 0, 36, 39, 1, 0, 40,
-		41, 1, 0, 42, 44, 2, 0, 41, 41, 45, 45, 2, 0, 53, 55, 59, 59, 527, 0, 101,
-		1, 0, 0, 0, 2, 124, 1, 0, 0, 0, 4, 126, 1, 0, 0, 0, 6, 135, 1, 0, 0, 0,
-		8, 145, 1, 0, 0, 0, 10, 154, 1, 0, 0, 0, 12, 157, 1, 0, 0, 0, 14, 172,
-		1, 0, 0, 0, 16, 174, 1, 0, 0, 0, 18, 180, 1, 0, 0, 0, 20, 189, 1, 0, 0,
-		0, 22, 195, 1, 0, 0, 0, 24, 203, 1, 0, 0, 0, 26, 220, 1, 0, 0, 0, 28, 228,
-		1, 0, 0, 0, 30, 231, 1, 0, 0, 0, 32, 234, 1, 0, 0, 0, 34, 240, 1, 0, 0,
-		0, 36, 242, 1, 0, 0, 0, 38, 246, 1, 0, 0, 0, 40, 252, 1, 0, 0, 0, 42, 268,
-		1, 0, 0, 0, 44, 277, 1, 0, 0, 0, 46, 285, 1, 0, 0, 0, 48, 298, 1, 0, 0,
-		0, 50, 306, 1, 0, 0, 0, 52, 311, 1, 0, 0, 0, 54, 329, 1, 0, 0, 0, 56, 331,
-		1, 0, 0, 0, 58, 344, 1, 0, 0, 0, 60, 346, 1, 0, 0, 0, 62, 354, 1, 0, 0,
-		0, 64, 362, 1, 0, 0, 0, 66, 370, 1, 0, 0, 0, 68, 378, 1, 0, 0, 0, 70, 386,
-		1, 0, 0, 0, 72, 394, 1, 0, 0, 0, 74, 405, 1, 0, 0, 0, 76, 413, 1, 0, 0,
-		0, 78, 420, 1, 0, 0, 0, 80, 422, 1, 0, 0, 0, 82, 429, 1, 0, 0, 0, 84, 447,
-		1, 0, 0, 0, 86, 458, 1, 0, 0, 0, 88, 471, 1, 0, 0, 0, 90, 473, 1, 0, 0,
-		0, 92, 481, 1, 0, 0, 0, 94, 494, 1, 0, 0, 0, 96, 502, 1, 0, 0, 0, 98, 100,
-		3, 2, 1, 0, 99, 98, 1, 0, 0, 0, 100, 103, 1, 0, 0, 0, 101, 99, 1, 0, 0,
-		0, 101, 102, 1, 0, 0, 0, 102, 104, 1, 0, 0, 0, 103, 101, 1, 0, 0, 0, 104,
-		105, 5, 0, 0, 1, 105, 1, 1, 0, 0, 0, 106, 125, 3, 82, 41, 0, 107, 125,
-		3, 6, 3, 0, 108, 125, 3, 8, 4, 0, 109, 125, 3, 14, 7, 0, 110, 125, 3, 46,
-		23, 0, 111, 125, 3, 52, 26, 0, 112, 125, 3, 16, 8, 0, 113, 125, 3, 34,
-		17, 0, 114, 125, 3, 18, 9, 0, 115, 125, 3, 20, 10, 0, 116, 125, 3, 22,
-		11, 0, 117, 125, 3, 24, 12, 0, 118, 125, 3, 26, 13, 0, 119, 125, 3, 36,
-		18, 0, 120, 125, 3, 40, 20, 0, 121, 125, 3, 28, 14, 0, 122, 125, 3, 30,
-		15, 0, 123, 125, 3, 32, 16, 0, 124, 106, 1, 0, 0, 0, 124, 107, 1, 0, 0,
-		0, 124, 108, 1, 0, 0, 0, 124, 109, 1, 0, 0, 0, 124, 110, 1, 0, 0, 0, 124,
+		43, 1, 43, 3, 43, 459, 8, 43, 1, 44, 1, 44, 1, 44, 1, 44, 3, 44, 465, 8,
+		44, 1, 44, 1, 44, 1, 44, 3, 44, 470, 8, 44, 1, 44, 1, 44, 1, 44, 1, 44,
+		1, 44, 1, 44, 1, 44, 3, 44, 479, 8, 44, 1, 45, 1, 45, 1, 45, 5, 45, 484,
+		8, 45, 10, 45, 12, 45, 487, 9, 45, 1, 46, 1, 46, 1, 46, 1, 46, 5, 46, 493,
+		8, 46, 10, 46, 12, 46, 496, 9, 46, 3, 46, 498, 8, 46, 1, 46, 1, 46, 1,
+		47, 1, 47, 1, 47, 5, 47, 505, 8, 47, 10, 47, 12, 47, 508, 9, 47, 1, 48,
+		1, 48, 1, 48, 0, 0, 49, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24,
+		26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60,
+		62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96,
+		0, 7, 1, 0, 3, 4, 1, 0, 34, 35, 1, 0, 36, 39, 1, 0, 40, 41, 1, 0, 42, 44,
+		2, 0, 41, 41, 45, 45, 2, 0, 53, 55, 59, 59, 536, 0, 101, 1, 0, 0, 0, 2,
+		124, 1, 0, 0, 0, 4, 126, 1, 0, 0, 0, 6, 135, 1, 0, 0, 0, 8, 145, 1, 0,
+		0, 0, 10, 154, 1, 0, 0, 0, 12, 157, 1, 0, 0, 0, 14, 172, 1, 0, 0, 0, 16,
+		174, 1, 0, 0, 0, 18, 180, 1, 0, 0, 0, 20, 189, 1, 0, 0, 0, 22, 195, 1,
+		0, 0, 0, 24, 203, 1, 0, 0, 0, 26, 220, 1, 0, 0, 0, 28, 228, 1, 0, 0, 0,
+		30, 231, 1, 0, 0, 0, 32, 234, 1, 0, 0, 0, 34, 240, 1, 0, 0, 0, 36, 242,
+		1, 0, 0, 0, 38, 246, 1, 0, 0, 0, 40, 252, 1, 0, 0, 0, 42, 268, 1, 0, 0,
+		0, 44, 277, 1, 0, 0, 0, 46, 285, 1, 0, 0, 0, 48, 298, 1, 0, 0, 0, 50, 306,
+		1, 0, 0, 0, 52, 311, 1, 0, 0, 0, 54, 329, 1, 0, 0, 0, 56, 331, 1, 0, 0,
+		0, 58, 344, 1, 0, 0, 0, 60, 346, 1, 0, 0, 0, 62, 354, 1, 0, 0, 0, 64, 362,
+		1, 0, 0, 0, 66, 370, 1, 0, 0, 0, 68, 378, 1, 0, 0, 0, 70, 386, 1, 0, 0,
+		0, 72, 394, 1, 0, 0, 0, 74, 405, 1, 0, 0, 0, 76, 413, 1, 0, 0, 0, 78, 420,
+		1, 0, 0, 0, 80, 422, 1, 0, 0, 0, 82, 429, 1, 0, 0, 0, 84, 447, 1, 0, 0,
+		0, 86, 458, 1, 0, 0, 0, 88, 478, 1, 0, 0, 0, 90, 480, 1, 0, 0, 0, 92, 488,
+		1, 0, 0, 0, 94, 501, 1, 0, 0, 0, 96, 509, 1, 0, 0, 0, 98, 100, 3, 2, 1,
+		0, 99, 98, 1, 0, 0, 0, 100, 103, 1, 0, 0, 0, 101, 99, 1, 0, 0, 0, 101,
+		102, 1, 0, 0, 0, 102, 104, 1, 0, 0, 0, 103, 101, 1, 0, 0, 0, 104, 105,
+		5, 0, 0, 1, 105, 1, 1, 0, 0, 0, 106, 125, 3, 82, 41, 0, 107, 125, 3, 6,
+		3, 0, 108, 125, 3, 8, 4, 0, 109, 125, 3, 14, 7, 0, 110, 125, 3, 46, 23,
+		0, 111, 125, 3, 52, 26, 0, 112, 125, 3, 16, 8, 0, 113, 125, 3, 34, 17,
+		0, 114, 125, 3, 18, 9, 0, 115, 125, 3, 20, 10, 0, 116, 125, 3, 22, 11,
+		0, 117, 125, 3, 24, 12, 0, 118, 125, 3, 26, 13, 0, 119, 125, 3, 36, 18,
+		0, 120, 125, 3, 40, 20, 0, 121, 125, 3, 28, 14, 0, 122, 125, 3, 30, 15,
+		0, 123, 125, 3, 32, 16, 0, 124, 106, 1, 0, 0, 0, 124, 107, 1, 0, 0, 0,
+		124, 108, 1, 0, 0, 0, 124, 109, 1, 0, 0, 0, 124, 110, 1, 0, 0, 0, 124,
 		111, 1, 0, 0, 0, 124, 112, 1, 0, 0, 0, 124, 113, 1, 0, 0, 0, 124, 114,
 		1, 0, 0, 0, 124, 115, 1, 0, 0, 0, 124, 116, 1, 0, 0, 0, 124, 117, 1, 0,
 		0, 0, 124, 118, 1, 0, 0, 0, 124, 119, 1, 0, 0, 0, 124, 120, 1, 0, 0, 0,
@@ -266,25 +267,28 @@ func compiscriptParserInit() {
 		3, 90, 45, 0, 454, 453, 1, 0, 0, 0, 454, 455, 1, 0, 0, 0, 455, 456, 1,
 		0, 0, 0, 456, 459, 5, 12, 0, 0, 457, 459, 5, 50, 0, 0, 458, 449, 1, 0,
 		0, 0, 458, 450, 1, 0, 0, 0, 458, 457, 1, 0, 0, 0, 459, 87, 1, 0, 0, 0,
-		460, 462, 5, 11, 0, 0, 461, 463, 3, 90, 45, 0, 462, 461, 1, 0, 0, 0, 462,
-		463, 1, 0, 0, 0, 463, 464, 1, 0, 0, 0, 464, 472, 5, 12, 0, 0, 465, 466,
-		5, 51, 0, 0, 466, 467, 3, 60, 30, 0, 467, 468, 5, 52, 0, 0, 468, 472, 1,
-		0, 0, 0, 469, 470, 5, 9, 0, 0, 470, 472, 5, 59, 0, 0, 471, 460, 1, 0, 0,
-		0, 471, 465, 1, 0, 0, 0, 471, 469, 1, 0, 0, 0, 472, 89, 1, 0, 0, 0, 473,
-		478, 3, 60, 30, 0, 474, 475, 5, 29, 0, 0, 475, 477, 3, 60, 30, 0, 476,
-		474, 1, 0, 0, 0, 477, 480, 1, 0, 0, 0, 478, 476, 1, 0, 0, 0, 478, 479,
-		1, 0, 0, 0, 479, 91, 1, 0, 0, 0, 480, 478, 1, 0, 0, 0, 481, 490, 5, 51,
-		0, 0, 482, 487, 3, 60, 30, 0, 483, 484, 5, 29, 0, 0, 484, 486, 3, 60, 30,
-		0, 485, 483, 1, 0, 0, 0, 486, 489, 1, 0, 0, 0, 487, 485, 1, 0, 0, 0, 487,
-		488, 1, 0, 0, 0, 488, 491, 1, 0, 0, 0, 489, 487, 1, 0, 0, 0, 490, 482,
-		1, 0, 0, 0, 490, 491, 1, 0, 0, 0, 491, 492, 1, 0, 0, 0, 492, 493, 5, 52,
-		0, 0, 493, 93, 1, 0, 0, 0, 494, 499, 3, 96, 48, 0, 495, 496, 5, 51, 0,
-		0, 496, 498, 5, 52, 0, 0, 497, 495, 1, 0, 0, 0, 498, 501, 1, 0, 0, 0, 499,
-		497, 1, 0, 0, 0, 499, 500, 1, 0, 0, 0, 500, 95, 1, 0, 0, 0, 501, 499, 1,
-		0, 0, 0, 502, 503, 7, 6, 0, 0, 503, 97, 1, 0, 0, 0, 46, 101, 124, 130,
-		138, 141, 148, 172, 187, 208, 211, 215, 236, 260, 264, 274, 282, 289, 294,
-		303, 309, 315, 321, 329, 344, 352, 359, 367, 375, 383, 391, 399, 405, 413,
-		420, 426, 433, 443, 447, 454, 458, 462, 471, 478, 487, 490, 499,
+		460, 461, 5, 9, 0, 0, 461, 462, 5, 59, 0, 0, 462, 464, 5, 11, 0, 0, 463,
+		465, 3, 90, 45, 0, 464, 463, 1, 0, 0, 0, 464, 465, 1, 0, 0, 0, 465, 466,
+		1, 0, 0, 0, 466, 479, 5, 12, 0, 0, 467, 469, 5, 11, 0, 0, 468, 470, 3,
+		90, 45, 0, 469, 468, 1, 0, 0, 0, 469, 470, 1, 0, 0, 0, 470, 471, 1, 0,
+		0, 0, 471, 479, 5, 12, 0, 0, 472, 473, 5, 51, 0, 0, 473, 474, 3, 60, 30,
+		0, 474, 475, 5, 52, 0, 0, 475, 479, 1, 0, 0, 0, 476, 477, 5, 9, 0, 0, 477,
+		479, 5, 59, 0, 0, 478, 460, 1, 0, 0, 0, 478, 467, 1, 0, 0, 0, 478, 472,
+		1, 0, 0, 0, 478, 476, 1, 0, 0, 0, 479, 89, 1, 0, 0, 0, 480, 485, 3, 60,
+		30, 0, 481, 482, 5, 29, 0, 0, 482, 484, 3, 60, 30, 0, 483, 481, 1, 0, 0,
+		0, 484, 487, 1, 0, 0, 0, 485, 483, 1, 0, 0, 0, 485, 486, 1, 0, 0, 0, 486,
+		91, 1, 0, 0, 0, 487, 485, 1, 0, 0, 0, 488, 497, 5, 51, 0, 0, 489, 494,
+		3, 60, 30, 0, 490, 491, 5, 29, 0, 0, 491, 493, 3, 60, 30, 0, 492, 490,
+		1, 0, 0, 0, 493, 496, 1, 0, 0, 0, 494, 492, 1, 0, 0, 0, 494, 495, 1, 0,
+		0, 0, 495, 498, 1, 0, 0, 0, 496, 494, 1, 0, 0, 0, 497, 489, 1, 0, 0, 0,
+		497, 498, 1, 0, 0, 0, 498, 499, 1, 0, 0, 0, 499, 500, 5, 52, 0, 0, 500,
+		93, 1, 0, 0, 0, 501, 506, 3, 96, 48, 0, 502, 503, 5, 51, 0, 0, 503, 505,
+		5, 52, 0, 0, 504, 502, 1, 0, 0, 0, 505, 508, 1, 0, 0, 0, 506, 504, 1, 0,
+		0, 0, 506, 507, 1, 0, 0, 0, 507, 95, 1, 0, 0, 0, 508, 506, 1, 0, 0, 0,
+		509, 510, 7, 6, 0, 0, 510, 97, 1, 0, 0, 0, 47, 101, 124, 130, 138, 141,
+		148, 172, 187, 208, 211, 215, 236, 260, 264, 274, 282, 289, 294, 303, 309,
+		315, 321, 329, 344, 352, 359, 367, 375, 383, 391, 399, 405, 413, 420, 426,
+		433, 443, 447, 454, 458, 464, 469, 478, 485, 494, 497, 506,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -8426,30 +8430,96 @@ func (s *IndexExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
+type MethodCallExprContext struct {
+	SuffixOpContext
+}
+
+func NewMethodCallExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *MethodCallExprContext {
+	var p = new(MethodCallExprContext)
+
+	InitEmptySuffixOpContext(&p.SuffixOpContext)
+	p.parser = parser
+	p.CopyAll(ctx.(*SuffixOpContext))
+
+	return p
+}
+
+func (s *MethodCallExprContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *MethodCallExprContext) Identifier() antlr.TerminalNode {
+	return s.GetToken(CompiscriptParserIdentifier, 0)
+}
+
+func (s *MethodCallExprContext) Arguments() IArgumentsContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IArgumentsContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IArgumentsContext)
+}
+
+func (s *MethodCallExprContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CompiscriptListener); ok {
+		listenerT.EnterMethodCallExpr(s)
+	}
+}
+
+func (s *MethodCallExprContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CompiscriptListener); ok {
+		listenerT.ExitMethodCallExpr(s)
+	}
+}
+
 func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 	localctx = NewSuffixOpContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 88, CompiscriptParserRULE_suffixOp)
 	var _la int
 
-	p.SetState(471)
+	p.SetState(478)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetTokenStream().LA(1) {
-	case CompiscriptParserT__10:
-		localctx = NewCallExprContext(p, localctx)
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 42, p.GetParserRuleContext()) {
+	case 1:
+		localctx = NewMethodCallExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(460)
+			p.Match(CompiscriptParserT__8)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		{
+			p.SetState(461)
+			p.Match(CompiscriptParserIdentifier)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		{
+			p.SetState(462)
 			p.Match(CompiscriptParserT__10)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(462)
+		p.SetState(464)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8458,13 +8528,13 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 
 		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&652988960619890688) != 0 {
 			{
-				p.SetState(461)
+				p.SetState(463)
 				p.Arguments()
 			}
 
 		}
 		{
-			p.SetState(464)
+			p.SetState(466)
 			p.Match(CompiscriptParserT__11)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8472,11 +8542,45 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 
-	case CompiscriptParserT__50:
-		localctx = NewIndexExprContext(p, localctx)
+	case 2:
+		localctx = NewCallExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(465)
+			p.SetState(467)
+			p.Match(CompiscriptParserT__10)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		p.SetState(469)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&652988960619890688) != 0 {
+			{
+				p.SetState(468)
+				p.Arguments()
+			}
+
+		}
+		{
+			p.SetState(471)
+			p.Match(CompiscriptParserT__11)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+
+	case 3:
+		localctx = NewIndexExprContext(p, localctx)
+		p.EnterOuterAlt(localctx, 3)
+		{
+			p.SetState(472)
 			p.Match(CompiscriptParserT__50)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8484,11 +8588,11 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(466)
+			p.SetState(473)
 			p.ConditionalExpr()
 		}
 		{
-			p.SetState(467)
+			p.SetState(474)
 			p.Match(CompiscriptParserT__51)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8496,11 +8600,11 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 
-	case CompiscriptParserT__8:
+	case 4:
 		localctx = NewPropertyAccessExprContext(p, localctx)
-		p.EnterOuterAlt(localctx, 3)
+		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(469)
+			p.SetState(476)
 			p.Match(CompiscriptParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8508,7 +8612,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(470)
+			p.SetState(477)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8516,8 +8620,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 
-	default:
-		p.SetError(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+	case antlr.ATNInvalidAltNumber:
 		goto errorExit
 	}
 
@@ -8649,10 +8752,10 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(473)
+		p.SetState(480)
 		p.ConditionalExpr()
 	}
-	p.SetState(478)
+	p.SetState(485)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8661,7 +8764,7 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 
 	for _la == CompiscriptParserT__28 {
 		{
-			p.SetState(474)
+			p.SetState(481)
 			p.Match(CompiscriptParserT__28)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8669,11 +8772,11 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 			}
 		}
 		{
-			p.SetState(475)
+			p.SetState(482)
 			p.ConditionalExpr()
 		}
 
-		p.SetState(480)
+		p.SetState(487)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8809,14 +8912,14 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(481)
+		p.SetState(488)
 		p.Match(CompiscriptParserT__50)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(490)
+	p.SetState(497)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8825,10 +8928,10 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&652988960619890688) != 0 {
 		{
-			p.SetState(482)
+			p.SetState(489)
 			p.ConditionalExpr()
 		}
-		p.SetState(487)
+		p.SetState(494)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8837,7 +8940,7 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 		for _la == CompiscriptParserT__28 {
 			{
-				p.SetState(483)
+				p.SetState(490)
 				p.Match(CompiscriptParserT__28)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -8845,11 +8948,11 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 				}
 			}
 			{
-				p.SetState(484)
+				p.SetState(491)
 				p.ConditionalExpr()
 			}
 
-			p.SetState(489)
+			p.SetState(496)
 			p.GetErrorHandler().Sync(p)
 			if p.HasError() {
 				goto errorExit
@@ -8859,7 +8962,7 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	}
 	{
-		p.SetState(492)
+		p.SetState(499)
 		p.Match(CompiscriptParserT__51)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -8969,10 +9072,10 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(494)
+		p.SetState(501)
 		p.BaseType()
 	}
-	p.SetState(499)
+	p.SetState(506)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8981,7 +9084,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 
 	for _la == CompiscriptParserT__50 {
 		{
-			p.SetState(495)
+			p.SetState(502)
 			p.Match(CompiscriptParserT__50)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8989,7 +9092,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 			}
 		}
 		{
-			p.SetState(496)
+			p.SetState(503)
 			p.Match(CompiscriptParserT__51)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8997,7 +9100,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 			}
 		}
 
-		p.SetState(501)
+		p.SetState(508)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -9095,7 +9198,7 @@ func (p *CompiscriptParser) BaseType() (localctx IBaseTypeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(502)
+		p.SetState(509)
 		_la = p.GetTokenStream().LA(1)
 
 		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&639511147086610432) != 0) {

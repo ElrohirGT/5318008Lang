@@ -158,8 +158,8 @@ standaloneAtom
   ;
 
 suffixOp
-  // : '.' Identifier '(' arguments? ')'         # CallExpr // TODO: Consultar con Prince
-  : '(' arguments? ')'                        # CallExpr
+  : '.' Identifier '(' arguments? ')'         # MethodCallExpr // TODO: Consultar con Prince
+  | '(' arguments? ')'                        # CallExpr
   | '[' conditionalExpr ']'                   # IndexExpr
   | '.' Identifier                            # PropertyAccessExpr
   ;

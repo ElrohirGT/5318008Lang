@@ -152,6 +152,9 @@ type CompiscriptListener interface {
 	// EnterStandaloneThisExpr is called when entering the StandaloneThisExpr production.
 	EnterStandaloneThisExpr(c *StandaloneThisExprContext)
 
+	// EnterMethodCallExpr is called when entering the MethodCallExpr production.
+	EnterMethodCallExpr(c *MethodCallExprContext)
+
 	// EnterCallExpr is called when entering the CallExpr production.
 	EnterCallExpr(c *CallExprContext)
 
@@ -316,6 +319,9 @@ type CompiscriptListener interface {
 
 	// ExitStandaloneThisExpr is called when exiting the StandaloneThisExpr production.
 	ExitStandaloneThisExpr(c *StandaloneThisExprContext)
+
+	// ExitMethodCallExpr is called when exiting the MethodCallExpr production.
+	ExitMethodCallExpr(c *MethodCallExprContext)
 
 	// ExitCallExpr is called when exiting the CallExpr production.
 	ExitCallExpr(c *CallExprContext)

@@ -311,6 +311,12 @@ func (s *BaseCompiscriptListener) EnterStandaloneThisExpr(ctx *StandaloneThisExp
 // ExitStandaloneThisExpr is called when production StandaloneThisExpr is exited.
 func (s *BaseCompiscriptListener) ExitStandaloneThisExpr(ctx *StandaloneThisExprContext) {}
 
+// EnterMethodCallExpr is called when production MethodCallExpr is entered.
+func (s *BaseCompiscriptListener) EnterMethodCallExpr(ctx *MethodCallExprContext) {}
+
+// ExitMethodCallExpr is called when production MethodCallExpr is exited.
+func (s *BaseCompiscriptListener) ExitMethodCallExpr(ctx *MethodCallExprContext) {}
+
 // EnterCallExpr is called when production CallExpr is entered.
 func (s *BaseCompiscriptListener) EnterCallExpr(ctx *CallExprContext) {}
 

@@ -17,3 +17,4 @@ class Dog : Animal {
 }
 
 let abc: ABC = new Animal("Flavio");
+abc.speak();
