@@ -152,6 +152,8 @@ func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdent
 	if isInsideClassDeclaration {
 		className := l.ScopeManager.CurrentScope.Name
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
+			// FIXME: The constructor should only return the type of the class!
+			// It doesn't make sense for it to return other thing!
 			if funcName == CONSTRUCTOR_NAME {
 				cti.Constructor.ReturnType = returnType
 			} else if methodInfo, exists := cti.Methods[funcName]; exists {
