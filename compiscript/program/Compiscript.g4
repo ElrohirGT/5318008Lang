@@ -12,7 +12,7 @@ statement
   | constantDeclaration // DONE: Flavio
   | assignment          // DONE: Flavio
   | functionDeclaration // TODO: Flavio, Prince
-												// TODO: Arrays
+												// DONE: Arrays
   | classDeclaration    // DONE: Flavio
   | printStatement      // TODO: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
