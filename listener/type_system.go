@@ -572,6 +572,7 @@ func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 
 	log.Printf("Validating leftHandSide: %s", ctx.GetText())
 
+	// FIXME: This fails with test.cps but it shouldn't!
 	if !l.isValidCombination(primaryAtom, suffixOps) {
 		l.AddError(line, colStart, colEnd, fmt.Sprintf(
 			"Invalid expression structure: %s",
