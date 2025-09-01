@@ -467,6 +467,51 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 			}
 
 		}
+	} else {
+		varExpr := ctx.Identifier(0)
+		colStartF := varExpr.GetSymbol().GetColumn()
+		colEndF := colStartF + len(varExpr.GetText())
+
+		varType, found := l.ScopeManager.CurrentScope.GetExpressionType(varExpr.GetText())
+		if !found {
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+				"Undeclared variable `%s`",
+				varExpr.GetText(),
+			))
+			return
+		}
+
+		if varType == BASE_TYPES.INVALID {
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+				"Can't assign to invalid variable: `%s`",
+				varExpr.GetText(),
+			))
+			return
+		}
+
+		assignExpr := ctx.ConditionalExpr()
+		colStartA := assignExpr.GetStart().GetColumn()
+		colEndA := colStartA + len(assignExpr.GetText())
+		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
+		if !found {
+			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
+				"Type of expression `%s` not found!",
+				assignExpr.GetText(),
+			))
+			return
+		}
+
+		if varType != assignType {
+			l.AddError(line, colStartF, colEndA, fmt.Sprintf(
+				"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
+				assignExpr.GetText(),
+				varExpr.GetText(),
+				varType,
+				assignType,
+			))
+			return
+		}
+
 	}
 }
 
