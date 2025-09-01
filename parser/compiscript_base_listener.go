@@ -81,11 +81,29 @@ func (s *BaseCompiscriptListener) EnterPrintStatement(ctx *PrintStatementContext
 // ExitPrintStatement is called when production printStatement is exited.
 func (s *BaseCompiscriptListener) ExitPrintStatement(ctx *PrintStatementContext) {}
 
+// EnterMustBoolExpr is called when production mustBoolExpr is entered.
+func (s *BaseCompiscriptListener) EnterMustBoolExpr(ctx *MustBoolExprContext) {}
+
+// ExitMustBoolExpr is called when production mustBoolExpr is exited.
+func (s *BaseCompiscriptListener) ExitMustBoolExpr(ctx *MustBoolExprContext) {}
+
 // EnterIfStatement is called when production ifStatement is entered.
 func (s *BaseCompiscriptListener) EnterIfStatement(ctx *IfStatementContext) {}
 
 // ExitIfStatement is called when production ifStatement is exited.
 func (s *BaseCompiscriptListener) ExitIfStatement(ctx *IfStatementContext) {}
+
+// EnterIfBody is called when production ifBody is entered.
+func (s *BaseCompiscriptListener) EnterIfBody(ctx *IfBodyContext) {}
+
+// ExitIfBody is called when production ifBody is exited.
+func (s *BaseCompiscriptListener) ExitIfBody(ctx *IfBodyContext) {}
+
+// EnterElseBody is called when production elseBody is entered.
+func (s *BaseCompiscriptListener) EnterElseBody(ctx *ElseBodyContext) {}
+
+// ExitElseBody is called when production elseBody is exited.
+func (s *BaseCompiscriptListener) ExitElseBody(ctx *ElseBodyContext) {}
 
 // EnterWhileStatement is called when production whileStatement is entered.
 func (s *BaseCompiscriptListener) EnterWhileStatement(ctx *WhileStatementContext) {}
@@ -93,11 +111,23 @@ func (s *BaseCompiscriptListener) EnterWhileStatement(ctx *WhileStatementContext
 // ExitWhileStatement is called when production whileStatement is exited.
 func (s *BaseCompiscriptListener) ExitWhileStatement(ctx *WhileStatementContext) {}
 
+// EnterWhileBody is called when production whileBody is entered.
+func (s *BaseCompiscriptListener) EnterWhileBody(ctx *WhileBodyContext) {}
+
+// ExitWhileBody is called when production whileBody is exited.
+func (s *BaseCompiscriptListener) ExitWhileBody(ctx *WhileBodyContext) {}
+
 // EnterDoWhileStatement is called when production doWhileStatement is entered.
 func (s *BaseCompiscriptListener) EnterDoWhileStatement(ctx *DoWhileStatementContext) {}
 
 // ExitDoWhileStatement is called when production doWhileStatement is exited.
 func (s *BaseCompiscriptListener) ExitDoWhileStatement(ctx *DoWhileStatementContext) {}
+
+// EnterDoWhileBody is called when production doWhileBody is entered.
+func (s *BaseCompiscriptListener) EnterDoWhileBody(ctx *DoWhileBodyContext) {}
+
+// ExitDoWhileBody is called when production doWhileBody is exited.
+func (s *BaseCompiscriptListener) ExitDoWhileBody(ctx *DoWhileBodyContext) {}
 
 // EnterForStatement is called when production forStatement is entered.
 func (s *BaseCompiscriptListener) EnterForStatement(ctx *ForStatementContext) {}
@@ -158,6 +188,12 @@ func (s *BaseCompiscriptListener) EnterSwitchCase(ctx *SwitchCaseContext) {}
 
 // ExitSwitchCase is called when production switchCase is exited.
 func (s *BaseCompiscriptListener) ExitSwitchCase(ctx *SwitchCaseContext) {}
+
+// EnterCaseBody is called when production caseBody is entered.
+func (s *BaseCompiscriptListener) EnterCaseBody(ctx *CaseBodyContext) {}
+
+// ExitCaseBody is called when production caseBody is exited.
+func (s *BaseCompiscriptListener) ExitCaseBody(ctx *CaseBodyContext) {}
 
 // EnterDefaultCase is called when production defaultCase is entered.
 func (s *BaseCompiscriptListener) EnterDefaultCase(ctx *DefaultCaseContext) {}

@@ -4,3 +4,9 @@ let a : boolean =  2 < b
     && true 
     && "hello" == false;
 ---
+=== ERRORS ===
+* Error: (line: 3, column: 7-12) Exit RelationalExpr: `"10"` should be type `integer`
+* Error: (line: 5, column: 7-18) Exit RelationalExpr: `false` should be type `string`
+* Error: (line: 3, column: 7-18) Exit RelationalExpr: expresion `b<="10"` should be a boolean
+* Error: (line: 2, column: 19-18) Exit RelationalExpr: `b<="10"&&true&&"hello"==false` has an invalid type!
+* Error: (line: 2, column: 19-53) The declaration of `a` specifies a type of `boolean` but `**invalid**` was given

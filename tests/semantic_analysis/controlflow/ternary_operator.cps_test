@@ -1,0 +1,8 @@
+let score : integer = 72;
+let grade : string =
+  score >= 90 ? "A" :
+  score >= 80 ? "B" :
+  score >= 70 ? "C" :
+  score >= 60 ? "D" :
+  "F";
+---

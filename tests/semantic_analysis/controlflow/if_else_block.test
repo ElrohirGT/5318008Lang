@@ -1,0 +1,9 @@
+let b : integer = 5;
+if (3 == 3 ? "a" : "b") {
+
+} else {
+    
+}
+---
+=== ERRORS ===
+* Error: (line: 2, column: 4-16) `if` condition should be a `boolean` but `string` was given.

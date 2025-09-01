@@ -1,3 +1,6 @@
 let b : integer = 5;
-let a : integer = 32;
+let a : integer = b == "hello";
 ---
+=== ERRORS ===
+* Error: (line: 2, column: 18-23) Exit RelationalExpr: `"hello"` should be type `integer`
+* Error: (line: 2, column: 18-28) The declaration of `a` specifies a type of `integer` but `**invalid**` was given

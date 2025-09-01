@@ -1,0 +1,5 @@
+let b : integer = 5;
+while (2 < b || (b <= 10 && true && true == false)) {
+
+}
+---

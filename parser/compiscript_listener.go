@@ -38,14 +38,29 @@ type CompiscriptListener interface {
 	// EnterPrintStatement is called when entering the printStatement production.
 	EnterPrintStatement(c *PrintStatementContext)
 
+	// EnterMustBoolExpr is called when entering the mustBoolExpr production.
+	EnterMustBoolExpr(c *MustBoolExprContext)
+
 	// EnterIfStatement is called when entering the ifStatement production.
 	EnterIfStatement(c *IfStatementContext)
+
+	// EnterIfBody is called when entering the ifBody production.
+	EnterIfBody(c *IfBodyContext)
+
+	// EnterElseBody is called when entering the elseBody production.
+	EnterElseBody(c *ElseBodyContext)
 
 	// EnterWhileStatement is called when entering the whileStatement production.
 	EnterWhileStatement(c *WhileStatementContext)
 
+	// EnterWhileBody is called when entering the whileBody production.
+	EnterWhileBody(c *WhileBodyContext)
+
 	// EnterDoWhileStatement is called when entering the doWhileStatement production.
 	EnterDoWhileStatement(c *DoWhileStatementContext)
+
+	// EnterDoWhileBody is called when entering the doWhileBody production.
+	EnterDoWhileBody(c *DoWhileBodyContext)
 
 	// EnterForStatement is called when entering the forStatement production.
 	EnterForStatement(c *ForStatementContext)
@@ -76,6 +91,9 @@ type CompiscriptListener interface {
 
 	// EnterSwitchCase is called when entering the switchCase production.
 	EnterSwitchCase(c *SwitchCaseContext)
+
+	// EnterCaseBody is called when entering the caseBody production.
+	EnterCaseBody(c *CaseBodyContext)
 
 	// EnterDefaultCase is called when entering the defaultCase production.
 	EnterDefaultCase(c *DefaultCaseContext)
@@ -209,14 +227,29 @@ type CompiscriptListener interface {
 	// ExitPrintStatement is called when exiting the printStatement production.
 	ExitPrintStatement(c *PrintStatementContext)
 
+	// ExitMustBoolExpr is called when exiting the mustBoolExpr production.
+	ExitMustBoolExpr(c *MustBoolExprContext)
+
 	// ExitIfStatement is called when exiting the ifStatement production.
 	ExitIfStatement(c *IfStatementContext)
+
+	// ExitIfBody is called when exiting the ifBody production.
+	ExitIfBody(c *IfBodyContext)
+
+	// ExitElseBody is called when exiting the elseBody production.
+	ExitElseBody(c *ElseBodyContext)
 
 	// ExitWhileStatement is called when exiting the whileStatement production.
 	ExitWhileStatement(c *WhileStatementContext)
 
+	// ExitWhileBody is called when exiting the whileBody production.
+	ExitWhileBody(c *WhileBodyContext)
+
 	// ExitDoWhileStatement is called when exiting the doWhileStatement production.
 	ExitDoWhileStatement(c *DoWhileStatementContext)
+
+	// ExitDoWhileBody is called when exiting the doWhileBody production.
+	ExitDoWhileBody(c *DoWhileBodyContext)
 
 	// ExitForStatement is called when exiting the forStatement production.
 	ExitForStatement(c *ForStatementContext)
@@ -247,6 +280,9 @@ type CompiscriptListener interface {
 
 	// ExitSwitchCase is called when exiting the switchCase production.
 	ExitSwitchCase(c *SwitchCaseContext)
+
+	// ExitCaseBody is called when exiting the caseBody production.
+	ExitCaseBody(c *CaseBodyContext)
 
 	// ExitDefaultCase is called when exiting the defaultCase production.
 	ExitDefaultCase(c *DefaultCaseContext)

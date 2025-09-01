@@ -16,9 +16,9 @@ statement
   | classDeclaration    // DONE: Flavio
   | printStatement      // TODO: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
-  | ifStatement         // TODO: Rayo
-  | whileStatement      // TODO: Rayo
-  | doWhileStatement    // TODO: Rayo
+  | ifStatement         // DONE: Rayo
+  | whileStatement      // DONE: Rayo
+  | doWhileStatement    // DONE: Rayo
   | forStatement        // TODO: Rayo
   | foreachStatement    // TODO: Rayo
   | tryCatchStatement   // TODO: Rayo
@@ -49,9 +49,15 @@ assignment
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
 printStatement: 'print' '(' conditionalExpr ')' ';';
 
-ifStatement: 'if' '(' conditionalExpr ')' block ('else' block)?;
-whileStatement: 'while' '(' conditionalExpr ')' block;
-doWhileStatement: 'do' block 'while' '(' conditionalExpr ')' ';';
+mustBoolExpr : conditionalExpr ;
+
+ifStatement: 'if' '(' mustBoolExpr ')' ifBody ('else' elseBody)?;
+ifBody: block;
+elseBody: block;
+whileStatement: 'while' '(' mustBoolExpr ')' whileBody;
+whileBody: block;
+doWhileStatement: 'do' doWhileBody 'while' '(' mustBoolExpr ')' ';';
+doWhileBody: block;
 forStatement: 'for' '(' (variableDeclaration | assignment | ';') conditionalExpr? ';' expression? ')' block; // TODO: Change expression for assingment
 foreachStatement: 'foreach' '(' Identifier 'in' conditionalExpr ')' block;
 breakStatement: 'break' ';';
@@ -63,7 +69,8 @@ tryCatchStatement: 'try' block catchStatement;
 catchStatement : 'catch' '(' Identifier ')' block;
 
 switchStatement: 'switch' '(' conditionalExpr ')' '{' switchCase* defaultCase? '}';
-switchCase: 'case' conditionalExpr ':' statement*;
+switchCase: 'case' primaryExpr ':' caseBody;
+caseBody: statement*;
 defaultCase: 'default' ':' statement*;
 
 functionDeclaration: 'function' Identifier '(' parameters? ')' (':' type)? block;

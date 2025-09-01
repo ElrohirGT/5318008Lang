@@ -580,6 +580,7 @@ func (l Listener) ExitIdentifierExpr(ctx *p.IdentifierExprContext) {
 }
 
 func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
+	// fmt.Println("ENTERING LITERAL EXPRESION: " + ctx.GetText())
 	strRepresentation := ctx.GetText()
 	switch strRepresentation {
 	case "null":
