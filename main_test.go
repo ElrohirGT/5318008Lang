@@ -23,7 +23,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 }
 
 var IGNORE_SPECIFIC = []string{
-	"tests/semantic_analysis/typechecking/method_calling.cps_test",
+	// "tests/semantic_analysis/typechecking/method_calling.cps_test",
 }
 
 func Test_SnapshotTesting(t *testing.T) {

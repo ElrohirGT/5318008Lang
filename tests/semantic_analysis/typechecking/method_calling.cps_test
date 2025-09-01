@@ -16,8 +16,7 @@ class Cell {
 	}
 }
 
-let cell;
-cell = new Cell("5", "10");
+let cell = new Cell("5", "10");
 cell.setRow("20");
 cell.setRow(20);
 
