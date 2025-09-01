@@ -68,4 +68,12 @@ pile of tests going.
 
 ## ✨ Documentation
 
+### Linting
+
+To lint the project simply run:
+
+```bash
+golangci-lint run ./...
+```
+
 ### Semantic Analysis
