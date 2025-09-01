@@ -1,0 +1,21 @@
+class Animal {
+	let name = "Capybara";
+	let age: integer = 20;
+
+	function speak(): string {
+		return this.name + " makes a sound.";
+	}
+
+	function setAge(newAge: integer) {
+		this.age = 5;
+	}
+
+	function printAge(): string {
+		// Add comments
+		return "The capybara is 18 years old!";
+	}
+
+}
+
+let animalVar = new Animal();
+---

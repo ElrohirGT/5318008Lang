@@ -17,4 +17,5 @@ class Dog : Animal {
 }
 
 let abc: ABC = new Animal("Flavio");
+// This is a comment!
 abc.speak();
