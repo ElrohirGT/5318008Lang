@@ -99,9 +99,6 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	} else {
 		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
 		funcScope = NewScope(funcName.GetText(), SCOPE_TYPES.FUNCTION)
-
-		// FIXME: A function should not be registered in tye typesExpresion register
-		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
 	}
 
 	for _, param := range info.ParameterList {
@@ -375,7 +372,7 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 				exprText := standaloneExpr.GetText()
 				actualExpr := exprText[:len(exprText)-1]
 				log.Printf("Setting return type of standalone expression `%s` to `%s`", actualExpr, funcInfo.ReturnType)
-				l.ScopeManager.CurrentScope.UpsertFunctionDef(actualExpr, funcInfo)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(actualExpr, funcInfo.ReturnType)
 				break
 			}
 			current = current.GetParent()
@@ -384,14 +381,13 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 		if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
 			fullExpr := leftHandSide.GetText()
 			log.Printf("Setting return type of `%s` to `%s`", fullExpr, funcInfo.ReturnType)
-			l.ScopeManager.CurrentScope.UpsertFunctionDef(fullExpr, funcInfo)
+			l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
 		}
 	}
 
-	l.ScopeManager.CurrentScope.UpsertFunctionDef(ctx.GetText(), funcInfo)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
 }
 
-// 2. Add debug logging in findFunctionInfo to see what's happening
 func (l Listener) findFunctionInfo(funcName string) (MethodInfo, bool) {
 	log.Printf("Searching for function: %s", funcName)
 
@@ -480,8 +476,6 @@ func (l Listener) ExitStandaloneIdentifierExpr(ctx *p.StandaloneIdentifierExprCo
 	identifier := ctx.Identifier().GetText()
 	log.Printf("Processing standalone identifier: %s", identifier)
 
-	// POTENTIAL ISSUE: This method only checks GetExpressionType, not functions
-	// It should also check if the identifier is a function name
 	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
 	if found {
 		parent := ctx.GetParent()
@@ -489,7 +483,6 @@ func (l Listener) ExitStandaloneIdentifierExpr(ctx *p.StandaloneIdentifierExprCo
 			l.ScopeManager.CurrentScope.UpsertExpressionType(standaloneAtom.GetText(), identifierType)
 		}
 	} else {
-		// ADDITION: Check if it's a function before throwing error
 		if _, functionFound := l.findFunctionInfo(identifier); functionFound {
 			log.Printf("Identifier %s is a function, not throwing error", identifier)
 			return

@@ -2,7 +2,6 @@ package listener
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -52,12 +51,6 @@ func NewListener() Listener {
 	// scopeManager.CurrentScope.UpsertExpressionType("print", BASE_TYPES.NULL)
 	// scopeManager.CurrentScope.UpsertExpressionType("parseInt", BASE_TYPES.STRING)
 	// scopeManager.CurrentScope.UpsertExpressionType("parseBool", BASE_TYPES.STRING)
-
-	// DEBUG: Verify functions are registered
-	log.Printf("Registered functions in GLOBAL scope: %v", scopeManager.CurrentScope.functions)
-	for name, info := range scopeManager.CurrentScope.functions {
-		log.Printf("Function: %s, ReturnType: %s, Params: %v", name, info.ReturnType, info.ParameterList)
-	}
 
 	return Listener{
 		KnownTypes:   &baseTypes,

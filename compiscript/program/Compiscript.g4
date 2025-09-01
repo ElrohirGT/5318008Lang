@@ -7,7 +7,7 @@ grammar Compiscript;
 program: statement* EOF;
 
 statement
-  : standaloneExpresion // TODO: Prince
+  : standaloneExpresion // DONE: Prince
   | variableDeclaration // DONE: Flavio
   | constantDeclaration // DONE: Flavio
   | assignment          // DONE: Flavio

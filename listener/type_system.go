@@ -647,6 +647,7 @@ func (l Listener) ExitIdentifierExpr(ctx *p.IdentifierExprContext) {
 	identifier := ctx.Identifier().GetText()
 	log.Printf("Processing identifier expression: %s", identifier)
 
+	// First check if it's a regular expression/variable
 	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
 	if found {
 		parent := ctx.GetParent()
@@ -655,15 +656,31 @@ func (l Listener) ExitIdentifierExpr(ctx *p.IdentifierExprContext) {
 				l.ScopeManager.CurrentScope.UpsertExpressionType(leftHandSide.GetText(), identifierType)
 			}
 		}
-	} else {
-		line := ctx.GetStart().GetLine()
-		colStart := ctx.Identifier().GetSymbol().GetColumn()
-		colEnd := colStart + len(identifier)
-		l.AddError(line, colStart, colEnd, fmt.Sprintf(
-			"Undeclared identifier `%s`",
-			identifier,
-		))
+		return
 	}
+
+	// If not found as expression, check if it's a function
+	if funcInfo, functionFound := l.findFunctionInfo(identifier); functionFound {
+		log.Printf("Identifier %s is a function, registering its return type", identifier)
+		l.ScopeManager.CurrentScope.UpsertExpressionType(identifier, funcInfo.ReturnType)
+
+		parent := ctx.GetParent()
+		if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
+			if len(leftHandSide.AllSuffixOp()) == 0 {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(leftHandSide.GetText(), funcInfo.ReturnType)
+			}
+		}
+		return
+	}
+
+	// If neither expression nor function, it's undeclared
+	line := ctx.GetStart().GetLine()
+	colStart := ctx.Identifier().GetSymbol().GetColumn()
+	colEnd := colStart + len(identifier)
+	l.AddError(line, colStart, colEnd, fmt.Sprintf(
+		"Undeclared identifier `%s`",
+		identifier,
+	))
 }
 
 func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
