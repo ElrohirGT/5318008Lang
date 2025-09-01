@@ -10,9 +10,10 @@ statement
   : standaloneExpresion // TODO: Prince
   | variableDeclaration // DONE: Flavio
   | constantDeclaration // DONE: Flavio
-  | assignment          // TODO: Flavio
+  | assignment          // DONE: Flavio
   | functionDeclaration // TODO: Flavio, Prince
-  | classDeclaration    // TODO: Flavio
+												// TODO: Arrays
+  | classDeclaration    // DONE: Flavio
   | printStatement      // TODO: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
   | ifStatement         // TODO: Rayo
