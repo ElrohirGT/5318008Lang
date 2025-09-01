@@ -1,5 +1,7 @@
-let numbers: integer[] = [5,4,3];
-foreach ( value in numbers) {
-    let b : integer = value;
+let numbers: boolean[] = [true];
+foreach ( b in numbers) {
+    let c : integer = b;
 }
 ---
+=== ERRORS ===
+* Error: (line: 3, column: 22-23) The declaration of `c` specifies a type of `integer` but `boolean` was given

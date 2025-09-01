@@ -8,6 +8,13 @@ let validArray: string[] = [];
 
 const invalidConst=[];
 const validConst: boolean[] =[];
+
+let valid: boolean[][] = [[true]];
+let valid2 = [[true]];
+
+class Animal {}
+let animalArray = [new Animal(), new Animal()];
+
 ---
 === ERRORS ===
 * Error: (line: 4, column: 11-21) Can't define an array with multiple types! The following types are not equal:
