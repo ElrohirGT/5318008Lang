@@ -12,7 +12,7 @@ func expresionOfTheSameType(
 	scopeManager *ScopeManager,
 	expresions ...antlr.ParserRuleContext) []string {
 
-	errors := make([]string, 0, 0)
+	errors := make([]string, 0, len(expresions))
 
 	if len(expresions) == 0 {
 		return errors
