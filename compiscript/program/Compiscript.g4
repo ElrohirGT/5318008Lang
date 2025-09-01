@@ -41,11 +41,7 @@ typeAnnotation: ':' type;
 initializer: '=' conditionalExpr;
 
 assignment
-  : Identifier '=' conditionalExpr ';'
-  // TODO: First expresion should just allow identifiers something like
-  //    identifier ('.' Identifier)+ = conditionalExpr
-  // Might work, not tested yet.
-  | expression '.' Identifier '=' expression ';'
+	: Identifier ('.' Identifier)* '=' conditionalExpr ';'
   ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
