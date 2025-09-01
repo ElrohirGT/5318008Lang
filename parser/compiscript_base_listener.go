@@ -177,6 +177,18 @@ func (s *BaseCompiscriptListener) EnterCatchStatement(ctx *CatchStatementContext
 // ExitCatchStatement is called when production catchStatement is exited.
 func (s *BaseCompiscriptListener) ExitCatchStatement(ctx *CatchStatementContext) {}
 
+// EnterSwitchValue is called when production switchValue is entered.
+func (s *BaseCompiscriptListener) EnterSwitchValue(ctx *SwitchValueContext) {}
+
+// ExitSwitchValue is called when production switchValue is exited.
+func (s *BaseCompiscriptListener) ExitSwitchValue(ctx *SwitchValueContext) {}
+
+// EnterCaseValue is called when production caseValue is entered.
+func (s *BaseCompiscriptListener) EnterCaseValue(ctx *CaseValueContext) {}
+
+// ExitCaseValue is called when production caseValue is exited.
+func (s *BaseCompiscriptListener) ExitCaseValue(ctx *CaseValueContext) {}
+
 // EnterSwitchStatement is called when production switchStatement is entered.
 func (s *BaseCompiscriptListener) EnterSwitchStatement(ctx *SwitchStatementContext) {}
 
@@ -189,17 +201,17 @@ func (s *BaseCompiscriptListener) EnterSwitchCase(ctx *SwitchCaseContext) {}
 // ExitSwitchCase is called when production switchCase is exited.
 func (s *BaseCompiscriptListener) ExitSwitchCase(ctx *SwitchCaseContext) {}
 
-// EnterCaseBody is called when production caseBody is entered.
-func (s *BaseCompiscriptListener) EnterCaseBody(ctx *CaseBodyContext) {}
-
-// ExitCaseBody is called when production caseBody is exited.
-func (s *BaseCompiscriptListener) ExitCaseBody(ctx *CaseBodyContext) {}
-
 // EnterDefaultCase is called when production defaultCase is entered.
 func (s *BaseCompiscriptListener) EnterDefaultCase(ctx *DefaultCaseContext) {}
 
 // ExitDefaultCase is called when production defaultCase is exited.
 func (s *BaseCompiscriptListener) ExitDefaultCase(ctx *DefaultCaseContext) {}
+
+// EnterCaseBody is called when production caseBody is entered.
+func (s *BaseCompiscriptListener) EnterCaseBody(ctx *CaseBodyContext) {}
+
+// ExitCaseBody is called when production caseBody is exited.
+func (s *BaseCompiscriptListener) ExitCaseBody(ctx *CaseBodyContext) {}
 
 // EnterFunctionDeclaration is called when production functionDeclaration is entered.
 func (s *BaseCompiscriptListener) EnterFunctionDeclaration(ctx *FunctionDeclarationContext) {}

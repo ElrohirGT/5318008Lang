@@ -22,7 +22,7 @@ statement
   | forStatement        // TODO: Rayo
   | foreachStatement    // TODO: Rayo
   | tryCatchStatement   // TODO: Rayo
-  | switchStatement     // TODO: Rayo
+  | switchStatement     // DONE: Rayo
   | breakStatement      // DONE: Rayo
   | continueStatement   // DONE: Rayo
   | returnStatement     // TODO: Prince, Rayo
@@ -68,10 +68,12 @@ blockStatement: block;
 tryCatchStatement: 'try' block catchStatement;
 catchStatement : 'catch' '(' Identifier ')' block;
 
-switchStatement: 'switch' '(' conditionalExpr ')' '{' switchCase* defaultCase? '}';
-switchCase: 'case' primaryExpr ':' caseBody;
+switchValue : conditionalExpr;
+caseValue : primaryExpr;
+switchStatement: 'switch' '(' switchValue ')' '{' switchCase* defaultCase? '}';
+switchCase: 'case' caseValue ':' caseBody;
+defaultCase: 'default' ':' caseBody;
 caseBody: statement*;
-defaultCase: 'default' ':' statement*;
 
 functionDeclaration: 'function' Identifier '(' parameters? ')' (':' type)? block;
 parameters: parameter (',' parameter)*;

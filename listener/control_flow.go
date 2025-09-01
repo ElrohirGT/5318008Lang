@@ -146,6 +146,46 @@ func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
 // SWITCH
 // ===========================
 
+func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
+	forScope := NewScope("SWITCH", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitSwitchStatement(ctx *p.SwitchStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitSwitchValue(ctx *p.SwitchValueContext) {
+	switchValue, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
+	l.ScopeManager.CurrentScope.UpsertExpressionType("$switch", switchValue)
+}
+
+func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
+	line := ctx.GetStart().GetLine()
+	colStartI := ctx.GetStart().GetColumn()
+	colEndI := ctx.GetStop().GetColumn()
+	switchValue, _ := l.ScopeManager.CurrentScope.GetExpressionType("$switch")
+	caseValue, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.PrimaryExpr().GetText())
+
+	if switchValue != caseValue {
+		l.AddError(line, colStartI, colEndI,
+			fmt.Sprintf("Exit CaseValue: expected type `%s` but `%s` found", switchValue, caseValue))
+	}
+}
+
+func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
+	forScope := NewScope("CASE", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
+	// Exit of block scope
+	l.ScopeManager.ReplaceWithParent()
+
+}
+
 // ===========================
 // BOOLEAN EXPRESIONS
 // ===========================

@@ -86,17 +86,23 @@ type CompiscriptListener interface {
 	// EnterCatchStatement is called when entering the catchStatement production.
 	EnterCatchStatement(c *CatchStatementContext)
 
+	// EnterSwitchValue is called when entering the switchValue production.
+	EnterSwitchValue(c *SwitchValueContext)
+
+	// EnterCaseValue is called when entering the caseValue production.
+	EnterCaseValue(c *CaseValueContext)
+
 	// EnterSwitchStatement is called when entering the switchStatement production.
 	EnterSwitchStatement(c *SwitchStatementContext)
 
 	// EnterSwitchCase is called when entering the switchCase production.
 	EnterSwitchCase(c *SwitchCaseContext)
 
-	// EnterCaseBody is called when entering the caseBody production.
-	EnterCaseBody(c *CaseBodyContext)
-
 	// EnterDefaultCase is called when entering the defaultCase production.
 	EnterDefaultCase(c *DefaultCaseContext)
+
+	// EnterCaseBody is called when entering the caseBody production.
+	EnterCaseBody(c *CaseBodyContext)
 
 	// EnterFunctionDeclaration is called when entering the functionDeclaration production.
 	EnterFunctionDeclaration(c *FunctionDeclarationContext)
@@ -275,17 +281,23 @@ type CompiscriptListener interface {
 	// ExitCatchStatement is called when exiting the catchStatement production.
 	ExitCatchStatement(c *CatchStatementContext)
 
+	// ExitSwitchValue is called when exiting the switchValue production.
+	ExitSwitchValue(c *SwitchValueContext)
+
+	// ExitCaseValue is called when exiting the caseValue production.
+	ExitCaseValue(c *CaseValueContext)
+
 	// ExitSwitchStatement is called when exiting the switchStatement production.
 	ExitSwitchStatement(c *SwitchStatementContext)
 
 	// ExitSwitchCase is called when exiting the switchCase production.
 	ExitSwitchCase(c *SwitchCaseContext)
 
-	// ExitCaseBody is called when exiting the caseBody production.
-	ExitCaseBody(c *CaseBodyContext)
-
 	// ExitDefaultCase is called when exiting the defaultCase production.
 	ExitDefaultCase(c *DefaultCaseContext)
+
+	// ExitCaseBody is called when exiting the caseBody production.
+	ExitCaseBody(c *CaseBodyContext)
 
 	// ExitFunctionDeclaration is called when exiting the functionDeclaration production.
 	ExitFunctionDeclaration(c *FunctionDeclarationContext)
