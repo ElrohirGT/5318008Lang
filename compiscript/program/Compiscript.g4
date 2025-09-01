@@ -41,7 +41,7 @@ typeAnnotation: ':' type;
 initializer: '=' conditionalExpr;
 
 assignment
-	: 'this' ('.' Identifier)* '=' conditionalExpr ';'			# ThisAssignment
+	: 'this' ('.' Identifier)+ '=' conditionalExpr ';'			# ThisAssignment
 	| Identifier ('.' Identifier)* '=' conditionalExpr ';'	# VariableAssignment
   ;
 
