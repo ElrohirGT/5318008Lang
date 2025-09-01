@@ -152,7 +152,7 @@ breakStatement
 continueStatement
 returnStatement
 blockStatement
-tryCatchStatement
+tryStatement
 catchStatement
 switchValue
 caseValue

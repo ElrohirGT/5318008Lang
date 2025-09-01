@@ -14,14 +14,14 @@ statement
   | functionDeclaration // TODO: Flavio, Prince
 												// DONE: Arrays
   | classDeclaration    // DONE: Flavio
-  | printStatement      // TODO: Rayo, Primera (y talvez única) builtin del compilador
+  | printStatement      // DONE: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
   | ifStatement         // DONE: Rayo
   | whileStatement      // DONE: Rayo
   | doWhileStatement    // DONE: Rayo
   | forStatement        // TODO: Rayo
   | foreachStatement    // TODO: Rayo
-  | tryCatchStatement   // TODO: Rayo
+  | tryStatement        // DONE: Rayo
   | switchStatement     // DONE: Rayo
   | breakStatement      // DONE: Rayo
   | continueStatement   // DONE: Rayo
@@ -65,7 +65,7 @@ continueStatement: 'continue' ';';
 returnStatement: 'return' conditionalExpr? ';';
 blockStatement: block;
 
-tryCatchStatement: 'try' block catchStatement;
+tryStatement: 'try' block catchStatement;
 catchStatement : 'catch' '(' Identifier ')' block;
 
 switchValue : conditionalExpr;

@@ -183,7 +183,23 @@ func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
 func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 	// Exit of block scope
 	l.ScopeManager.ReplaceWithParent()
+}
 
+// ===========================
+// TRY CATCH
+// ===========================
+
+func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
+	tryScope := NewScope("TRY", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(tryScope)
+	l.ScopeManager.ReplaceCurrent(tryScope)
+}
+
+func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
+	catchScope := NewScope("CATCH", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(catchScope)
+	l.ScopeManager.ReplaceCurrent(catchScope)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.Identifier().GetText(), BASE_TYPES.STRING)
 }
 
 // ===========================

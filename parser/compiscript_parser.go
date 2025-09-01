@@ -54,7 +54,7 @@ func compiscriptParserInit() {
 		"ifStatement", "ifBody", "elseBody", "whileStatement", "whileBody",
 		"doWhileStatement", "doWhileBody", "forStatement", "foreachStatement",
 		"breakStatement", "continueStatement", "returnStatement", "blockStatement",
-		"tryCatchStatement", "catchStatement", "switchValue", "caseValue", "switchStatement",
+		"tryStatement", "catchStatement", "switchValue", "caseValue", "switchStatement",
 		"switchCase", "defaultCase", "caseBody", "functionDeclaration", "parameters",
 		"parameter", "classDeclaration", "classMember", "expression", "assignmentExpr",
 		"conditionalExpr", "logicalOrExpr", "logicalAndExpr", "equalityExpr",
@@ -433,7 +433,7 @@ const (
 	CompiscriptParserRULE_continueStatement   = 20
 	CompiscriptParserRULE_returnStatement     = 21
 	CompiscriptParserRULE_blockStatement      = 22
-	CompiscriptParserRULE_tryCatchStatement   = 23
+	CompiscriptParserRULE_tryStatement        = 23
 	CompiscriptParserRULE_catchStatement      = 24
 	CompiscriptParserRULE_switchValue         = 25
 	CompiscriptParserRULE_caseValue           = 26
@@ -651,7 +651,7 @@ type IStatementContext interface {
 	DoWhileStatement() IDoWhileStatementContext
 	ForStatement() IForStatementContext
 	ForeachStatement() IForeachStatementContext
-	TryCatchStatement() ITryCatchStatementContext
+	TryStatement() ITryStatementContext
 	SwitchStatement() ISwitchStatementContext
 	BreakStatement() IBreakStatementContext
 	ContinueStatement() IContinueStatementContext
@@ -901,10 +901,10 @@ func (s *StatementContext) ForeachStatement() IForeachStatementContext {
 	return t.(IForeachStatementContext)
 }
 
-func (s *StatementContext) TryCatchStatement() ITryCatchStatementContext {
+func (s *StatementContext) TryStatement() ITryStatementContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ITryCatchStatementContext); ok {
+		if _, ok := ctx.(ITryStatementContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -914,7 +914,7 @@ func (s *StatementContext) TryCatchStatement() ITryCatchStatementContext {
 		return nil
 	}
 
-	return t.(ITryCatchStatementContext)
+	return t.(ITryStatementContext)
 }
 
 func (s *StatementContext) SwitchStatement() ISwitchStatementContext {
@@ -1106,7 +1106,7 @@ func (p *CompiscriptParser) Statement() (localctx IStatementContext) {
 		p.EnterOuterAlt(localctx, 14)
 		{
 			p.SetState(135)
-			p.TryCatchStatement()
+			p.TryStatement()
 		}
 
 	case 15:
@@ -4238,8 +4238,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// ITryCatchStatementContext is an interface to support dynamic dispatch.
-type ITryCatchStatementContext interface {
+// ITryStatementContext is an interface to support dynamic dispatch.
+type ITryStatementContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -4249,43 +4249,43 @@ type ITryCatchStatementContext interface {
 	Block() IBlockContext
 	CatchStatement() ICatchStatementContext
 
-	// IsTryCatchStatementContext differentiates from other interfaces.
-	IsTryCatchStatementContext()
+	// IsTryStatementContext differentiates from other interfaces.
+	IsTryStatementContext()
 }
 
-type TryCatchStatementContext struct {
+type TryStatementContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyTryCatchStatementContext() *TryCatchStatementContext {
-	var p = new(TryCatchStatementContext)
+func NewEmptyTryStatementContext() *TryStatementContext {
+	var p = new(TryStatementContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = CompiscriptParserRULE_tryCatchStatement
+	p.RuleIndex = CompiscriptParserRULE_tryStatement
 	return p
 }
 
-func InitEmptyTryCatchStatementContext(p *TryCatchStatementContext) {
+func InitEmptyTryStatementContext(p *TryStatementContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = CompiscriptParserRULE_tryCatchStatement
+	p.RuleIndex = CompiscriptParserRULE_tryStatement
 }
 
-func (*TryCatchStatementContext) IsTryCatchStatementContext() {}
+func (*TryStatementContext) IsTryStatementContext() {}
 
-func NewTryCatchStatementContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *TryCatchStatementContext {
-	var p = new(TryCatchStatementContext)
+func NewTryStatementContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *TryStatementContext {
+	var p = new(TryStatementContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = CompiscriptParserRULE_tryCatchStatement
+	p.RuleIndex = CompiscriptParserRULE_tryStatement
 
 	return p
 }
 
-func (s *TryCatchStatementContext) GetParser() antlr.Parser { return s.parser }
+func (s *TryStatementContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *TryCatchStatementContext) Block() IBlockContext {
+func (s *TryStatementContext) Block() IBlockContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IBlockContext); ok {
@@ -4301,7 +4301,7 @@ func (s *TryCatchStatementContext) Block() IBlockContext {
 	return t.(IBlockContext)
 }
 
-func (s *TryCatchStatementContext) CatchStatement() ICatchStatementContext {
+func (s *TryStatementContext) CatchStatement() ICatchStatementContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ICatchStatementContext); ok {
@@ -4317,29 +4317,29 @@ func (s *TryCatchStatementContext) CatchStatement() ICatchStatementContext {
 	return t.(ICatchStatementContext)
 }
 
-func (s *TryCatchStatementContext) GetRuleContext() antlr.RuleContext {
+func (s *TryStatementContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *TryCatchStatementContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *TryStatementContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *TryCatchStatementContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *TryStatementContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterTryCatchStatement(s)
+		listenerT.EnterTryStatement(s)
 	}
 }
 
-func (s *TryCatchStatementContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *TryStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitTryCatchStatement(s)
+		listenerT.ExitTryStatement(s)
 	}
 }
 
-func (p *CompiscriptParser) TryCatchStatement() (localctx ITryCatchStatementContext) {
-	localctx = NewTryCatchStatementContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 46, CompiscriptParserRULE_tryCatchStatement)
+func (p *CompiscriptParser) TryStatement() (localctx ITryStatementContext) {
+	localctx = NewTryStatementContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 46, CompiscriptParserRULE_tryStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(279)
