@@ -392,7 +392,8 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 		}
 		previousType = fieldType
 
-		isLastIdentifier := i == len(identifiers)-1-1
+		isLastIdentifier := i == len(identifiers)-1
+		log.Printf("Is last identifier: %d == %d -1", i, len(identifiers))
 		if isLastIdentifier {
 			assignExpr := ctx.ConditionalExpr()
 			colStartA := assignExpr.GetStart().GetColumn()
@@ -406,6 +407,7 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 				return
 			}
 
+			log.Printf("Checking (`%s` != `%s`)", fieldType, assignType)
 			if fieldType != assignType {
 				l.AddError(line, colStartI, colEndA, fmt.Sprintf(
 					"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",

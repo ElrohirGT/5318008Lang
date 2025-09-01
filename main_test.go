@@ -19,7 +19,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/controlflow/",
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
-	// "class_decl",
+	// "method",
 }
 
 var IGNORE_SPECIFIC = []string{
