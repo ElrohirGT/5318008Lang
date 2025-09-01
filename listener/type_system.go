@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
@@ -176,16 +177,35 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			}
 		}
 	} else {
-		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
-		log.Println("Variable", name.GetText(), "has type", declarationType)
+		annotText := typeAnnot.Type_().GetText()
+		isArray := strings.HasSuffix(annotText, "[]")
 
-		if !l.TypeExists(declarationType) {
-			// FIXME: Make error more specific
-			l.AddError(line, colStartT, colEndT, fmt.Sprintf(
-				"%s doesn't exist!",
-				declarationType,
-			))
-			declarationType = BASE_TYPES.INVALID
+		declarationType := TypeIdentifier(annotText)
+		if !isArray {
+			log.Println("Variable", name.GetText(), "has type", declarationType)
+
+			if !l.TypeExists(declarationType) {
+				// FIXME: Make error more specific
+				l.AddError(line, colStartT, colEndT, fmt.Sprintf(
+					"%s doesn't exist!",
+					declarationType,
+				))
+				declarationType = BASE_TYPES.INVALID
+			}
+		} else {
+			baseType, _, _ := strings.Cut(annotText, "[]")
+			log.Println("Array variable", name.GetText(), "has base type", baseType)
+
+			if !l.TypeExists(TypeIdentifier(baseType)) {
+				// FIXME: Make error more specific
+				l.AddError(line, colStartT, colEndT, fmt.Sprintf(
+					"%s doesn't exist!",
+					baseType,
+				))
+				declarationType = BASE_TYPES.INVALID
+			} else {
+				declarationType = NewArrayTypeIdentifier(TypeIdentifier(annotText[:len(annotText)-2]))
+			}
 		}
 
 		if hasInitialExpr {
