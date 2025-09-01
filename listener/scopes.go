@@ -149,6 +149,12 @@ func (s *Scope) UpsertExpressionType(expr string, _type TypeIdentifier) {
 	s.typesByExpression[expr] = _type
 }
 
+// Gets the TypeIdentifier searching only in this scope.
+func (s *Scope) GetOnlyInScope(expr string) (TypeIdentifier, bool) {
+	t, found := s.typesByExpression[expr]
+	return t, found
+}
+
 func (s *Scope) GetExpressionType(expr string) (TypeIdentifier, bool) {
 	t, found := s.typesByExpression[expr]
 	if !found && s.Father != nil {
