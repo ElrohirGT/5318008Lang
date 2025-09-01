@@ -13,7 +13,7 @@ statement
   | assignment          // DONE: Flavio
   | functionDeclaration // DONE: Flavio, Prince
 												// DONE: Flavio: Arrays
-												// TODO: Flavio: Duplicate variable/constant declarations
+												// DONE: Flavio: Duplicate variable/constant declarations
   | classDeclaration    // DONE: Flavio
   | printStatement      // DONE: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
