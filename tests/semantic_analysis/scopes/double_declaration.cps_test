@@ -1,0 +1,19 @@
+// Error:
+let a = "Hola";
+let a = "Adios";
+
+
+// Error?
+let b = "Hola";
+{
+  let b = "Adios";
+}
+
+function Hello(a: string) {
+	let a = "Hola";
+}
+
+---
+=== ERRORS ===
+* Error: (line: 3, column: 4-5) Can't redeclare variable `a` in the same scope!
+* Error: (line: 13, column: 5-6) Can't redeclare variable `a` in the same scope!

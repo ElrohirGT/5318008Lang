@@ -129,26 +129,116 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ====================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
-	forScope := NewScope("FOR", SCOPE_TYPES.BLOCK)
+	forScope := NewScope("FOR", SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
-	// TODO: ADD EXTRA CONTEXT AGAIN
-	blockScope := NewScope("FOR-BLOCK", SCOPE_TYPES.LOOP)
-	l.ScopeManager.AddToCurrent(blockScope)
-	l.ScopeManager.ReplaceCurrent(blockScope)
 }
 
 func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
-	// Exit of block scope
 	l.ScopeManager.ReplaceWithParent()
-	// Exit of for scope
-	l.ScopeManager.ReplaceWithParent()
+}
 
+// ====================
+// FOR-EACH
+// ====================
+
+func (l Listener) EnterForeachStatement(ctx *p.ForeachStatementContext) {
+	forScope := NewScope("FOR-EACH", SCOPE_TYPES.LOOP)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
+	arrayType, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
+	fmt.Printf("-----%s\n", arrayType)
+
+	valueInfo, ok := l.GetTypeInfo(arrayType)
+
+	// FIXME: LIST IS NOT PROPERLY STORED
+	for k, v := range *l.KnownTypes {
+		fmt.Printf("%s %v\n", k, v)
+	}
+
+	// FIXME: SHOULD NEVER ENTER A THIS VALUE;
+	if !ok {
+		fmt.Println("------- NOT OK")
+		return
+	}
+
+	// FIXME: THIS SHOULD NOT FAIL
+	if !valueInfo.ArrayType.HasValue() {
+		fmt.Println("------- its NOT array type")
+		return
+	}
+
+	l.ScopeManager.CurrentScope.UpsertExpressionType(
+		ctx.Identifier().GetText(),
+		valueInfo.ArrayType.GetValue().Type)
 }
 
 // ===========================
 // SWITCH
 // ===========================
+
+func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
+	forScope := NewScope("SWITCH", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitSwitchStatement(ctx *p.SwitchStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitSwitchValue(ctx *p.SwitchValueContext) {
+	switchValue, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
+	l.ScopeManager.CurrentScope.UpsertExpressionType("$switch", switchValue)
+}
+
+func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
+	line := ctx.GetStart().GetLine()
+	colStartI := ctx.GetStart().GetColumn()
+	colEndI := ctx.GetStop().GetColumn()
+	switchValue, _ := l.ScopeManager.CurrentScope.GetExpressionType("$switch")
+	caseValue, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.PrimaryExpr().GetText())
+
+	if switchValue != caseValue {
+		l.AddError(line, colStartI, colEndI,
+			fmt.Sprintf("Exit CaseValue: expected type `%s` but `%s` found", switchValue, caseValue))
+	}
+}
+
+func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
+	forScope := NewScope("CASE", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
+	// Exit of block scope
+	l.ScopeManager.ReplaceWithParent()
+}
+
+// ===========================
+// TRY CATCH
+// ===========================
+
+func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
+	tryScope := NewScope("TRY", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(tryScope)
+	l.ScopeManager.ReplaceCurrent(tryScope)
+}
+
+func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
+	catchScope := NewScope("CATCH", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(catchScope)
+	l.ScopeManager.ReplaceCurrent(catchScope)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.Identifier().GetText(), BASE_TYPES.STRING)
+}
 
 // ===========================
 // BOOLEAN EXPRESIONS
@@ -167,12 +257,12 @@ func (l Listener) ExitConditionalExpr(ctx *p.ConditionalExprContext) {
 	areSame, commonType := expresionsOfTheSameType(l.ScopeManager, exprs[0], exprs[1])
 
 	if !areSame {
-		l.AddError(line, colStartI, colEndI, fmt.Sprintf("Exit ConditionalExpr: ternary branches should be of the same type"))
+		l.AddError(line, colStartI, colEndI, "Exit ConditionalExpr: ternary branches should be of the same type")
 		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
 		return
 	} else if commonType == BASE_TYPES.UNKNOWN ||
 		commonType == BASE_TYPES.INVALID {
-		l.AddError(line, colStartI, colEndI, fmt.Sprintf("Exit ConditionalExpr: Une of the branches has invalid/unkown values"))
+		l.AddError(line, colStartI, colEndI, "Exit ConditionalExpr: Une of the branches has invalid/unkown values")
 		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
 		return
 	}

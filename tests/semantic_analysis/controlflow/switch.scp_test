@@ -1,0 +1,12 @@
+let b : integer = 5;
+switch (b) {
+    case 3 : 
+        let a = 3;
+    case "3" : 
+        let a = 3;
+    default: 
+        let a = 3 + 2;
+}
+---
+=== ERRORS ===
+* Error: (line: 5, column: 9-9) Exit CaseValue: expected type `integer` but `string` found

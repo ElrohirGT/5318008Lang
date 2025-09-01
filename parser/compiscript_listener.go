@@ -65,6 +65,9 @@ type CompiscriptListener interface {
 	// EnterForStatement is called when entering the forStatement production.
 	EnterForStatement(c *ForStatementContext)
 
+	// EnterForeachValue is called when entering the foreachValue production.
+	EnterForeachValue(c *ForeachValueContext)
+
 	// EnterForeachStatement is called when entering the foreachStatement production.
 	EnterForeachStatement(c *ForeachStatementContext)
 
@@ -80,11 +83,17 @@ type CompiscriptListener interface {
 	// EnterBlockStatement is called when entering the blockStatement production.
 	EnterBlockStatement(c *BlockStatementContext)
 
-	// EnterTryCatchStatement is called when entering the tryCatchStatement production.
-	EnterTryCatchStatement(c *TryCatchStatementContext)
+	// EnterTryStatement is called when entering the tryStatement production.
+	EnterTryStatement(c *TryStatementContext)
 
 	// EnterCatchStatement is called when entering the catchStatement production.
 	EnterCatchStatement(c *CatchStatementContext)
+
+	// EnterSwitchValue is called when entering the switchValue production.
+	EnterSwitchValue(c *SwitchValueContext)
+
+	// EnterCaseValue is called when entering the caseValue production.
+	EnterCaseValue(c *CaseValueContext)
 
 	// EnterSwitchStatement is called when entering the switchStatement production.
 	EnterSwitchStatement(c *SwitchStatementContext)
@@ -92,11 +101,11 @@ type CompiscriptListener interface {
 	// EnterSwitchCase is called when entering the switchCase production.
 	EnterSwitchCase(c *SwitchCaseContext)
 
-	// EnterCaseBody is called when entering the caseBody production.
-	EnterCaseBody(c *CaseBodyContext)
-
 	// EnterDefaultCase is called when entering the defaultCase production.
 	EnterDefaultCase(c *DefaultCaseContext)
+
+	// EnterCaseBody is called when entering the caseBody production.
+	EnterCaseBody(c *CaseBodyContext)
 
 	// EnterFunctionDeclaration is called when entering the functionDeclaration production.
 	EnterFunctionDeclaration(c *FunctionDeclarationContext)
@@ -254,6 +263,9 @@ type CompiscriptListener interface {
 	// ExitForStatement is called when exiting the forStatement production.
 	ExitForStatement(c *ForStatementContext)
 
+	// ExitForeachValue is called when exiting the foreachValue production.
+	ExitForeachValue(c *ForeachValueContext)
+
 	// ExitForeachStatement is called when exiting the foreachStatement production.
 	ExitForeachStatement(c *ForeachStatementContext)
 
@@ -269,11 +281,17 @@ type CompiscriptListener interface {
 	// ExitBlockStatement is called when exiting the blockStatement production.
 	ExitBlockStatement(c *BlockStatementContext)
 
-	// ExitTryCatchStatement is called when exiting the tryCatchStatement production.
-	ExitTryCatchStatement(c *TryCatchStatementContext)
+	// ExitTryStatement is called when exiting the tryStatement production.
+	ExitTryStatement(c *TryStatementContext)
 
 	// ExitCatchStatement is called when exiting the catchStatement production.
 	ExitCatchStatement(c *CatchStatementContext)
+
+	// ExitSwitchValue is called when exiting the switchValue production.
+	ExitSwitchValue(c *SwitchValueContext)
+
+	// ExitCaseValue is called when exiting the caseValue production.
+	ExitCaseValue(c *CaseValueContext)
 
 	// ExitSwitchStatement is called when exiting the switchStatement production.
 	ExitSwitchStatement(c *SwitchStatementContext)
@@ -281,11 +299,11 @@ type CompiscriptListener interface {
 	// ExitSwitchCase is called when exiting the switchCase production.
 	ExitSwitchCase(c *SwitchCaseContext)
 
-	// ExitCaseBody is called when exiting the caseBody production.
-	ExitCaseBody(c *CaseBodyContext)
-
 	// ExitDefaultCase is called when exiting the defaultCase production.
 	ExitDefaultCase(c *DefaultCaseContext)
+
+	// ExitCaseBody is called when exiting the caseBody production.
+	ExitCaseBody(c *CaseBodyContext)
 
 	// ExitFunctionDeclaration is called when exiting the functionDeclaration production.
 	ExitFunctionDeclaration(c *FunctionDeclarationContext)

@@ -159,12 +159,20 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 				l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
 					cti.UpsertField(name.GetText(), inferedType)
 				})
-				// FIXME: Check if variable is already declared!
 				l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
 			} else {
-				log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
-				// FIXME: Check if variable is already declared!
-				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
+				_, found := l.ScopeManager.CurrentScope.GetOnlyInScope(name.GetText())
+				if found {
+					l.AddError(
+						line,
+						colStartI,
+						colEndI,
+						fmt.Sprintf("Can't redeclare variable `%s` in the same scope!", name.GetText()),
+					)
+				} else {
+					log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
+					l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
+				}
 			}
 		}
 	} else {
@@ -212,11 +220,19 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
 				cti.UpsertField(name.GetText(), declarationType)
 			})
-			// FIXME: Check if variable is already declared!
 			l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), declarationType)
 		} else {
-			// FIXME: Check if variable is already declared!
-			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
+			_, found := l.ScopeManager.CurrentScope.GetOnlyInScope(name.GetText())
+			if found {
+				l.AddError(
+					line,
+					colStartI,
+					colEndI,
+					fmt.Sprintf("Can't redeclare variable `%s` in the same scope!", name.GetText()),
+				)
+			} else {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
+			}
 		}
 	}
 }
@@ -275,14 +291,22 @@ func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
 				cti.UpsertField(name.GetText(), inferedType)
 				cti.ConstantFields.Add(name.GetText())
 			})
-			// FIXME: Check if variable is already declared!
 			l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
 			l.ScopeManager.CurrentScope.AddConstant(newExprName)
 		} else {
-			log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
-			// FIXME: Check if variable is already declared!
-			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
-			l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+			_, found := l.ScopeManager.CurrentScope.GetOnlyInScope(name.GetText())
+			if found {
+				l.AddError(
+					line,
+					colStartI,
+					colEndI,
+					fmt.Sprintf("Can't redeclare constant `%s` in the same scope!", name.GetText()),
+				)
+			} else {
+				log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
+				l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+			}
 		}
 	} else {
 		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
@@ -328,13 +352,21 @@ func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
 				cti.UpsertField(name.GetText(), declarationType)
 				cti.ConstantFields.Add(name.GetText())
 			})
-			// FIXME: Check if variable is already declared!
 			l.ScopeManager.CurrentScope.UpsertExpressionType(fieldName, declarationType)
 			l.ScopeManager.CurrentScope.AddConstant(fieldName)
 		} else {
-			// FIXME: Check if variable is already declared!
-			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
-			l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+			_, found := l.ScopeManager.CurrentScope.GetOnlyInScope(name.GetText())
+			if found {
+				l.AddError(
+					line,
+					colStartI,
+					colEndI,
+					fmt.Sprintf("Can't redeclare constant `%s` in the same scope!", name.GetText()),
+				)
+			} else {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
+				l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+			}
 		}
 	}
 }
@@ -392,7 +424,8 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 		}
 		previousType = fieldType
 
-		isLastIdentifier := i == len(identifiers)-1-1
+		isLastIdentifier := i == len(identifiers)-1
+		log.Printf("Is last identifier: %d == %d -1", i, len(identifiers))
 		if isLastIdentifier {
 			assignExpr := ctx.ConditionalExpr()
 			colStartA := assignExpr.GetStart().GetColumn()
@@ -406,6 +439,7 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 				return
 			}
 
+			log.Printf("Checking (`%s` != `%s`)", fieldType, assignType)
 			if fieldType != assignType {
 				l.AddError(line, colStartI, colEndA, fmt.Sprintf(
 					"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
@@ -662,12 +696,8 @@ func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 
 	log.Printf("Validating leftHandSide: %s", ctx.GetText())
 
-	// FIXME: This fails with test.cps but it shouldn't!
 	if !l.isValidCombination(primaryAtom, suffixOps) {
-		l.AddError(line, colStart, colEnd, fmt.Sprintf(
-			"Invalid expression structure: %s",
-			ctx.GetText(),
-		))
+		l.AddError(line, colStart, colEnd, "Invalid expression structure: "+ctx.GetText())
 		return
 	}
 
@@ -727,8 +757,8 @@ func (l Listener) isValidCombination(primaryAtom p.IPrimaryAtomContext, suffixOp
 
 func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAtom p.IPrimaryAtomContext, suffixOps []p.ISuffixOpContext) {
 	// FIXME: Check if INVALID is correct here!
-	var currentType TypeIdentifier = BASE_TYPES.INVALID
-	var currentExpr string = ctx.GetText()
+	currentType := BASE_TYPES.INVALID
+	currentExpr := ctx.GetText()
 
 	switch atom := primaryAtom.(type) {
 	case *p.IdentifierExprContext:
@@ -781,7 +811,6 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 	}
 
 	l.ScopeManager.CurrentScope.UpsertExpressionType(currentExpr, currentType)
-	// FIXME: This logic is incorrect, be
 	log.Printf("Final type for '%s': '%s'", currentExpr, currentType)
 }
 
@@ -796,7 +825,6 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 		return
 	}
 
-	// FIXME: Implement non-empty array literal initalization...
 	firstExpr := expressions[0]
 	firstExprType, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 	if !found {

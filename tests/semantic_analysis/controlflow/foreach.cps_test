@@ -1,0 +1,5 @@
+let numbers: integer[] = [5,4,3];
+foreach ( value in numbers) {
+    let b : integer = value;
+}
+---

@@ -100,6 +100,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
 		funcScope = NewScope(funcName.GetText(), SCOPE_TYPES.FUNCTION)
 
+		// FIXME: A function should not be registered in tye typesExpresion register
 		l.ScopeManager.CurrentScope.UpsertExpressionType(funcName.GetText(), info.ReturnType)
 	}
 

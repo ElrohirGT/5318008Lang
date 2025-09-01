@@ -135,6 +135,12 @@ func (s *BaseCompiscriptListener) EnterForStatement(ctx *ForStatementContext) {}
 // ExitForStatement is called when production forStatement is exited.
 func (s *BaseCompiscriptListener) ExitForStatement(ctx *ForStatementContext) {}
 
+// EnterForeachValue is called when production foreachValue is entered.
+func (s *BaseCompiscriptListener) EnterForeachValue(ctx *ForeachValueContext) {}
+
+// ExitForeachValue is called when production foreachValue is exited.
+func (s *BaseCompiscriptListener) ExitForeachValue(ctx *ForeachValueContext) {}
+
 // EnterForeachStatement is called when production foreachStatement is entered.
 func (s *BaseCompiscriptListener) EnterForeachStatement(ctx *ForeachStatementContext) {}
 
@@ -165,17 +171,29 @@ func (s *BaseCompiscriptListener) EnterBlockStatement(ctx *BlockStatementContext
 // ExitBlockStatement is called when production blockStatement is exited.
 func (s *BaseCompiscriptListener) ExitBlockStatement(ctx *BlockStatementContext) {}
 
-// EnterTryCatchStatement is called when production tryCatchStatement is entered.
-func (s *BaseCompiscriptListener) EnterTryCatchStatement(ctx *TryCatchStatementContext) {}
+// EnterTryStatement is called when production tryStatement is entered.
+func (s *BaseCompiscriptListener) EnterTryStatement(ctx *TryStatementContext) {}
 
-// ExitTryCatchStatement is called when production tryCatchStatement is exited.
-func (s *BaseCompiscriptListener) ExitTryCatchStatement(ctx *TryCatchStatementContext) {}
+// ExitTryStatement is called when production tryStatement is exited.
+func (s *BaseCompiscriptListener) ExitTryStatement(ctx *TryStatementContext) {}
 
 // EnterCatchStatement is called when production catchStatement is entered.
 func (s *BaseCompiscriptListener) EnterCatchStatement(ctx *CatchStatementContext) {}
 
 // ExitCatchStatement is called when production catchStatement is exited.
 func (s *BaseCompiscriptListener) ExitCatchStatement(ctx *CatchStatementContext) {}
+
+// EnterSwitchValue is called when production switchValue is entered.
+func (s *BaseCompiscriptListener) EnterSwitchValue(ctx *SwitchValueContext) {}
+
+// ExitSwitchValue is called when production switchValue is exited.
+func (s *BaseCompiscriptListener) ExitSwitchValue(ctx *SwitchValueContext) {}
+
+// EnterCaseValue is called when production caseValue is entered.
+func (s *BaseCompiscriptListener) EnterCaseValue(ctx *CaseValueContext) {}
+
+// ExitCaseValue is called when production caseValue is exited.
+func (s *BaseCompiscriptListener) ExitCaseValue(ctx *CaseValueContext) {}
 
 // EnterSwitchStatement is called when production switchStatement is entered.
 func (s *BaseCompiscriptListener) EnterSwitchStatement(ctx *SwitchStatementContext) {}
@@ -189,17 +207,17 @@ func (s *BaseCompiscriptListener) EnterSwitchCase(ctx *SwitchCaseContext) {}
 // ExitSwitchCase is called when production switchCase is exited.
 func (s *BaseCompiscriptListener) ExitSwitchCase(ctx *SwitchCaseContext) {}
 
-// EnterCaseBody is called when production caseBody is entered.
-func (s *BaseCompiscriptListener) EnterCaseBody(ctx *CaseBodyContext) {}
-
-// ExitCaseBody is called when production caseBody is exited.
-func (s *BaseCompiscriptListener) ExitCaseBody(ctx *CaseBodyContext) {}
-
 // EnterDefaultCase is called when production defaultCase is entered.
 func (s *BaseCompiscriptListener) EnterDefaultCase(ctx *DefaultCaseContext) {}
 
 // ExitDefaultCase is called when production defaultCase is exited.
 func (s *BaseCompiscriptListener) ExitDefaultCase(ctx *DefaultCaseContext) {}
+
+// EnterCaseBody is called when production caseBody is entered.
+func (s *BaseCompiscriptListener) EnterCaseBody(ctx *CaseBodyContext) {}
+
+// ExitCaseBody is called when production caseBody is exited.
+func (s *BaseCompiscriptListener) ExitCaseBody(ctx *CaseBodyContext) {}
 
 // EnterFunctionDeclaration is called when production functionDeclaration is entered.
 func (s *BaseCompiscriptListener) EnterFunctionDeclaration(ctx *FunctionDeclarationContext) {}

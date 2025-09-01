@@ -1,0 +1,10 @@
+try {
+
+} catch ( err ) {
+    let a : string = "ERROR:" + 3;
+}
+---
+=== ERRORS ===
+* Error: (line: 4, column: 32-32) Can't add:
+ * leftSide: `"ERROR:"` of type `string`
+ * rightSide: `3` of type `integer`

@@ -6,7 +6,6 @@ do {
 === ERRORS ===
 * Error: (line: 4, column: 19-20) Undeclared identifier `x`
 * Error: (line: 4, column: 19-20) Undeclared identifier 'x'
-* Error: (line: 4, column: 19-20) Exit Add (firstExpr): `x` doesn't have a type!
 * Error: (line: 4, column: 19-24) Exit RelationalExpr: `x` symbol is not registered in scope!
 * Error: (line: 4, column: 19-46) Exit RelationalExpr: expresion `x<=10` should be a boolean
 * Error: (line: 4, column: 9-51) Exit RelationalExpr: `(x<=10&&true&&true==false)` has an invalid type!
