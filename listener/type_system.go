@@ -112,6 +112,9 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			if isInsideClassDeclaration {
 				classExprName := "this." + name.GetText()
 				l.ScopeManager.CurrentScope.UpsertExpressionType(classExprName, BASE_TYPES.INVALID)
+				l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+					cti.UpsertField(name.GetText(), BASE_TYPES.INVALID)
+				})
 			} else {
 				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), BASE_TYPES.INVALID)
 			}
@@ -339,6 +342,7 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 		classInfo := info.ClassType.GetValue()
 		fieldType, hasField := classInfo.Fields[identifier.GetText()]
 		if !hasField {
+			log.Printf("Field `%s` not found in class:\n%#v\n", identifier.GetText(), classInfo)
 			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
 				"Trying to access field `%s` not defined in class `%s`!",
 				identifier.GetText(),

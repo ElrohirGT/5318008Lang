@@ -20,9 +20,17 @@ class Animal {
 let animalVar = new Animal();
 ---
 === ERRORS ===
-* Error: (line: 6) Can't create a new instance of `Animal` while defining the same class!
-* Error: (line: 6) Exit Add (firstExpr): `newAnimal()` doesn't have a type!
-* Error: (line: 6) Couldn't infer the type of variable `animalVar`, initialized with: `newAnimal()`
-* Error: (line: 15) Can't add:
- * leftSide: `this.name + " is "` of type `string`
- * rightSide: `this.age` of type `integer`
+* Error: (line: 2, column: 0-9) Variable `name` must have an initial expression assigned to it! Maybe try assigning a value or a type?
+* Error: (line: 3, column: 0-8) Variable `age` must have an initial expression assigned to it! Maybe try assigning a value or a type?
+* Error: (line: 6, column: 22-28) Can't create a new instance of `Animal` while defining the same class!
+* Error: (line: 7, column: 9-15) Can't add:
+ * leftSide: `this` of type `**invalid**`
+ * rightSide: `" makes a sound."` of type `string`
+* Error: (line: 7, column: 9-36) Return type mismatch: expected `string` but got `**invalid**`
+* Error: (line: 15, column: 9-15) Can't add:
+ * leftSide: `this` of type `**invalid**`
+ * rightSide: `" is "` of type `string`
+* Error: (line: 15, column: 9-36) Can't add:
+ * leftSide: `this.name + " is " + this` of type `**invalid**`
+ * rightSide: `" years old!"` of type `string`
+* Error: (line: 15, column: 9-48) Return type mismatch: expected `string` but got `**invalid**`

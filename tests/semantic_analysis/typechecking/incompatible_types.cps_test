@@ -1,4 +1,4 @@
 let a: integer = "Flavio";
 ---
 === ERRORS ===
-* Error: (line: 1) The declaration of `a` specifies a type of `integer` but `string` was given
+* Error: (line: 1, column: 17-25) The declaration of `a` specifies a type of `integer` but `string` was given
