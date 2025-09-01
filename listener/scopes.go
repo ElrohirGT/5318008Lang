@@ -189,8 +189,14 @@ func (s *Scope) SearchClassScope() (*Scope, bool) {
 	return nil, false
 }
 
-func (s *Scope) UpsertFunctionDef(funcName string, info MethodInfo) {
-	s.functions[funcName] = info
+func (s *Scope) UpsertFunctionDef(name string, info MethodInfo) {
+	if s.functions == nil {
+		log.Printf("WARNING: functions map is nil, initializing...")
+		s.functions = make(map[string]MethodInfo)
+	}
+	log.Printf("Upserting function %s with info %+v", name, info)
+	s.functions[name] = info
+	log.Printf("After upsert, functions map: %v", s.functions)
 }
 
 func (s *Scope) Print(indent int) {

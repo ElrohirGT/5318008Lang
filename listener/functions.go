@@ -391,28 +391,38 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 	l.ScopeManager.CurrentScope.UpsertFunctionDef(ctx.GetText(), funcInfo)
 }
 
+// 2. Add debug logging in findFunctionInfo to see what's happening
 func (l Listener) findFunctionInfo(funcName string) (MethodInfo, bool) {
+	log.Printf("Searching for function: %s", funcName)
+
 	// First check current scope and walk up
 	scope := l.ScopeManager.CurrentScope
+	scopeDepth := 0
 	for scope != nil {
+		log.Printf("Checking scope: %s (depth %d), functions: %v", scope.Name, scopeDepth, scope.functions)
 		if funcInfo, found := scope.functions[funcName]; found {
+			log.Printf("Found function %s in scope %s", funcName, scope.Name)
 			return funcInfo, true
 		}
 		scope = scope.Father
+		scopeDepth++
 	}
 
 	// Check if it's a method in the current class (if we're in a class)
 	if classScope, inClass := l.ScopeManager.SearchClassScope(); inClass {
+		log.Printf("Checking class scope: %s", classScope.Name)
 		if typeInfo, found := l.GetTypeInfo(TypeIdentifier(classScope.Name)); found {
 			if typeInfo.ClassType.HasValue() {
 				classInfo := typeInfo.ClassType.GetValue()
 				if methodInfo, found := classInfo.Methods[funcName]; found {
+					log.Printf("Found method %s in class %s", funcName, classScope.Name)
 					return methodInfo, true
 				}
 			}
 		}
 	}
 
+	log.Printf("Function %s not found anywhere", funcName)
 	return MethodInfo{}, false
 }
 
@@ -470,7 +480,8 @@ func (l Listener) ExitStandaloneIdentifierExpr(ctx *p.StandaloneIdentifierExprCo
 	identifier := ctx.Identifier().GetText()
 	log.Printf("Processing standalone identifier: %s", identifier)
 
-	// Check if the identifier exists
+	// POTENTIAL ISSUE: This method only checks GetExpressionType, not functions
+	// It should also check if the identifier is a function name
 	identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier)
 	if found {
 		parent := ctx.GetParent()
@@ -478,6 +489,12 @@ func (l Listener) ExitStandaloneIdentifierExpr(ctx *p.StandaloneIdentifierExprCo
 			l.ScopeManager.CurrentScope.UpsertExpressionType(standaloneAtom.GetText(), identifierType)
 		}
 	} else {
+		// ADDITION: Check if it's a function before throwing error
+		if _, functionFound := l.findFunctionInfo(identifier); functionFound {
+			log.Printf("Identifier %s is a function, not throwing error", identifier)
+			return
+		}
+
 		line := ctx.GetStart().GetLine()
 		colStart := ctx.Identifier().GetSymbol().GetColumn()
 		colEnd := colStart + len(identifier)
