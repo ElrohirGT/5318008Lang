@@ -1,4 +1,4 @@
-# 531800 Lang - COmpiscript Official Extension
+# 531800 Lang - Compiscript Official Extension
 
 Official extension of Visual Studio Code for COmpiscript language. This extension includes support for syntx highlighting, snippets and semantic analysis in real time.
 
@@ -40,4 +40,5 @@ Snippets available for teh compiscript language:
 - `foreach`
 - `print`
 - `return`
+
 
