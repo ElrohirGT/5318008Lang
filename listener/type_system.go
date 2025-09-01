@@ -700,20 +700,27 @@ func (l Listener) isValidCombination(primaryAtom p.IPrimaryAtomContext, suffixOp
 		return true
 
 	case *p.ThisExprContext:
+		// ✓ '.' Identifier '(' arguments? ')'         # MethodCallExpr
 		// ✗ '(' arguments? ')'                    (CallExpr) - NOT allowed
 		// ✗ '[' conditionalExpr ']'              (IndexExpr) - NOT allowed
-		// ✗ '.' Identifier                       (PropertyAccessExpr) - NOT allowed
+		// ✓  '.' Identifier                       (PropertyAccessExpr) - NOT allowed
 
 		if len(suffixOps) > 0 {
-			log.Printf("✗ ThisExpr 'this' cannot have suffix operations")
-			return false
+			switch suffixOps[0].(type) {
+			case *p.MethodCallExprContext, *p.PropertyAccessExprContext:
+				log.Printf("✓ ThisExpr 'this' with a property/method call operation")
+
+			default:
+				log.Printf("✗ ThisExpr 'this' cannot have suffix operations")
+				return false
+			}
 		}
 
 		log.Printf("✓ ThisExpr 'this' with no suffix operations")
 		return true
 
 	default:
-		log.Printf("✗ Unknown primaryAtom type")
+		log.Printf("✗ Unknown primaryAtom type: %#v", primaryAtom)
 		return false
 	}
 }
@@ -758,23 +765,23 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 		}
 	}
 
-	if _, ok := primaryAtom.(*p.IdentifierExprContext); ok {
-		for i, suffixOp := range suffixOps {
-			switch suffix := suffixOp.(type) {
-			case *p.CallExprContext:
-				log.Printf("Processing CallExpr [%d] on type '%s'", i, currentType)
+	for i, suffixOp := range suffixOps {
+		switch suffix := suffixOp.(type) {
+		case *p.CallExprContext:
+			log.Printf("Processing CallExpr [%d] on type '%s'", i, currentType)
 
-			case *p.IndexExprContext:
-				log.Printf("Processing IndexExpr [%d] on type '%s'", i, currentType)
+		case *p.IndexExprContext:
+			log.Printf("Processing IndexExpr [%d] on type '%s'", i, currentType)
 
-			case *p.PropertyAccessExprContext:
-				propertyName := suffix.Identifier().GetText()
-				log.Printf("Processing PropertyAccessExpr [%d]: '.%s' on type '%s'", i, propertyName, currentType)
-			}
+		case *p.PropertyAccessExprContext:
+			propertyName := suffix.Identifier().GetText()
+			log.Printf("Processing PropertyAccessExpr [%d]: '.%s' on type '%s'", i, propertyName, currentType)
+			return
 		}
 	}
 
 	l.ScopeManager.CurrentScope.UpsertExpressionType(currentExpr, currentType)
+	// FIXME: This logic is incorrect, be
 	log.Printf("Final type for '%s': '%s'", currentExpr, currentType)
 }
 
