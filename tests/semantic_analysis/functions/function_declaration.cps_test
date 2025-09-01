@@ -1,0 +1,12 @@
+function basicFunc(param1 : integer, param2 : string) {
+    var x: integer = param1;
+    var y: string = param2;
+    
+    return y;
+}
+
+function basicFunc() {}
+
+basicFunc(1, "2");
+var x = basicFunc(0, "");
+---

@@ -1,0 +1,13 @@
+function basicFunc(param1 : integer, param2 : string) {
+    var x: integer = param1;
+    var y: string = param2;
+    
+    return y;
+}
+
+basicFunc("2", "");
+basicFunc("", "", true);
+---
+=== ERRORS ===
+* Error: (line: 8, column: 10-13) Function `basicFunc` parameter `param1` expects type `integer` but got `string`
+* Error: (line: 9, column: 0-9) Function `basicFunc` expects 2 arguments but 3 given

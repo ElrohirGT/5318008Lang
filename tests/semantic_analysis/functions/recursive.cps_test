@@ -1,0 +1,16 @@
+function fibonacci(n : integer) {
+    if (n <= 1) {
+        return n;
+    } else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+function father() {
+    var x = 1;
+    var y = 2;
+    function son() {
+        var z = x + y;
+    }
+}
+---

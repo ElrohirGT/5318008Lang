@@ -25,8 +25,21 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 
 			// Check if method already exists
 			if funcName.GetText() == CONSTRUCTOR_NAME {
-				// Check if constructor is already defined
-				if classInfo.Constructor.ReturnType != BASE_TYPES.UNKNOWN || len(classInfo.Constructor.ParameterList) > 0 {
+				// FIXED: Better way to check if constructor is already defined
+				// Check if constructor has been explicitly set (not just default values)
+				// We assume a constructor is defined if it has parameters OR a non-UNKNOWN return type
+				// AND it's not the initial default state
+
+				log.Printf("DEBUG: Checking constructor for class %s", className)
+				log.Printf("DEBUG: Current constructor: ReturnType=%s, ParamCount=%d",
+					classInfo.Constructor.ReturnType, len(classInfo.Constructor.ParameterList))
+
+				// A more robust check: if the constructor was already processed, it should be in Methods map
+				// OR have parameters/return type that differ from initial defaults
+				hasExistingConstructor := len(classInfo.Constructor.ParameterList) > 0 ||
+					(classInfo.Constructor.ReturnType != BASE_TYPES.UNKNOWN && classInfo.Constructor.ReturnType != "")
+
+				if hasExistingConstructor {
 					l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
 						"Constructor for class `%s` is already declared!",
 						className,
@@ -52,12 +65,15 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 				"Function `%s` is already declared in this scope!",
 				funcName.GetText(),
 			))
-			return
+			return // Don't create scope for duplicate function
 		}
 
+		// Also check if there's a builtin function with the same name
+		// Walk up the scope chain to check for conflicts with parent scopes
 		scope := l.ScopeManager.CurrentScope.Father
 		for scope != nil {
 			if _, exists := scope.functions[funcName.GetText()]; exists {
+				// Only warn for builtin functions (global scope), error for user functions
 				if scope.Type == SCOPE_TYPES.GLOBAL {
 					l.AddWarning(fmt.Sprintf(
 						"Function `%s` shadows a builtin function",
@@ -144,6 +160,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
 			if funcName.GetText() == CONSTRUCTOR_NAME {
 				cti.Constructor = info
+				log.Printf("DEBUG: Set constructor for class %s: %+v", className, info)
 			} else {
 				cti.UpsertMethod(funcName.GetText(), info)
 			}
@@ -169,6 +186,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	funcScope.expectedReturnType = returnType
 	funcScope.hasReturnStatement = false
 
+	// CRITICAL: Add the function scope as a child and then enter it
 	l.ScopeManager.CurrentScope.AddChildScope(funcScope)
 	l.ScopeManager.ReplaceCurrent(funcScope)
 

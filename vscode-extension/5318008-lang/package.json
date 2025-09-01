@@ -36,7 +36,7 @@
           "compiscript"
         ],
         "extensions": [
-          ".cps"
+          ".cps", ".cps_test"
         ],
         "configuration": "./language-configuration.json",
         "icon": {
