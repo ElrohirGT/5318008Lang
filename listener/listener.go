@@ -48,9 +48,9 @@ func NewListener() Listener {
 		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.BOOLEAN}}, ReturnType: BASE_TYPES.STRING})
 
 	// FIXME: A function should not be registered in tye typesExpresion register
-	scopeManager.CurrentScope.UpsertExpressionType("print", BASE_TYPES.NULL)
-	scopeManager.CurrentScope.UpsertExpressionType("parseInt", BASE_TYPES.STRING)
-	scopeManager.CurrentScope.UpsertExpressionType("parseBool", BASE_TYPES.STRING)
+	// scopeManager.CurrentScope.UpsertExpressionType("print", BASE_TYPES.NULL)
+	// scopeManager.CurrentScope.UpsertExpressionType("parseInt", BASE_TYPES.STRING)
+	// scopeManager.CurrentScope.UpsertExpressionType("parseBool", BASE_TYPES.STRING)
 
 	return Listener{
 		KnownTypes:   &baseTypes,

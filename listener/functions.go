@@ -101,7 +101,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		funcScope = NewScope(funcName.GetText(), SCOPE_TYPES.FUNCTION)
 
 		// FIXME: A function should not be registered in tye typesExpresion register
-		l.ScopeManager.CurrentScope.UpsertExpressionType(funcName.GetText(), info.ReturnType)
+		l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName.GetText(), info)
 	}
 
 	for _, param := range info.ParameterList {
@@ -166,8 +166,8 @@ func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdent
 		if funcInfo, exists := l.ScopeManager.CurrentScope.functions[funcName]; exists {
 			funcInfo.ReturnType = returnType
 			l.ScopeManager.CurrentScope.functions[funcName] = funcInfo
+			l.ScopeManager.CurrentScope.UpsertFunctionDef(funcName, funcInfo)
 		}
-		l.ScopeManager.CurrentScope.UpsertExpressionType(funcName, returnType)
 	}
 }
 
@@ -375,7 +375,7 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 				exprText := standaloneExpr.GetText()
 				actualExpr := exprText[:len(exprText)-1]
 				log.Printf("Setting return type of standalone expression `%s` to `%s`", actualExpr, funcInfo.ReturnType)
-				l.ScopeManager.CurrentScope.UpsertExpressionType(actualExpr, funcInfo.ReturnType)
+				l.ScopeManager.CurrentScope.UpsertFunctionDef(actualExpr, funcInfo)
 				break
 			}
 			current = current.GetParent()
@@ -384,11 +384,11 @@ func (l Listener) ExitCallExpr(ctx *p.CallExprContext) {
 		if leftHandSide, ok := parent.(*p.LeftHandSideContext); ok {
 			fullExpr := leftHandSide.GetText()
 			log.Printf("Setting return type of `%s` to `%s`", fullExpr, funcInfo.ReturnType)
-			l.ScopeManager.CurrentScope.UpsertExpressionType(fullExpr, funcInfo.ReturnType)
+			l.ScopeManager.CurrentScope.UpsertFunctionDef(fullExpr, funcInfo)
 		}
 	}
 
-	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), funcInfo.ReturnType)
+	l.ScopeManager.CurrentScope.UpsertFunctionDef(ctx.GetText(), funcInfo)
 }
 
 func (l Listener) findFunctionInfo(funcName string) (MethodInfo, bool) {
