@@ -29,8 +29,11 @@ type CompiscriptListener interface {
 	// EnterInitializer is called when entering the initializer production.
 	EnterInitializer(c *InitializerContext)
 
-	// EnterAssignment is called when entering the assignment production.
-	EnterAssignment(c *AssignmentContext)
+	// EnterThisAssignment is called when entering the ThisAssignment production.
+	EnterThisAssignment(c *ThisAssignmentContext)
+
+	// EnterVariableAssignment is called when entering the VariableAssignment production.
+	EnterVariableAssignment(c *VariableAssignmentContext)
 
 	// EnterPrintStatement is called when entering the printStatement production.
 	EnterPrintStatement(c *PrintStatementContext)
@@ -197,8 +200,11 @@ type CompiscriptListener interface {
 	// ExitInitializer is called when exiting the initializer production.
 	ExitInitializer(c *InitializerContext)
 
-	// ExitAssignment is called when exiting the assignment production.
-	ExitAssignment(c *AssignmentContext)
+	// ExitThisAssignment is called when exiting the ThisAssignment production.
+	ExitThisAssignment(c *ThisAssignmentContext)
+
+	// ExitVariableAssignment is called when exiting the VariableAssignment production.
+	ExitVariableAssignment(c *VariableAssignmentContext)
 
 	// ExitPrintStatement is called when exiting the printStatement production.
 	ExitPrintStatement(c *PrintStatementContext)

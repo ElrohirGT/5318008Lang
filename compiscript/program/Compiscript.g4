@@ -8,8 +8,8 @@ program: statement* EOF;
 
 statement
   : standaloneExpresion // TODO: Prince
-  | variableDeclaration // TODO: Flavio
-  | constantDeclaration // TODO: Flavio
+  | variableDeclaration // DONE: Flavio
+  | constantDeclaration // DONE: Flavio
   | assignment          // TODO: Flavio
   | functionDeclaration // TODO: Flavio, Prince
   | classDeclaration    // TODO: Flavio
@@ -41,7 +41,8 @@ typeAnnotation: ':' type;
 initializer: '=' conditionalExpr;
 
 assignment
-	: Identifier ('.' Identifier)* '=' conditionalExpr ';'
+	: 'this' ('.' Identifier)* '=' conditionalExpr ';'			# ThisAssignment
+	| Identifier ('.' Identifier)* '=' conditionalExpr ';'	# VariableAssignment
   ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
@@ -154,7 +155,7 @@ standaloneAtom
   ;
 
 suffixOp
-  : '.' Identifier '(' arguments? ')'         # MethodCallExpr // TODO: Consultar con Prince
+  : '.' Identifier '(' arguments? ')'         # MethodCallExpr 
   | '(' arguments? ')'                        # CallExpr
   | '[' conditionalExpr ']'                   # IndexExpr
   | '.' Identifier                            # PropertyAccessExpr

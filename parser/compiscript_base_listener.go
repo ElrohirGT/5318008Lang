@@ -63,11 +63,17 @@ func (s *BaseCompiscriptListener) EnterInitializer(ctx *InitializerContext) {}
 // ExitInitializer is called when production initializer is exited.
 func (s *BaseCompiscriptListener) ExitInitializer(ctx *InitializerContext) {}
 
-// EnterAssignment is called when production assignment is entered.
-func (s *BaseCompiscriptListener) EnterAssignment(ctx *AssignmentContext) {}
+// EnterThisAssignment is called when production ThisAssignment is entered.
+func (s *BaseCompiscriptListener) EnterThisAssignment(ctx *ThisAssignmentContext) {}
 
-// ExitAssignment is called when production assignment is exited.
-func (s *BaseCompiscriptListener) ExitAssignment(ctx *AssignmentContext) {}
+// ExitThisAssignment is called when production ThisAssignment is exited.
+func (s *BaseCompiscriptListener) ExitThisAssignment(ctx *ThisAssignmentContext) {}
+
+// EnterVariableAssignment is called when production VariableAssignment is entered.
+func (s *BaseCompiscriptListener) EnterVariableAssignment(ctx *VariableAssignmentContext) {}
+
+// ExitVariableAssignment is called when production VariableAssignment is exited.
+func (s *BaseCompiscriptListener) ExitVariableAssignment(ctx *VariableAssignmentContext) {}
 
 // EnterPrintStatement is called when production printStatement is entered.
 func (s *BaseCompiscriptListener) EnterPrintStatement(ctx *PrintStatementContext) {}
