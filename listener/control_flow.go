@@ -2,6 +2,7 @@ package listener
 
 import (
 	"fmt"
+	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
@@ -148,32 +149,30 @@ func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
 	l.ScopeManager.ReplaceWithParent()
 }
 
+// FIXME: HOW ARRAYS ARE HANDLED MUST BE CHANGE
 func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
-	arrayType, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
-	fmt.Printf("-----%s\n", arrayType)
+	line := ctx.GetStart().GetLine()
+	colStartI := ctx.GetStart().GetColumn()
+	colEndI := ctx.GetStop().GetColumn()
+	arrayType, available := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
 
-	valueInfo, ok := l.GetTypeInfo(arrayType)
-
-	// FIXME: LIST IS NOT PROPERLY STORED
-	for k, v := range *l.KnownTypes {
-		fmt.Printf("%s %v\n", k, v)
-	}
-
-	// FIXME: SHOULD NEVER ENTER A THIS VALUE;
-	if !ok {
-		fmt.Println("------- NOT OK")
+	if !available {
+		l.AddError(line, colStartI, colEndI, "Exit ForeachValue: Array type not defined!")
 		return
 	}
 
-	// FIXME: THIS SHOULD NOT FAIL
-	if !valueInfo.ArrayType.HasValue() {
-		fmt.Println("------- its NOT array type")
+	name := string(arrayType)
+
+	if !strings.HasSuffix(name, "[]") {
+		l.AddError(line, colStartI, colEndI, "Exit ForeachValue: Value is not type array")
 		return
 	}
+
+	trimmed := strings.TrimSuffix(name, "[]")
 
 	l.ScopeManager.CurrentScope.UpsertExpressionType(
 		ctx.Identifier().GetText(),
-		valueInfo.ArrayType.GetValue().Type)
+		TypeIdentifier(trimmed))
 }
 
 // ===========================
