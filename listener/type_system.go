@@ -180,6 +180,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		annotText := typeAnnot.Type_().GetText()
 		isArray := strings.HasSuffix(annotText, "[]")
 
+		// FIXME: We shouldn't be making string manipulation here!
 		declarationType := TypeIdentifier(annotText)
 		if !isArray {
 			log.Println("Variable", name.GetText(), "has type", declarationType)
