@@ -10,7 +10,7 @@ Official extension of Visual Studio Code for COmpiscript language. This extensio
   - Semantic errors
 - **Integrated command** for running the compiler.
 
-## Ussage
+## Usage
 1. Open a file with the `.cps`extension. VSCode will regconize it as Compiscript and will apply the sintax and semantic analysis
 2. All the code analysis runs in real time but to see complete compilation logs you can use the command **Run Compiscript File** from the command pallete.
 3. In a new terminal will appear the logs from the semantic analysis and the possible errors the code could have.
@@ -25,20 +25,84 @@ And for the syntactic errors:
 ```
 line X:Y message
 ```
-
 ## Included Snippets
-Snippets available for teh compiscript language:
-- `let`
-- `var`
-- `const`
-- `function`
-- `class` 
-- `if`
-- `while`
-- `do while` 
-- `for`
-- `foreach`
-- `print`
-- `return`
 
+Snippets available for the Compiscript language:
+
+* **`let`**
+
+  ```cps
+  let identifier = value;
+  ```
+* **`var`**
+
+  ```cps
+  var identifier = value;
+  ```
+* **`const`**
+
+  ```cps
+  const identifier = value;
+  ```
+* **`function`**
+
+  ```cps
+  function name(params) {
+      // body
+  }
+  ```
+* **`class`**
+
+  ```cps
+  class ClassName {
+      function constructor(params) {
+          // init
+      }
+  }
+  ```
+* **`if`**
+
+  ```cps
+  if (condition) {
+      // body
+  }
+  ```
+* **`while`**
+
+  ```cps
+  while (condition) {
+      // body
+  }
+  ```
+* **`do while`**
+
+  ```cps
+  do {
+      // body
+  } while (condition);
+  ```
+* **`for`**
+
+  ```cps
+  for (let i = 0; i < n; i++) {
+      // body
+  }
+  ```
+* **`foreach`**
+
+  ```cps
+  foreach (item in collection) {
+      // body
+  }
+  ```
+* **`print`**
+
+  ```cps
+  print(expression);
+  ```
+* **`return`**
+
+  ```cps
+  return value;
+  ```
 
