@@ -1,65 +1,111 @@
-# compiscript-5318008 README
+# 531800 Lang - Compiscript Official Extension␍
 
-This is the README for your extension "compiscript-5318008". After writing up a brief description, we recommend including the following sections.
+Official extension of Visual Studio Code for COmpiscript language. This extension includes support for syntx highlighting, snippets and semantic analysis in real time.
 
-## Features
+## Caracteristics
+- **Syntax highlighting** for `.cps` files␍
+- Predefined **snippets** for common language structures␍
+- **Diagnosis Support**:␍
+  - Syntax errors␍
+  - Semantic errors␍
+- **Integrated command** for running the compiler.␍
+␍
+## Usage
+1. Open a file with the `.cps`extension. VSCode will regconize it as Compiscript and will apply the sintax and semantic analysis␍
+2. All the code analysis runs in real time but to see complete compilation logs you can use the command **Run Compiscript File** from the command pallete.
+3. In a new terminal will appear the logs from the semantic analysis and the possible errors the code could have.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Real Time Diagnosis␍
 
-For example if there is an image subfolder under your extension project workspace:
+This is the format for the semantic errors:
+```
+Error: (line: X, column Y-Z) message
+```
+And for the syntactic errors:␍
+```
+line X:Y message
+```
+## Included Snippets␍
 
-\!\[feature X\]\(images/feature-x.png\)
+Snippets available for the Compiscript language:␍
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* **`let`**
 
-## Requirements
+  ```cps
+  let identifier = value;
+  ```
+* **`var`**
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+  ```cps
+  var identifier = value;
+  ```
+* **`const`**
 
-## Extension Settings
+  ```cps
+  const identifier = value;
+  ```
+* **`function`**
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+  ```cps
+  function name(params) {
+      // body
+  }
+  ```
+* **`class`**
 
-For example:
+  ```cps
+  class ClassName {
+      function constructor(params) {
+          // init
+      }
+  }
+  ```
+* **`if`**
 
-This extension contributes the following settings:
+  ```cps
+  if (condition) {
+      // body
+  }
+  ```
+* **`while`**
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+  ```cps
+  while (condition) {
+      // body
+  }
+  ```
+* **`do while`**
 
-## Known Issues
+  ```cps
+  do {
+      // body
+  } while (condition);
+  ```
+* **`for`**
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+  ```cps
+  for (let i = 0; i < n; i++) {
+      // body
+  }
+  ```
+* **`foreach`**
 
-## Release Notes
+  ```cps
+  foreach (item in collection) {
+      // body
+  }
+  ```
+* **`print`**
 
-Users appreciate release notes as you update your extension.
+  ```cps
+  print(expression);
+  ```
+* **`return`**
 
-### 1.0.0
+  ```cps
+  return value;
+  ```
 
-Initial release of ...
+## Licencia
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Esta extensión está bajo la licencia MIT.

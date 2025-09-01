@@ -3,9 +3,11 @@
   "displayName": "5318008 Lang Official",
   "description": "Extension for Compiscript language, developed by Jose Prince",
   "version": "0.0.1",
+  "publisher": "UVGenios",
   "engines": {
     "vscode": "^1.103.0"
   },
+  "license": "MIT",
   "categories": [
     "Programming Languages"
   ],
@@ -27,38 +29,44 @@
       ]
     },
     "languages": [
-        {
-            "id": "compiscript",
-            "aliases": ["Compiscript", "compiscript"],
-            "extensions": [".cps"],
-            "configuration": "./language-configuration.json",
-            "icon": {
-              "light": "resources/lang-icon.png",
-              "dark": "resources/lang-icon.png"
-            }
+      {
+        "id": "compiscript",
+        "aliases": [
+          "Compiscript",
+          "compiscript"
+        ],
+        "extensions": [
+          ".cps"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "resources/lang-icon.png",
+          "dark": "resources/lang-icon.png"
         }
+      }
     ],
     "grammars": [
-        {
-            "language": "compiscript",
-            "scopeName": "source.compiscript",
-            "path": "./syntaxes/compiscript.tmLanguage.json"
-        }
+      {
+        "language": "compiscript",
+        "scopeName": "source.compiscript",
+        "path": "./syntaxes/compiscript.tmLanguage.json"
+      }
     ],
     "commands": [
-        {
-            "command": "extension.runAnalyzer",
-            "title": "Run Compiscript File",
-            "icon": "$(play)"
-        }
+      {
+        "command": "extension.runAnalyzer",
+        "title": "Run Compiscript File",
+        "icon": "$(play)"
+      }
     ]
   },
   "dependencies": {
-    "vscode": "^1.1.37",
+    "@vscode/vsce": "^3.6.0",
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "@types/vscode": "^1.103.0",
     "typescript": "^5.9.2"
   }
 }
