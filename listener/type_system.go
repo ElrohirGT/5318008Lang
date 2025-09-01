@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
@@ -25,32 +24,6 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		return
 	}
 
-	defineLater := make([]p.IMultiplicativeExprContext, 0, len(exprs))
-
-	if referenceType == BASE_TYPES.UNKNOWN {
-		defineLater = append(defineLater, firstExpr)
-
-		for _, expr := range exprs[1:] {
-			exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
-			exprColStart := expr.GetStart().GetColumn()
-			exprColEnd := exprColStart + len(expr.GetText())
-
-			if !available {
-				l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf("Exit Add (expr): `%s` doesn't have a type!", exprType))
-			}
-
-			if exprType != BASE_TYPES.UNKNOWN {
-				referenceType = exprType
-				break
-			}
-		}
-
-		if referenceType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, colStart, colEnd, "Can't infer the value of multiplication/addition! All types were unknown...")
-			return
-		}
-	}
-
 	for i, expr := range exprs[1:] {
 		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
 		exprColStart := expr.GetStart().GetColumn()
@@ -58,11 +31,6 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 		if !available {
 			l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf("Exit Add (expr - second): `%s` doesn't have a type!", exprType))
-		}
-
-		if exprType == BASE_TYPES.UNKNOWN {
-			defineLater = append(defineLater, expr)
-			continue
 		}
 
 		if exprType != referenceType {
@@ -82,20 +50,6 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 				),
 			)
 		}
-	}
-
-	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
-	for _, expr := range defineLater {
-		log.Printf("Inferring `%s` as type of `%s`\n", expr.GetText(), referenceType)
-		// FIXME: There should be a better way to manage `this.`
-		exprStartsWithThis := strings.HasPrefix(expr.GetText(), "this.")
-		if isInsideClassDeclaration && exprStartsWithThis {
-			fieldName := expr.GetText()[len("this."):]
-			l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
-				cti.UpsertField(fieldName, referenceType)
-			})
-		}
-		l.ScopeManager.CurrentScope.UpsertExpressionType(expr.GetText(), referenceType)
 	}
 
 	log.Printf("Adding expression `%s` of type `%s`", ctx.GetText(), referenceType)
@@ -144,14 +98,24 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	}
 
 	hasAnnotation := typeAnnot != nil
-
 	hasInitialExpr := declarationExpr != nil
 
 	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
 
 	if !hasAnnotation {
 		log.Println("Variable", name.GetText(), "does NOT have a type! We need to infer it...")
-		if hasInitialExpr {
+		if !hasInitialExpr {
+			l.AddError(line, colStartT, colEndI,
+				fmt.Sprintf("Variable `%s` must have an initial expression assigned to it! Maybe try assigning a value or a type?", name.GetText()),
+			)
+
+			if isInsideClassDeclaration {
+				classExprName := "this." + name.GetText()
+				l.ScopeManager.CurrentScope.UpsertExpressionType(classExprName, BASE_TYPES.INVALID)
+			} else {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), BASE_TYPES.INVALID)
+			}
+		} else {
 			declarationText := declarationExpr.ConditionalExpr().GetText()
 			inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
 			if !found {
@@ -160,32 +124,25 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 					name.GetText(),
 					declarationText,
 				))
-			} else {
-				if isInsideClassDeclaration {
-					newExprName := "this." + name.GetText()
-					log.Printf("Inferring type of `%s` as `%s`\n", newExprName, inferedType)
-					l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
-						cti.UpsertField(name.GetText(), inferedType)
-					})
-					l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
-				} else {
-					log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
-					l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
-				}
+				inferedType = BASE_TYPES.INVALID
 			}
-		} else {
+
 			if isInsideClassDeclaration {
+				newExprName := "this." + name.GetText()
+				log.Printf("Inferring type of `%s` as `%s`\n", newExprName, inferedType)
 				l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
-					cti.UpsertField(name.GetText(), BASE_TYPES.UNKNOWN)
+					cti.UpsertField(name.GetText(), inferedType)
 				})
-				l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), BASE_TYPES.UNKNOWN)
+				// FIXME: Check if variable is already declared!
+				l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
 			} else {
-				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), BASE_TYPES.UNKNOWN)
+				log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
+				// FIXME: Check if variable is already declared!
+				l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
 			}
 		}
 	} else {
 		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
-
 		log.Println("Variable", name.GetText(), "has type", declarationType)
 
 		if !l.TypeExists(declarationType) {
@@ -193,6 +150,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 				"%s doesn't exist!",
 				declarationType,
 			))
+			declarationType = BASE_TYPES.INVALID
 		}
 
 		if hasInitialExpr {
@@ -208,9 +166,10 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 					"Variable Declaration: `%s` doesn't have a type!",
 					exprText,
 				))
+				initialExprType = BASE_TYPES.INVALID
 			}
 
-			if initialExprType != declarationType {
+			if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
 				l.AddError(line, colStartD, colEndD, fmt.Sprintf(
 					"The declaration of `%s` specifies a type of `%s` but `%s` was given",
 					name,
@@ -224,44 +183,143 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
 				cti.UpsertField(name.GetText(), declarationType)
 			})
+			// FIXME: Check if variable is already declared!
 			l.ScopeManager.CurrentScope.UpsertExpressionType("this."+name.GetText(), declarationType)
 		} else {
+			// FIXME: Check if variable is already declared!
 			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
 		}
 	}
 }
 
 func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
-	// TODO: Recycle variable declaration logic
-
-}
-
-func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
-	log.Println("General Assignment!", ctx.GetText())
 	line := ctx.GetStart().GetLine()
+	name := ctx.Identifier()
+	typeAnnot := ctx.TypeAnnotation()
+	declarationExpr := ctx.ConditionalExpr()
 
-	isPropertyAssignment := len(ctx.AllExpression()) > 1
-	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
-	if isPropertyAssignment {
-		firstExpr := ctx.Expression(0)
-		colStartF := firstExpr.GetStart().GetColumn()
-		colEndF := colStartF + len(firstExpr.GetText())
+	// Possible errors
+	// Error in identifier
+	colStartI := name.GetSymbol().GetColumn()
+	colEndI := colStartI + len(name.GetText())
 
-		t, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+	// Error in Type
+	var colStartT, colEndT int
+	if typeAnnot != nil {
+		colStartT = typeAnnot.GetStart().GetColumn()
+		colEndT = colStartT + len(typeAnnot.GetText())
+	}
+
+	hasAnnotation := typeAnnot != nil
+	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
+
+	if !hasAnnotation {
+		log.Println("Constant", name.GetText(), "does NOT have a type! We need to infer it...")
+
+		declarationText := declarationExpr.GetText()
+		inferedType, found := l.ScopeManager.CurrentScope.GetExpressionType(declarationText)
 		if !found {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Undeclared variable `%s`",
-				firstExpr.GetText(),
+			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
+				"Couldn't infer the type of variable `%s`, initialized with: `%s`",
+				name.GetText(),
+				declarationText,
 			))
-			return
+			inferedType = BASE_TYPES.INVALID
 		}
 
-		info, found := l.GetTypeInfo(t)
+		if isInsideClassDeclaration {
+			newExprName := "this." + name.GetText()
+			log.Printf("Inferring type of `%s` as `%s`\n", newExprName, inferedType)
+			l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+				cti.UpsertField(name.GetText(), inferedType)
+				cti.ConstantFields.Add(name.GetText())
+			})
+			// FIXME: Check if variable is already declared!
+			l.ScopeManager.CurrentScope.UpsertExpressionType(newExprName, inferedType)
+			l.ScopeManager.CurrentScope.AddConstant(newExprName)
+		} else {
+			log.Printf("Inferring type of `%s` as `%s`\n", name.GetText(), inferedType)
+			// FIXME: Check if variable is already declared!
+			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), inferedType)
+			l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+		}
+	} else {
+		declarationType := TypeIdentifier(typeAnnot.Type_().GetText())
+		log.Println("Constant", name.GetText(), "has type", declarationType)
+
+		if !l.TypeExists(declarationType) {
+			l.AddError(line, colStartT, colEndT, fmt.Sprintf(
+				"%s doesn't exist!",
+				declarationType,
+			))
+			declarationType = BASE_TYPES.INVALID
+		}
+
+		declExpr := declarationExpr // solo la expresión del valor
+		colStartD := declExpr.GetStart().GetColumn()
+		colEndD := colStartD + len(declExpr.GetText())
+
+		exprText := declarationExpr.GetText()
+		log.Println("Known expressions", l.ScopeManager.CurrentScope.typesByExpression)
+		initialExprType, exists := l.ScopeManager.CurrentScope.GetExpressionType(exprText)
+		if !exists {
+			l.AddError(line, colStartI, colStartT, fmt.Sprintf(
+				"Constant Declaration: `%s` doesn't have a type!",
+				exprText,
+			))
+			initialExprType = BASE_TYPES.INVALID
+		}
+
+		if initialExprType != declarationType && declarationType != BASE_TYPES.INVALID {
+			l.AddError(line, colStartD, colEndD, fmt.Sprintf(
+				"The declaration of `%s` specifies a type of `%s` but `%s` was given",
+				name,
+				declarationType,
+				initialExprType,
+			))
+		}
+
+		if isInsideClassDeclaration {
+			fieldName := "this." + name.GetText()
+			l.ModifyClassTypeInfo(TypeIdentifier(l.ScopeManager.CurrentScope.Name), func(cti *ClassTypeInfo) {
+				cti.UpsertField(name.GetText(), declarationType)
+				cti.ConstantFields.Add(name.GetText())
+			})
+			// FIXME: Check if variable is already declared!
+			l.ScopeManager.CurrentScope.UpsertExpressionType(fieldName, declarationType)
+			l.ScopeManager.CurrentScope.AddConstant(fieldName)
+		} else {
+			// FIXME: Check if variable is already declared!
+			l.ScopeManager.CurrentScope.UpsertExpressionType(name.GetText(), declarationType)
+			l.ScopeManager.CurrentScope.AddConstant(name.GetText())
+		}
+	}
+}
+
+func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
+	log.Println("`This` Variable Assignment!", ctx.GetText())
+	line := ctx.GetStart().GetLine()
+
+	identifiers := ctx.AllIdentifier()
+	firstExpr := ctx.Identifier(0)
+	colStartF := firstExpr.GetSymbol().GetColumn()
+	colEndF := colStartF + len(firstExpr.GetText())
+
+	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
+	if !isInsideClassDeclaration {
+		l.AddError(line, colStartF, colEndF, "Can't use `this` outside of a class declaration scope!")
+		return
+	}
+
+	previousIdentifier := "this"
+	previousType := TypeIdentifier(classScope.Name)
+	for i, identifier := range identifiers {
+		info, found := l.GetTypeInfo(previousType)
 		if !found {
 			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
 				"Undeclared type `%s` for variable `%s`",
-				t,
-				firstExpr.GetText(),
+				previousType,
+				previousIdentifier,
 			))
 			return
 		}
@@ -269,14 +327,13 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		if !info.ClassType.HasValue() {
 			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
 				"Trying to access a field `%s` from type `%s` but `%s` is not a class!",
-				firstExpr.GetText(),
-				t,
-				firstExpr.GetText(),
+				identifier.GetText(),
+				previousType,
+				previousIdentifier,
 			))
 			return
 		}
 
-		identifier := ctx.Identifier()
 		colStartI := identifier.GetSymbol().GetColumn()
 		colEndI := colStartI + len(identifier.GetText())
 		classInfo := info.ClassType.GetValue()
@@ -289,122 +346,126 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			))
 			return
 		}
+		previousType = fieldType
 
-		assignExpr := ctx.Expression(1)
-		colStartA := assignExpr.GetStart().GetColumn()
-		colEndA := colStartA + len(assignExpr.GetText())
-		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
-		if !found {
-			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
-				"Type of expression `%s` not found!",
-				assignExpr.GetText(),
-			))
-			return
-		}
-
-		if fieldType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-				"Trying to assign `%s` into `%s` but I don't know the types of both! Please give me hints!",
-				assignExpr.GetText(),
-				identifier.GetText(),
-			))
-			return
-		}
-
-		if fieldType == BASE_TYPES.UNKNOWN {
-			if !isInsideClassDeclaration || classScope == nil {
-				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-					"Cannot infer field type for `%s` outside of class context",
-					identifier.GetText(),
+		isLastIdentifier := i == len(identifiers)-1-1
+		if isLastIdentifier {
+			assignExpr := ctx.ConditionalExpr()
+			colStartA := assignExpr.GetStart().GetColumn()
+			colEndA := colStartA + len(assignExpr.GetText())
+			assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
+			if !found {
+				l.AddError(line, colStartA, colEndA, fmt.Sprintf(
+					"Type of expression `%s` not found!",
+					assignExpr.GetText(),
 				))
 				return
 			}
 
-			log.Printf("Inferring `%s` as type `%s`", "this."+identifier.GetText(), assignType)
-			// FIX: Check if classScope is not nil before using it
-			if isInsideClassDeclaration && classScope != nil {
-				classScope.UpsertExpressionType("this."+identifier.GetText(), assignType)
-				l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
-					cti.UpsertField(identifier.GetText(), assignType)
-				})
+			if fieldType != assignType {
+				l.AddError(line, colStartI, colEndA, fmt.Sprintf(
+					"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
+					assignExpr.GetText(),
+					identifier.GetText(),
+					fieldType,
+					assignType,
+				))
+				return
 			}
-			fieldType = assignType
 		}
+	}
+}
 
-		if fieldType != assignType {
-			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-				"Trying to assign `%s` to field `%s` but types don't match! (`%s` != `%s`)",
-				assignExpr.GetText(),
-				identifier.GetText(),
-				fieldType,
-				assignType,
-			))
-			return
-		}
-	} else {
-		identifier := ctx.Identifier()
-		colStartI := identifier.GetSymbol().GetColumn()
-		colEndI := colStartI + len(identifier.GetText())
+func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
+	log.Println("General Variable Assignment!", ctx.GetText())
+	line := ctx.GetStart().GetLine()
 
-		identifierType, found := l.ScopeManager.CurrentScope.GetExpressionType(identifier.GetText())
+	identifiers := ctx.AllIdentifier()
+	isPropertyAssignment := len(identifiers) > 1
+	if isPropertyAssignment {
+		firstExpr := ctx.Identifier(0)
+		colStartF := firstExpr.GetSymbol().GetColumn()
+		colEndF := colStartF + len(firstExpr.GetText())
+
+		initialType, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
 		if !found {
-			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-				"Undeclared variable `%s`!",
-				identifier.GetText(),
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+				"Undeclared variable `%s`",
+				firstExpr.GetText(),
 			))
 			return
 		}
 
-		assignExpr := ctx.Expression(0)
-		colStartA := assignExpr.GetStart().GetColumn()
-		colEndA := colStartA + len(assignExpr.GetText())
-
-		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
-		if !found {
-			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
-				"Expression `%s` doesn't have a type!",
-				assignExpr.GetText(),
+		if initialType == BASE_TYPES.INVALID {
+			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+				"Can't access properties of invalid variable `%s`",
+				firstExpr.GetText(),
 			))
 			return
 		}
 
-		if identifierType == BASE_TYPES.UNKNOWN && assignType == BASE_TYPES.UNKNOWN {
-			l.AddError(line, colStartI, colEndA, fmt.Sprintf(
-				"Can't assign `%s` = `%s` because both types are unknown! Use one of them first or write type hints!",
-				identifier.GetText(),
-				assignExpr.GetText(),
-			))
-			return
-		}
+		previousType := initialType
+		for i, identifier := range identifiers[1:] {
+			info, found := l.GetTypeInfo(previousType)
+			if !found {
+				l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+					"Undeclared type `%s` for variable `%s`",
+					initialType,
+					firstExpr.GetText(),
+				))
+				return
+			}
 
-		if identifierType == BASE_TYPES.UNKNOWN {
-			log.Printf("Inferring type of `%s` as `%s`\n", identifier.GetText(), assignType)
+			if !info.ClassType.HasValue() {
+				l.AddError(line, colStartF, colEndF, fmt.Sprintf(
+					"Trying to access a field `%s` from type `%s` but `%s` is not a class!",
+					firstExpr.GetText(),
+					initialType,
+					firstExpr.GetText(),
+				))
+				return
+			}
 
-			if isInsideClassDeclaration && classScope != nil {
-				if strings.HasPrefix(identifier.GetText(), "this.") {
-					fieldName := identifier.GetText()[len("this."):]
-					classScope.UpsertExpressionType(identifier.GetText(), assignType)
-					l.ModifyClassTypeInfo(TypeIdentifier(classScope.Name), func(cti *ClassTypeInfo) {
-						cti.UpsertField(fieldName, assignType)
-					})
-				} else {
-					l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
+			colStartI := identifier.GetSymbol().GetColumn()
+			colEndI := colStartI + len(identifier.GetText())
+			classInfo := info.ClassType.GetValue()
+			fieldType, hasField := classInfo.Fields[identifier.GetText()]
+			if !hasField {
+				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
+					"Trying to access field `%s` not defined in class `%s`!",
+					identifier.GetText(),
+					classInfo.Name,
+				))
+				return
+			}
+			previousType = fieldType
+
+			isLastIdentifier := i == len(identifiers)-1-1
+			if isLastIdentifier {
+				assignExpr := ctx.ConditionalExpr()
+				colStartA := assignExpr.GetStart().GetColumn()
+				colEndA := colStartA + len(assignExpr.GetText())
+				assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
+				if !found {
+					l.AddError(line, colStartA, colEndA, fmt.Sprintf(
+						"Type of expression `%s` not found!",
+						assignExpr.GetText(),
+					))
+					return
 				}
-			} else {
-				l.ScopeManager.CurrentScope.UpsertExpressionType(identifier.GetText(), assignType)
-			}
-			identifierType = assignType
-		}
 
-		if identifierType != assignType {
-			l.AddError(line, colStartI, colEndA, fmt.Sprintf(
-				"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
-				assignExpr.GetText(),
-				identifier.GetText(),
-				identifierType,
-				assignType,
-			))
-			return
+				if fieldType != assignType {
+					l.AddError(line, colStartI, colEndA, fmt.Sprintf(
+						"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
+						assignExpr.GetText(),
+						identifier.GetText(),
+						fieldType,
+						assignType,
+					))
+					return
+				}
+			}
+
 		}
 	}
 }
@@ -567,7 +628,8 @@ func (l Listener) isValidCombination(primaryAtom p.IPrimaryAtomContext, suffixOp
 }
 
 func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAtom p.IPrimaryAtomContext, suffixOps []p.ISuffixOpContext) {
-	var currentType TypeIdentifier = BASE_TYPES.UNKNOWN
+	// FIXME: Check if INVALID is correct here!
+	var currentType TypeIdentifier = BASE_TYPES.INVALID
 	var currentExpr string = ctx.GetText()
 
 	switch atom := primaryAtom.(type) {
@@ -623,33 +685,4 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 
 	l.ScopeManager.CurrentScope.UpsertExpressionType(currentExpr, currentType)
 	log.Printf("Final type for '%s': '%s'", currentExpr, currentType)
-}
-
-func (l Listener) EnterAdditiveExpr(ctx *p.AdditiveExprContext) {
-	exprs := ctx.AllMultiplicativeExpr()
-	if len(exprs) <= 1 {
-		return
-	}
-
-	var knownType TypeIdentifier = BASE_TYPES.UNKNOWN
-	allTypesKnown := true
-
-	for _, expr := range exprs {
-		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
-		if !found || exprType == BASE_TYPES.UNKNOWN {
-			allTypesKnown = false
-			continue
-		}
-
-		if knownType == BASE_TYPES.UNKNOWN {
-			knownType = exprType
-		} else if knownType != exprType {
-			return
-		}
-	}
-
-	if allTypesKnown && knownType != BASE_TYPES.UNKNOWN {
-		log.Printf("Early type inference for additive expression `%s`: %s", ctx.GetText(), knownType)
-		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), knownType)
-	}
 }

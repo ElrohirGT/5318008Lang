@@ -38,8 +38,7 @@ var BASE_TYPES = struct {
 	BOOLEAN TypeIdentifier
 	STRING  TypeIdentifier
 	NULL    TypeIdentifier
-	// Type used when the type system can't define the type yet
-	// After evaluating the whole program NOTHING can have an unknown type
+	// Used when the type of something is not known, can be used as a default type before computing stuff.
 	UNKNOWN TypeIdentifier
 	// Special type used when we know for sure the type of something is invalid but still need to assign a type!
 	INVALID TypeIdentifier
@@ -48,7 +47,7 @@ var BASE_TYPES = struct {
 	BOOLEAN: "boolean",
 	STRING:  "string",
 	NULL:    "null",
-	UNKNOWN: "unknown",
+	UNKNOWN: "**unknown**",
 	INVALID: "**invalid**",
 }
 
@@ -57,7 +56,6 @@ var BASE_TYPE_ARRAY = []TypeIdentifier{
 	BASE_TYPES.BOOLEAN,
 	BASE_TYPES.STRING,
 	BASE_TYPES.NULL,
-	BASE_TYPES.UNKNOWN,
 	BASE_TYPES.INVALID,
 }
 
@@ -99,11 +97,12 @@ type MethodInfo struct {
 const CONSTRUCTOR_NAME = "constructor"
 
 type ClassTypeInfo struct {
-	Name         TypeIdentifier
-	InheritsFrom TypeIdentifier
-	Fields       map[string]TypeIdentifier
-	Methods      map[string]MethodInfo
-	Constructor  MethodInfo
+	Name           TypeIdentifier
+	InheritsFrom   TypeIdentifier
+	Fields         map[string]TypeIdentifier
+	ConstantFields lib.Set[string]
+	Methods        map[string]MethodInfo
+	Constructor    MethodInfo
 }
 
 func (c *ClassTypeInfo) UpsertField(name string, _type TypeIdentifier) {
