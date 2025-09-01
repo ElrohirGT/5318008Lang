@@ -744,3 +744,13 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 	l.ScopeManager.CurrentScope.UpsertExpressionType(currentExpr, currentType)
 	log.Printf("Final type for '%s': '%s'", currentExpr, currentType)
 }
+
+func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
+	expressions := ctx.AllConditionalExpr()
+	if len(expressions) == 0 {
+		log.Printf("Array literal is empty! Must infer type according to usage...")
+		return
+	}
+
+	// FIXME: Implement non-empty array literal initalization...
+}

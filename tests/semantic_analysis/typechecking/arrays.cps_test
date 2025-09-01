@@ -1,5 +1,9 @@
-func ArrReturn() {
-	let a: int[] = [5,4,3];
-	return a;
-}
+let numbers: integer[] = [5,4,3];
+let b = numbers[0];
+
+let asdf = ["Hello", 5];
+
+let invalidArray = [];
+let validArray: string[] = [];
 ---
+=== ERRORS ===

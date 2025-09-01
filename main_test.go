@@ -19,11 +19,11 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/controlflow/",
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
+	// "arrays",
 }
 
 var IGNORE_SPECIFIC = []string{
 	"tests/semantic_analysis/typechecking/method_calling.cps_test",
-	"tests/semantic_analysis/typechecking/arrays.cps_test",
 }
 
 func Test_SnapshotTesting(t *testing.T) {
