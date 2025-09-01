@@ -666,10 +666,7 @@ func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 
 	// FIXME: This fails with test.cps but it shouldn't!
 	if !l.isValidCombination(primaryAtom, suffixOps) {
-		l.AddError(line, colStart, colEnd, fmt.Sprintf(
-			"Invalid expression structure: %s",
-			ctx.GetText(),
-		))
+		l.AddError(line, colStart, colEnd, "Invalid expression structure: "+ctx.GetText())
 		return
 	}
 
@@ -729,8 +726,8 @@ func (l Listener) isValidCombination(primaryAtom p.IPrimaryAtomContext, suffixOp
 
 func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAtom p.IPrimaryAtomContext, suffixOps []p.ISuffixOpContext) {
 	// FIXME: Check if INVALID is correct here!
-	var currentType TypeIdentifier = BASE_TYPES.INVALID
-	var currentExpr string = ctx.GetText()
+	currentType := BASE_TYPES.INVALID
+	currentExpr := ctx.GetText()
 
 	switch atom := primaryAtom.(type) {
 	case *p.IdentifierExprContext:

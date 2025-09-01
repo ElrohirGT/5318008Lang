@@ -219,12 +219,12 @@ func (l Listener) ExitConditionalExpr(ctx *p.ConditionalExprContext) {
 	areSame, commonType := expresionsOfTheSameType(l.ScopeManager, exprs[0], exprs[1])
 
 	if !areSame {
-		l.AddError(line, colStartI, colEndI, fmt.Sprintf("Exit ConditionalExpr: ternary branches should be of the same type"))
+		l.AddError(line, colStartI, colEndI, "Exit ConditionalExpr: ternary branches should be of the same type")
 		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
 		return
 	} else if commonType == BASE_TYPES.UNKNOWN ||
 		commonType == BASE_TYPES.INVALID {
-		l.AddError(line, colStartI, colEndI, fmt.Sprintf("Exit ConditionalExpr: Une of the branches has invalid/unkown values"))
+		l.AddError(line, colStartI, colEndI, "Exit ConditionalExpr: Une of the branches has invalid/unkown values")
 		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
 		return
 	}

@@ -99,24 +99,21 @@ func stripANSI(s string) string {
 
 // diffChar returns the first differing rune and its position.
 // If the strings are identical, ok == false.
-func diffChar(a, b string) (pos int, ra, rb rune, ok bool) {
-	ar, br := []rune(a), []rune(b)
-	n := len(ar)
-	if len(br) < n {
-		n = len(br)
-	}
-	for i := 0; i < n; i++ {
-		if ar[i] != br[i] {
-			return i, ar[i], br[i], true
-		}
-	}
-	// If all runes matched but lengths differ,
-	// report the first extra rune.
-	if len(ar) != len(br) {
-		if len(ar) > len(br) {
-			return n, ar[n], -1, true // -1 means "missing"
-		}
-		return n, -1, br[n], true
-	}
-	return 0, 0, 0, false
-}
+// func diffChar(a, b string) (pos int, ra, rb rune, ok bool) {
+// 	ar, br := []rune(a), []rune(b)
+// 	n := min(len(br), len(ar))
+// 	for i := range n {
+// 		if ar[i] != br[i] {
+// 			return i, ar[i], br[i], true
+// 		}
+// 	}
+// 	// If all runes matched but lengths differ,
+// 	// report the first extra rune.
+// 	if len(ar) != len(br) {
+// 		if len(ar) > len(br) {
+// 			return n, ar[n], -1, true // -1 means "missing"
+// 		}
+// 		return n, -1, br[n], true
+// 	}
+// 	return 0, 0, 0, false
+// }

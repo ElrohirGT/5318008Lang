@@ -7,7 +7,7 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
-// Check if a given list of expresions are of the same type
+// Check if a given list of expresions are of the same type.
 func expresionsOfTheSameType(
 	scopeManager *ScopeManager,
 	expresions ...antlr.ParserRuleContext) (bool, TypeIdentifier) {
@@ -67,16 +67,17 @@ func expresionsOfTheRequiredType(
 
 	for _, expr := range expresions[1:] {
 		referenceType, available := scopeManager.CurrentScope.GetExpressionType(expr.GetText())
-		if !available {
+		switch {
+		case !available:
 			msg := fmt.Sprintf("`%s` symbol is not registered in scope!", expr.GetText())
 			errors = append(errors, msg)
-		} else if referenceType == BASE_TYPES.UNKNOWN {
+		case referenceType == BASE_TYPES.UNKNOWN:
 			msg := fmt.Sprintf("`%s` doesn't have a type!", expr.GetText())
 			errors = append(errors, msg)
-		} else if referenceType == BASE_TYPES.INVALID {
+		case referenceType == BASE_TYPES.INVALID:
 			msg := fmt.Sprintf("`%s` has an invalid type!", expr.GetText())
 			errors = append(errors, msg)
-		} else if referenceType != generalType {
+		case referenceType != generalType:
 			msg := fmt.Sprintf("`%s` should be type `%s`", expr.GetText(), string(generalType))
 			errors = append(errors, msg)
 		}

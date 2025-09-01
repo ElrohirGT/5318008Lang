@@ -84,7 +84,7 @@ func (l Listener) TypeExists(identifier TypeIdentifier) bool {
 // ====================
 
 // FIXME: Improve error handling:
-// GOAL: Achieve something similar to ELM errors (whatever it takes)
+// GOAL: Achieve something similar to ELM errors (whatever it takes).
 func (l Listener) AddError(line int, columnStart int, columnEnd int, content string, details ...string) {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf(Red+"* Error: (line: %d, column: %d-%d) %s"+Reset, line, columnStart, columnEnd, content))
