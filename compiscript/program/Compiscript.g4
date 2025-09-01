@@ -20,7 +20,7 @@ statement
   | ifStatement         // DONE: Rayo
   | whileStatement      // DONE: Rayo
   | doWhileStatement    // DONE: Rayo
-  | forStatement        // TODO: Rayo
+  | forStatement        // DONE: Rayo
   | foreachStatement    // TODO: Rayo
   | tryStatement        // DONE: Rayo
   | switchStatement     // DONE: Rayo
@@ -43,8 +43,8 @@ typeAnnotation: ':' type;
 initializer: '=' conditionalExpr;
 
 assignment
-	: 'this' ('.' Identifier)+ '=' conditionalExpr ';'			# ThisAssignment
-	| Identifier ('.' Identifier)* '=' conditionalExpr ';'	# VariableAssignment
+	: 'this' ('.' Identifier)+ '=' conditionalExpr ';'?			# ThisAssignment
+	| Identifier ('.' Identifier)* '=' conditionalExpr ';'?	# VariableAssignment
   ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
@@ -59,8 +59,9 @@ whileStatement: 'while' '(' mustBoolExpr ')' whileBody;
 whileBody: block;
 doWhileStatement: 'do' doWhileBody 'while' '(' mustBoolExpr ')' ';';
 doWhileBody: block;
-forStatement: 'for' '(' (variableDeclaration | assignment | ';') conditionalExpr? ';' expression? ')' block; // TODO: Change expression for assingment
-foreachStatement: 'foreach' '(' Identifier 'in' conditionalExpr ')' block;
+forStatement: 'for' '(' (variableDeclaration | assignment | ';') mustBoolExpr ';' assignment? ')' block;
+foreachValue: Identifier 'in' conditionalExpr;
+foreachStatement: 'foreach' '(' foreachValue ')' block;
 breakStatement: 'break' ';';
 continueStatement: 'continue' ';';
 returnStatement: 'return' conditionalExpr? ';';

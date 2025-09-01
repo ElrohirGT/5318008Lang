@@ -135,6 +135,12 @@ func (s *BaseCompiscriptListener) EnterForStatement(ctx *ForStatementContext) {}
 // ExitForStatement is called when production forStatement is exited.
 func (s *BaseCompiscriptListener) ExitForStatement(ctx *ForStatementContext) {}
 
+// EnterForeachValue is called when production foreachValue is entered.
+func (s *BaseCompiscriptListener) EnterForeachValue(ctx *ForeachValueContext) {}
+
+// ExitForeachValue is called when production foreachValue is exited.
+func (s *BaseCompiscriptListener) ExitForeachValue(ctx *ForeachValueContext) {}
+
 // EnterForeachStatement is called when production foreachStatement is entered.
 func (s *BaseCompiscriptListener) EnterForeachStatement(ctx *ForeachStatementContext) {}
 

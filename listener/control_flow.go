@@ -125,21 +125,52 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ====================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
-	forScope := NewScope("FOR", SCOPE_TYPES.BLOCK)
+	forScope := NewScope("FOR", SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
-	// TODO: ADD EXTRA CONTEXT AGAIN
-	blockScope := NewScope("FOR-BLOCK", SCOPE_TYPES.LOOP)
-	l.ScopeManager.AddToCurrent(blockScope)
-	l.ScopeManager.ReplaceCurrent(blockScope)
 }
 
 func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
-	// Exit of block scope
 	l.ScopeManager.ReplaceWithParent()
-	// Exit of for scope
-	l.ScopeManager.ReplaceWithParent()
+}
 
+// ====================
+// FOR-EACH
+// ====================
+
+func (l Listener) EnterForeachStatement(ctx *p.ForeachStatementContext) {
+	forScope := NewScope("FOR-EACH", SCOPE_TYPES.LOOP)
+	l.ScopeManager.AddToCurrent(forScope)
+	l.ScopeManager.ReplaceCurrent(forScope)
+}
+
+func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
+	arrayType, _ := l.ScopeManager.CurrentScope.GetExpressionType(ctx.ConditionalExpr().GetText())
+	fmt.Printf("-----%s\n", arrayType)
+
+	valueInfo, ok := l.GetTypeInfo(arrayType)
+
+	for k, v := range *l.KnownTypes {
+		fmt.Printf("%s %v\n", k, v)
+	}
+
+	if !ok {
+		fmt.Println("------- NOT OK")
+		return
+	}
+
+	if !valueInfo.ArrayType.HasValue() {
+		fmt.Println("------- its NOT array type")
+	}
+
+	// THIS SHOULD NOT FAIL
+	l.ScopeManager.CurrentScope.UpsertExpressionType(
+		ctx.Identifier().GetText(),
+		valueInfo.ArrayType.GetValue().Type)
 }
 
 // ===========================
