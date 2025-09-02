@@ -1,0 +1,23 @@
+function add(a: integer, b: integer): integer {
+	if ( a<8) {
+		return b;
+	} else {
+		return a;
+	}
+
+	// Esto debería ser código muerto!
+	let c = "Hola!";
+}
+
+function minus(a: integer, b: integer): integer {
+	if ( a<8) {
+		return b;
+	} else {
+		return a;
+	}
+
+	// Esto debería ser código muerto!
+	return b;
+}
+---
+ARREGLAR LOS FIXME!

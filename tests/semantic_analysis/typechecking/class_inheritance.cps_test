@@ -1,0 +1,22 @@
+class Animal {
+  let name: string;
+
+  function constructor(name: string) {
+    function addSuffix(p1: string): string {
+      return p1 + "ending";
+    }
+    this.name = addSuffix(name);
+  }
+
+}
+
+class Dog : Animal {
+  
+}
+
+let a = new Dog("Byte");
+
+// ESTO DEBERIA FALLAR
+let b = a.speak();
+---
+ARREGLAR FIXMES!
