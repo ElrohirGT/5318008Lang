@@ -32,6 +32,6 @@ let buffer = [0,0,0];
 color
   .WithR(100)
   .WithG(100)
-  .WithB(100)
-  .ToArray(buffer);
+  .WithB(100);
+//  .ToArray(buffer);
 ---
