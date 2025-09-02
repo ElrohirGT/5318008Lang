@@ -47,6 +47,12 @@ assignment
 	| Identifier ('.' Identifier)* '=' conditionalExpr ';'?	# VariableAssignment
   ;
 
+// FIXME
+// assignmentPart
+//   : '.' Identifier
+//   | '[' conditionalExpr ']'
+//   ;
+
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
 printStatement: 'print' '(' conditionalExpr ')' ';';
 
