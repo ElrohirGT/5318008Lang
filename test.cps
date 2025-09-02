@@ -1,7 +1,7 @@
 // Global constants and variables
 const PI: integer = 314;
 let greeting: string = "Hello, Compiscript!";
-let flag: boolean;
+let flag: integer;
 let numbers: integer[] = [1, 2, 3, 4, 5];
 let matrix: integer[][] = [[1, 2], [3, 4]];
 
@@ -37,7 +37,7 @@ foreach (n in numbers) {
   if (n == 3) {
     continue;
   }
-  
+
   print("Number: " + parseInt(n));
   if (n > 4) {
     break;
@@ -99,6 +99,12 @@ function getMultiples(n: integer): integer[] {
   return result;
 }
 
+class Colorize {
+  function constructor() {
+    return "";
+  }
+}
+
 let multiples: integer[] = getMultiples(2);
 print("Multiples of 2: " + parseInt(multiples[0]) + ", " + parseInt(multiples[1]));
 
@@ -111,4 +117,4 @@ function factorial(n: integer): integer {
 }
 
 // Program end
-print("Program finished.");
+print("Program finished. Screw you!");
