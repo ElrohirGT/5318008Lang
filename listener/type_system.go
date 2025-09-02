@@ -839,6 +839,8 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 
 		case *p.IndexExprContext:
 			log.Printf("Processing IndexExpr [%d] on type '%s'", i, currentType)
+			extractedBaseType, _, _ := strings.Cut(string(currentType), "[]")
+			currentType = TypeIdentifier(extractedBaseType)
 
 		case *p.PropertyAccessExprContext:
 			propertyName := suffix.Identifier().GetText()
