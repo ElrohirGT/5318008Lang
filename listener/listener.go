@@ -42,6 +42,7 @@ func NewListener() Listener {
 	// ADD BUILTINS
 	scopeManager.CurrentScope.UpsertFunctionDef("print",
 		MethodInfo{ParameterList: []ParameterInfo{{"s", BASE_TYPES.STRING}}, ReturnType: BASE_TYPES.NULL})
+	// FIXME: Rename this builtins, confusing AF!!!
 	scopeManager.CurrentScope.UpsertFunctionDef("parseInt",
 		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.INTEGER}}, ReturnType: BASE_TYPES.STRING})
 	scopeManager.CurrentScope.UpsertFunctionDef("parseBool",
