@@ -17,5 +17,11 @@ class Animal {
 
 }
 
+class Dog : Animal {
+	function speak(): string {
+		return "I'm" + this.name;
+	}
+}
+
 let animalVar = new Animal();
 ---

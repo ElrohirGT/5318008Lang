@@ -113,6 +113,18 @@ type ClassTypeInfo struct {
 	Constructor    MethodInfo
 }
 
+func (c *ClassTypeInfo) GetFieldType(fieldName string, listener *Listener) (TypeIdentifier, bool) {
+	fieldType, found := c.Fields[fieldName]
+	if !found {
+		if fatherInfo, found := listener.GetTypeInfo(c.InheritsFrom); c.InheritsFrom != "" && found {
+			fatherInf := fatherInfo.ClassType.GetValue()
+			return fatherInf.GetFieldType(fieldName, listener)
+		}
+	}
+
+	return fieldType, found
+}
+
 func (c *ClassTypeInfo) UpsertField(name string, _type TypeIdentifier) {
 	c.Fields[name] = _type
 }

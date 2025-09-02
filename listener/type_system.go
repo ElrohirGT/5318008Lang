@@ -904,8 +904,8 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 		log.Printf("NewExpr creates instance of type '%s'", currentType)
 
 	case *p.ThisExprContext:
-		if foundType, exists := l.ScopeManager.CurrentScope.GetExpressionType("this"); exists {
-			currentType = foundType
+		if _, exists := l.ScopeManager.CurrentScope.GetExpressionType("this"); exists {
+			// currentType = foundType
 			log.Printf("'this' has type '%s'", currentType)
 		} else {
 			line := ctx.GetStart().GetLine()
@@ -928,8 +928,40 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 
 		case *p.PropertyAccessExprContext:
 			propertyName := suffix.Identifier().GetText()
-			log.Printf("Processing PropertyAccessExpr [%d]: '.%s' on type '%s'", i, propertyName, currentType)
-			return
+			log.Printf("Processing PropertyAccessExpr [%d]: '.%s'", i, propertyName)
+			classScope, found := l.ScopeManager.SearchClassScope()
+			if !found {
+				log.Printf("Can't access property on `this` when not inside a class declaration!")
+				l.AddError(
+					suffix.GetStart().GetLine(),
+					suffix.GetStart().GetColumn(),
+					suffix.GetStop().GetColumn(),
+					"Can't access property on `this` when not inside a class declaration!",
+				)
+			} else {
+				tf, found := l.GetTypeInfo(TypeIdentifier(classScope.Name))
+				if !found {
+					l.AddError(
+						suffix.GetStart().GetLine(),
+						suffix.GetStart().GetColumn(),
+						suffix.GetStop().GetColumn(),
+						"Can't access property on `this` when not inside a class declaration!",
+					)
+				} else {
+					tfInfo := tf.ClassType.GetValue()
+					fieldType, found := tfInfo.GetFieldType(propertyName[:], &l)
+					if !found {
+						l.AddError(
+							suffix.GetStart().GetLine(),
+							suffix.GetStart().GetColumn(),
+							suffix.GetStop().GetColumn(),
+							fmt.Sprintf("Can't access property `%s`! Not defined in class `%s` or parent classes!", propertyName[1:], tfInfo.Name),
+						)
+					} else {
+						currentType = fieldType
+					}
+				}
+			}
 		}
 	}
 
