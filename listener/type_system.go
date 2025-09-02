@@ -68,6 +68,90 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
 }
 
+func (l Listener) ExitMultiplicativeExpr(ctx *p.MultiplicativeExprContext) {
+	exprs := ctx.AllUnaryExpr()
+	if len(exprs) <= 1 {
+		// If there's only one expression, just inherit its type
+		if len(exprs) == 1 {
+			firstExpr := exprs[0]
+			referenceType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+			if available {
+				l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+			}
+		}
+		return
+	}
+
+	firstExpr := exprs[0]
+	line := ctx.GetStart().GetLine()
+
+	colStart := firstExpr.GetStart().GetColumn()
+	colEnd := colStart + len(firstExpr.GetText())
+
+	referenceType, available := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
+	if !available {
+		l.AddError(line, colStart, colEnd, fmt.Sprintf("Exit Multiply (firstExpr): `%s` doesn't have a type!", firstExpr.GetText()))
+		return
+	}
+
+	// Check that it's a numeric type (integer) for arithmetic operations
+	if referenceType != BASE_TYPES.INTEGER {
+		l.AddError(line, colStart, colEnd, fmt.Sprintf("Multiplicative operations require integer operands, but got `%s`", referenceType))
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+		return
+	}
+
+	previousExprStart := firstExpr.GetStart().GetStart()
+	previousExprEnd := firstExpr.GetStop().GetStop()
+
+	for i, expr := range exprs[1:] {
+		exprType, available := l.ScopeManager.CurrentScope.GetExpressionType(expr.GetText())
+		exprColStart := expr.GetStart().GetColumn()
+		exprColEnd := exprColStart + len(expr.GetText())
+
+		if !available {
+			l.AddError(line, exprColStart, exprColEnd, fmt.Sprintf("Exit Multiply (expr - operand): `%s` doesn't have a type!", expr.GetText()))
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+			return
+		}
+
+		if exprType != referenceType {
+			stream := ctx.GetStart().GetInputStream()
+			leftStart := expr.GetStart().GetColumn()
+			leftEnd := ctx.UnaryExpr(i + 1).GetStop().GetColumn()
+			l.AddError(line,
+				leftStart,
+				leftEnd,
+				"Can't perform multiplicative operation:",
+				fmt.Sprintf("leftSide: `%s` of type `%s`",
+					stream.GetText(previousExprStart, previousExprEnd),
+					referenceType,
+				),
+				fmt.Sprintf("rightSide: `%s` of type `%s`",
+					ctx.UnaryExpr(i+1).GetText(),
+					exprType,
+				),
+			)
+			l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+			return
+		}
+
+		if i < len(ctx.AllUnaryExpr()) && ctx.AllUnaryExpr() != nil {
+			if expr.GetText() == "0" {
+				l.AddError(line, exprColStart, exprColEnd, "Division by zero is not allowed")
+				l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
+				return
+			}
+		}
+
+		previousExprStart = expr.GetStart().GetStart()
+		previousExprEnd = expr.GetStop().GetStop()
+	}
+
+	log.Printf("Setting multiplicative expression `%s` to type `%s`", ctx.GetText(), referenceType)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), referenceType)
+}
+
 func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	strRepresentation := ctx.GetText()
 	switch strRepresentation {

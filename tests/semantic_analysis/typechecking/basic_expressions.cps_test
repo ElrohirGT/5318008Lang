@@ -1,4 +1,6 @@
 let a: integer = 2 + 2 + 7;
 let b: integer = 4 + 4;
 let c = a+b+6;
----
+let d = 4 * 4 % 7;
+let e = 8 / 2 * 6;
+//---
