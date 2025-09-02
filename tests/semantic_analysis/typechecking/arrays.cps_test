@@ -1,5 +1,5 @@
 let numbers: integer[] = [5,4,3];
-let b = numbers[0];
+let b: integer = numbers[0];
 
 let asdf = ["Hello", 5];
 
@@ -11,6 +11,8 @@ const validConst: boolean[] =[];
 
 let valid: boolean[][] = [[true]];
 let valid2 = [[true]];
+
+let abc = valid2[0][0];
 
 class Animal {}
 let animalArray = [new Animal(), new Animal()];

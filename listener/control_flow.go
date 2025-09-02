@@ -239,6 +239,14 @@ func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.Identifier().GetText(), BASE_TYPES.STRING)
 }
 
+func (l Listener) ExitTryStatement(ctx *p.TryStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitCatchStatement(ctx *p.CatchStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
 // ===========================
 // BOOLEAN EXPRESIONS
 // ===========================
