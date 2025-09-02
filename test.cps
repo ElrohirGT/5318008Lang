@@ -37,6 +37,7 @@ foreach (n in numbers) {
   if (n == 3) {
     continue;
   }
+  
   print("Number: " + parseInt(n));
   if (n > 4) {
     break;
@@ -68,7 +69,10 @@ class Animal {
   let name: string;
 
   function constructor(name: string) {
-    this.name = name;
+    function addSuffix(p1: string): string {
+      return p1 + "ending";
+    }
+    this.name = addSuffix(name);
   }
 
   function speak(): string {

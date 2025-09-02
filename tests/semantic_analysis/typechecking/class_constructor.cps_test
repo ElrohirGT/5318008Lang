@@ -1,0 +1,16 @@
+class Animal {
+  let name: string;
+  let child : Animal;
+
+  // FIXME: Construct must not return
+  function constructor(name: string) : string {
+    this.name = name;
+    return "";
+  }
+
+  function speak(): string {
+    return this.name + " makes a sound.";
+  }
+}
+---
+This should fail because of string return type!
