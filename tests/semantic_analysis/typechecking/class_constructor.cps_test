@@ -2,7 +2,6 @@ class Animal {
   let name: string;
   let child : Animal;
 
-  // FIXME: Construct must not return
   function constructor(name: string) : string {
     this.name = name;
     return "";
@@ -20,5 +19,5 @@ class Dog {
 }
 ---
 === ERRORS ===
-* Error: (line: 6, column: 2-2) Can't return `string` for a constructor of type `Animal`
-* Error: (line: 17, column: 1-1) Constructor of type `Dog` cannot return type `string`
+* Error: (line: 5, column: 2-2) Can't return `string` for a constructor of type `Animal`
+* Error: (line: 16, column: 1-1) Constructor of type `Dog` cannot return type `string`
