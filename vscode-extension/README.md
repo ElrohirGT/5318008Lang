@@ -1,4 +1,8 @@
-# 531800 Lang - Compiscript Official Extension
+<div>
+    <h1 align="center"> VS Code Extension ⚛️</h1>
+    <h3 align="center"> 
+    </h3>
+</div>
 
 Official extension of Visual Studio Code for COmpiscript language. This extension includes support for syntx highlighting, snippets and semantic analysis in real time.
 
@@ -14,6 +18,9 @@ Official extension of Visual Studio Code for COmpiscript language. This extensio
 1. Open a file with the `.cps`extension. VSCode will regconize it as Compiscript and will apply the sintax and semantic analysis
 2. All the code analysis runs in real time but to see complete compilation logs you can use the command **Run Compiscript File** from the command pallete.
 3. In a new terminal will appear the logs from the semantic analysis and the possible errors the code could have.
+
+## How it works
+The extension executes the binary of compiscript generated with go. If you want to change compiscript, you must recompile it and store it in this folder.
 
 ## Real Time Diagnosis
 

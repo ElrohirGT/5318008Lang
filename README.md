@@ -66,8 +66,6 @@ and compares the output of the compiler with the expected output defined below
 the `---`, if this differ in any way it reports an error. Easy way to get a big
 pile of tests going.
 
-## ✨ Documentation
-
 ### Linting
 
 To lint the project simply run:
@@ -76,4 +74,31 @@ To lint the project simply run:
 golangci-lint run ./...
 ```
 
+## ✨ Documentation
+
 ### Semantic Analysis
+
+This phase of the code follows the lexical which mean: "The code follows the desired structure, but does it actually make sense?" In this phase we check primarily for correctnes in 2 aspects: 
+
+- **Types**
+- **Scopes**
+
+But the check for those we first need to define how our program represents them, and interact with the code. In this phase this are the primary modules:
+
+![image](./media/semantic1.png)
+
+#### Parsing
+
+![image](./media/semantic2.png)
+
+#### Types
+
+![image](./media/semantic3.png)
+
+https://github.com/ElrohirGT/5318008Lang/blob/2d8a431ba2d278083dc29979e8506ecb80713d71/listener/types.go#L14-L38
+
+#### Scopes
+
+![image](./media/semantic4.png)
+
+https://github.com/ElrohirGT/5318008Lang/blob/0c25ba6a11598954a7c940915e75ad4d569bfbd9/listener/scopes.go#L45-L62
