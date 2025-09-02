@@ -18,6 +18,8 @@ class Color {
     return this;
   }
 
+// FIXME: This should be valid!
+// Fix array assignment.
 //  function ToArray(buffer: integer[]) {
 //    buffer[0] = r;
 //    buffer[1] = g;
