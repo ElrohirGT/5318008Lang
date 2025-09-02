@@ -1,5 +1,5 @@
 // Global constants and variables
-const PI: integer = 314;
+const PI: string = 314;
 let greeting: string = "Hello, Compiscript!";
 let flag: integer;
 let numbers: integer[] = [1, 2, 3, 4, 5];
@@ -44,9 +44,11 @@ foreach (n in numbers) {
   }
 }
 
+const VARIABLE: string = "value";
+
 // Switch-case structure
-switch (addFive) {
-  case 7:
+switch (VARIABLE) {
+  case "7":
     print("It's seven");
   case 6:
     print("It's six");
@@ -75,15 +77,10 @@ class Animal {
     this.name = addSuffix(name);
   }
 
-  function speak(): string {
-    return this.name + " makes a sound.";
-  }
 }
 
 class Dog : Animal {
-  function speak(): string {
-    return this.name + " barks.";
-  }
+  
 }
 
 let dog: Dog = new Dog("Rex");
@@ -95,13 +92,16 @@ print("First number: " + parseInt(first));
 
 // Function returning an array
 function getMultiples(n: integer): integer[] {
-  let result: integer[] = [n * 1, n * 2, n * 3, n * 4, n * 5];
+  let result: integer[] = ["hello", n * 2, n * 3, n * 4, n * 5];
   return result;
 }
 
 class Colorize {
   function constructor() {
     return "";
+
+    let a: string = "initialValue";
+
   }
 }
 
@@ -111,10 +111,10 @@ print("Multiples of 2: " + parseInt(multiples[0]) + ", " + parseInt(multiples[1]
 // Recursion
 function factorial(n: integer): integer {
   if (n <= 1) {
-    return 1;
+
   }
-  return n * factorial(n - 1);
+
 }
 
 // Program end
-print("Program finished. Screw you!");
+print("Program finished.");
