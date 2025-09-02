@@ -70,7 +70,7 @@ func Test_SnapshotTesting(t *testing.T) {
 			errMsg = strings.TrimSpace(stripANSI(err.Error()))
 		}
 
-		if err != nil && expectedOutput != errMsg {
+		if expectedOutput != errMsg {
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
 			b.WriteString(path)
@@ -78,12 +78,18 @@ func Test_SnapshotTesting(t *testing.T) {
 
 			lastI := 0
 			for i, expectedByte := range []byte(expectedOutput) {
-				actualByte := errMsg[i]
-				if actualByte != expectedByte {
-					b.WriteString(Red)
+				if i < len(errMsg) {
+					actualByte := errMsg[i]
+					if actualByte != expectedByte {
+						b.WriteString(Red)
+					}
+					b.WriteByte(actualByte)
+					b.WriteString(Reset)
+				} else {
+					b.WriteString(Grey)
+					b.WriteByte(expectedByte)
+					b.WriteString(Reset)
 				}
-				b.WriteByte(actualByte)
-				b.WriteString(Reset)
 				lastI = i
 			}
 
@@ -97,16 +103,6 @@ func Test_SnapshotTesting(t *testing.T) {
 			b.WriteString(expectedOutput)
 
 			t.Error(b.String())
-			continue
-		}
-		if err == nil && expectedOutput != "" {
-			t.Errorf(
-				"\n%sProgram %s didn't fail!%s\nBut expected:\n%s",
-				Red,
-				path,
-				Reset,
-				expectedOutput,
-			)
 			continue
 		}
 	}
