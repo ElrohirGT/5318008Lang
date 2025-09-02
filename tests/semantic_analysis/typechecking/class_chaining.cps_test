@@ -18,11 +18,11 @@ class Color {
     return this;
   }
 
-  function ToArray(buffer: integer[]) {
-    buffer[0] = r;
-    buffer[1] = g;
-    buffer[2] = b;
-  }
+//  function ToArray(buffer: integer[]) {
+//    buffer[0] = r;
+//    buffer[1] = g;
+//    buffer[2] = b;
+//  }
 }
 
 let color = new Color();

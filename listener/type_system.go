@@ -904,8 +904,11 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 		log.Printf("NewExpr creates instance of type '%s'", currentType)
 
 	case *p.ThisExprContext:
-		if _, exists := l.ScopeManager.CurrentScope.GetExpressionType("this"); exists {
-			// currentType = foundType
+
+		if foundType, exists := l.ScopeManager.CurrentScope.GetExpressionType("this"); exists {
+			if len(suffixOps) == 0 {
+				currentType = foundType
+			}
 			log.Printf("'this' has type '%s'", currentType)
 		} else {
 			line := ctx.GetStart().GetLine()
@@ -914,6 +917,7 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 			l.AddError(line, colStart, colEnd, "'this' is not available in current scope")
 			return
 		}
+
 	}
 
 	for i, suffixOp := range suffixOps {

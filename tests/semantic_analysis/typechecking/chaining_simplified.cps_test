@@ -1,0 +1,15 @@
+class Color {
+  let r: integer;
+  let g: integer;
+  let b: integer;
+
+  function WithR(r: integer): Color {
+      this.r = r;
+      return this;
+  }
+}
+
+let color = new Color();
+color
+  .WithR(100);
+---
