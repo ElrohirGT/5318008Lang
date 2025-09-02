@@ -2,6 +2,7 @@ class Animal {
 	let name;
 	let age;
 
+	//
 	function speak(): string {
 		let animalVar = new Animal();
 		return this.name + " makes a sound.";
