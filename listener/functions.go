@@ -27,11 +27,10 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 			if funcName.GetText() == CONSTRUCTOR_NAME {
 
 				log.Printf("DEBUG: Checking constructor for class %s", className)
-				log.Printf("DEBUG: Current constructor: ReturnType=%s, ParamCount=%d",
-					classInfo.Constructor.ReturnType, len(classInfo.Constructor.ParameterList))
+				// log.Printf("DEBUG: Current constructor: ReturnType=%s, ParamCount=%d",
+				// 	classInfo.Constructor.ReturnType, len(classInfo.Constructor.ParameterList))
 
-				hasExistingConstructor := len(classInfo.Constructor.ParameterList) > 0 ||
-					(classInfo.Constructor.ReturnType != BASE_TYPES.UNKNOWN && classInfo.Constructor.ReturnType != "")
+				hasExistingConstructor := classInfo.constructor != nil
 
 				if hasExistingConstructor {
 					l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
@@ -150,7 +149,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		className := l.ScopeManager.CurrentScope.Name
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
 			if funcName.GetText() == CONSTRUCTOR_NAME {
-				cti.Constructor = info
+				cti.constructor = &info
 				log.Printf("DEBUG: Set constructor for class %s: %+v", className, info)
 			} else {
 				cti.UpsertMethod(funcName.GetText(), info)
@@ -232,7 +231,7 @@ func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdent
 			// FIXME: The constructor should only return the type of the class!
 			// It doesn't make sense for it to return other thing!
 			if funcName == CONSTRUCTOR_NAME {
-				cti.Constructor.ReturnType = returnType
+				cti.constructor.ReturnType = returnType
 			} else if methodInfo, exists := cti.Methods[funcName]; exists {
 				methodInfo.ReturnType = returnType
 				cti.Methods[funcName] = methodInfo
@@ -620,7 +619,7 @@ func (l Listener) ExitStandaloneNewExpr(ctx *p.StandaloneNewExprContext) {
 		exprArguments = ctx.Arguments().AllConditionalExpr()
 	}
 
-	constructor := classInfo.Constructor
+	constructor := classInfo.GetConstructor(&l)
 	if len(constructor.ParameterList) != len(exprArguments) {
 		l.AddError(line, classColStart, classColEnd, fmt.Sprintf(
 			"Constructor for `%s` expects %d arguments but %d given",

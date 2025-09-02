@@ -122,7 +122,8 @@ func (l Listener) ExitNewExpr(ctx *p.NewExprContext) {
 		return
 	}
 
-	methodInfo := typeInfo.ClassType.GetValue().Constructor
+	classTypeInfo := typeInfo.ClassType.GetValue()
+	methodInfo := classTypeInfo.GetConstructor(&l)
 	if len(methodInfo.ParameterList) != len(exprArguments) {
 		l.AddError(line, colStart, colEnd, fmt.Sprintf(
 			"Constructor of `%s` asks for `%d` arguments but `%d` given!",

@@ -110,7 +110,22 @@ type ClassTypeInfo struct {
 	Fields         map[string]TypeIdentifier
 	ConstantFields lib.Set[string]
 	Methods        map[string]MethodInfo
-	Constructor    MethodInfo
+	constructor    *MethodInfo
+}
+
+func (c *ClassTypeInfo) GetConstructor(l *Listener) MethodInfo {
+	if c.constructor != nil {
+		return *c.constructor
+	}
+
+	if fatherInfo, found := l.GetTypeInfo(c.InheritsFrom); c.InheritsFrom != "" && found {
+		fatherInf := fatherInfo.ClassType.GetValue()
+		return fatherInf.GetConstructor(l)
+	}
+
+	return MethodInfo{
+		ReturnType: c.Name,
+	}
 }
 
 func (c *ClassTypeInfo) GetFieldType(fieldName string, listener *Listener) (TypeIdentifier, bool) {
