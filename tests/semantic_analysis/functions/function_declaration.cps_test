@@ -10,3 +10,5 @@ function basicFunc() {}
 basicFunc(1, "2");
 var x = basicFunc(0, "");
 ---
+=== ERRORS ===
+* Error: (line: 8, column: 9-18) Function `basicFunc` is already declared in this scope!
