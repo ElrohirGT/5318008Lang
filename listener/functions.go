@@ -39,6 +39,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 					))
 					return
 				}
+
 			} else {
 				// Check if method already exists
 				if _, exists := classInfo.Methods[funcName.GetText()]; exists {
@@ -149,8 +150,17 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		className := l.ScopeManager.CurrentScope.Name
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
 			if funcName.GetText() == CONSTRUCTOR_NAME {
-				cti.constructor = &info
-				log.Printf("DEBUG: Set constructor for class %s: %+v", className, info)
+				if info.ReturnType != BASE_TYPES.UNKNOWN && info.ReturnType != TypeIdentifier(className) {
+					l.AddError(
+						line,
+						ctx.GetStart().GetColumn(),
+						ctx.GetStop().GetColumn(),
+						fmt.Sprintf("Can't return `%s` for a constructor of type `%s`", info.ReturnType, className),
+					)
+				} else {
+					cti.constructor = &info
+					log.Printf("DEBUG: Set constructor for class %s: %+v", className, info)
+				}
 			} else {
 				cti.UpsertMethod(funcName.GetText(), info)
 			}
@@ -198,10 +208,28 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	funcScope := l.ScopeManager.CurrentScope
 	expectedReturnType := funcScope.expectedReturnType
 
+	l.ScopeManager.ReplaceWithParent()
+	log.Printf("Exited function scope, now in: %s (type: %s)",
+		l.ScopeManager.CurrentScope.Name, l.ScopeManager.CurrentScope.Type)
+
+	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
+	if isInsideClassDeclaration {
+		className := l.ScopeManager.CurrentScope.Name
+		if funcName == CONSTRUCTOR_NAME && className != string(funcScope.inferredReturnType) && funcScope.inferredReturnType != BASE_TYPES.UNKNOWN {
+			l.AddError(
+				line,
+				ctx.GetStart().GetColumn(),
+				ctx.GetStop().GetColumn(),
+				fmt.Sprintf("Constructor of type `%s` cannot return type `%s`", className, funcScope.inferredReturnType),
+			)
+			return
+		}
+	}
+
 	if expectedReturnType == BASE_TYPES.UNKNOWN {
 		if funcScope.inferredReturnType != BASE_TYPES.UNKNOWN {
 			expectedReturnType = funcScope.inferredReturnType
-			l.updateFunctionReturnType(funcName, expectedReturnType)
+			l.updateFunctionReturnType(funcName, expectedReturnType, ctx)
 		}
 	}
 
@@ -217,12 +245,9 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		}
 	}
 
-	l.ScopeManager.ReplaceWithParent()
-	log.Printf("Exited function scope, now in: %s (type: %s)",
-		l.ScopeManager.CurrentScope.Name, l.ScopeManager.CurrentScope.Type)
 }
 
-func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdentifier) {
+func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdentifier, ctx *p.FunctionDeclarationContext) {
 	isInsideClassDeclaration := l.ScopeManager.CurrentScope.Type == SCOPE_TYPES.CLASS
 
 	if isInsideClassDeclaration {
@@ -230,8 +255,13 @@ func (l Listener) updateFunctionReturnType(funcName string, returnType TypeIdent
 		l.ModifyClassTypeInfo(TypeIdentifier(className), func(cti *ClassTypeInfo) {
 			// FIXME: The constructor should only return the type of the class!
 			// It doesn't make sense for it to return other thing!
-			if funcName == CONSTRUCTOR_NAME {
-				cti.constructor.ReturnType = returnType
+			if funcName == CONSTRUCTOR_NAME && returnType != TypeIdentifier(className) {
+				l.AddError(
+					ctx.GetStart().GetLine(),
+					ctx.GetStart().GetColumn(),
+					ctx.GetStop().GetColumn(),
+					fmt.Sprintf("Can't return a type of `%s` for a constructor of `%s`", returnType, className),
+				)
 			} else if methodInfo, exists := cti.Methods[funcName]; exists {
 				methodInfo.ReturnType = returnType
 				cti.Methods[funcName] = methodInfo
