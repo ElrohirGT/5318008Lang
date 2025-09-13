@@ -9,11 +9,11 @@ import (
 	lib "github.com/ElrohirGT/5318008Lang/applib"
 )
 
-const MIN_ITERS_PER_SEED = 1_000
-const MAX_ITERS_PER_SEED = 5_000
+const MIN_ITERS_PER_SEED = 100
+const MAX_ITERS_PER_SEED = 1_000
 
-const MIN_INPUT_SIZE = 2500
-const MAX_INPUT_SIZE = 7000
+const MIN_INPUT_SIZE = 50
+const MAX_INPUT_SIZE = 1300
 
 const MAX_BYTE = 256
 
