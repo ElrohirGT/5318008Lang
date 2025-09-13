@@ -9,6 +9,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	lib "github.com/ElrohirGT/5318008Lang/applib"
 )
 
 const OUTPUT_SEPARATOR = "---"
@@ -64,7 +66,7 @@ func Test_SnapshotTesting(t *testing.T) {
 		expectedOutput := strings.TrimSpace(parts[1])
 
 		reader := bytes.NewReader([]byte(cpsContents))
-		err = testableMain(reader)
+		err = lib.TestableMain(reader)
 		errMsg := ""
 		if err != nil {
 			errMsg = strings.TrimSpace(stripANSI(err.Error()))
@@ -81,22 +83,22 @@ func Test_SnapshotTesting(t *testing.T) {
 				if i < len(errMsg) {
 					actualByte := errMsg[i]
 					if actualByte != expectedByte {
-						b.WriteString(Red)
+						b.WriteString(lib.Red)
 					}
 					b.WriteByte(actualByte)
-					b.WriteString(Reset)
+					b.WriteString(lib.Reset)
 				} else {
-					b.WriteString(Grey)
+					b.WriteString(lib.Grey)
 					b.WriteByte(expectedByte)
-					b.WriteString(Reset)
+					b.WriteString(lib.Reset)
 				}
 				lastI = i
 			}
 
 			if lastI+1 < len(errMsg)-1 {
-				b.WriteString(Red)
+				b.WriteString(lib.Red)
 				b.WriteString(errMsg[lastI+1:])
-				b.WriteString(Reset)
+				b.WriteString(lib.Reset)
 			}
 
 			b.WriteString("\nBut expected:\n")
