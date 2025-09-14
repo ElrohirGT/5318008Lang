@@ -24,7 +24,7 @@ Once you have your environment ready, you can run the project with:
 ```bash
 go run .
 
-go test
+go test ./...
 ```
 
 **Want to change the grammar?**
