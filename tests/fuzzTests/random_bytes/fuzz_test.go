@@ -2,8 +2,10 @@ package fuzztests
 
 import (
 	"bytes"
-	"io"
-	"math/rand"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	lib "github.com/ElrohirGT/5318008Lang/applib"
@@ -17,24 +19,29 @@ const MAX_INPUT_SIZE = 1300
 
 const MAX_BYTE = 256
 
-func generateRandomBytesReader(r *rand.Rand) io.Reader {
-	size := r.Intn(MAX_ITERS_PER_SEED-MIN_ITERS_PER_SEED) + MIN_ITERS_PER_SEED
-	b := make([]byte, 0, size)
-	for range size {
-		b = append(b, byte(r.Int()%MAX_BYTE))
-	}
-	return bytes.NewReader(b)
-}
+const OUTPUT_SEPARATOR = "---"
 
 func Fuzz_RandomInputStream(f *testing.F) {
-	f.Add(int64(4206969))
-	f.Fuzz(func(t *testing.T, a int64) {
-		randSource := rand.NewSource(a)
-		r := rand.New(randSource)
-
-		for range r.Intn(MAX_ITERS_PER_SEED-MIN_ITERS_PER_SEED) + MIN_ITERS_PER_SEED {
-			reader := generateRandomBytesReader(r)
-			lib.TestableMain(reader)
+	err := filepath.WalkDir("../../../tests/semantic_analysis/", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
 		}
+		contents, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		sContents := string(contents)
+		parts := strings.Split(sContents, OUTPUT_SEPARATOR)
+		f.Add(parts[0])
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	f.Fuzz(func(t *testing.T, b string) {
+		reader := bytes.NewBufferString(b)
+		lib.TestableMain(reader)
 	})
 }
