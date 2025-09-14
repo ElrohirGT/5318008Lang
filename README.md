@@ -19,7 +19,7 @@ recommend [Nix](https://nixos.org/download/) and
 nix develop # Enters a devshell with a go compiler and other goodies (like a debugger)
 ```
 
-Once you have your environment ready, you can run the project with :
+Once you have your environment ready, you can run the project with:
 
 ```bash
 go run .
@@ -36,6 +36,18 @@ this command in the root of the repo:
 ```bash
 antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscript.g4
 ```
+
+### Fuzzing
+
+Fuzzing has been implemented, checkout for fuzz tests under the
+`./tests/fuzzTests/` folder. You can only run one test at a time with:
+
+```bash
+go test ./tests/fuzzTests/random_bytes/ -fuzz=Fuzz
+```
+
+Specifying the folder test directory each time! Make sure to run them from the
+root of the repository.
 
 ## 📘 Project Structure
 
@@ -78,12 +90,15 @@ golangci-lint run ./...
 
 ### Semantic Analysis
 
-This phase of the code follows the lexical which mean: "The code follows the desired structure, but does it actually make sense?" In this phase we check primarily for correctnes in 2 aspects: 
+This phase of the code follows the lexical which mean: "The code follows the
+desired structure, but does it actually make sense?" In this phase we check
+primarily for correctnes in 2 aspects:
 
 - **Types**
 - **Scopes**
 
-But the check for those we first need to define how our program represents them, and interact with the code. In this phase this are the primary modules:
+But the check for those we first need to define how our program represents them,
+and interact with the code. In this phase this are the primary modules:
 
 ![image](./media/semantic1.png)
 
