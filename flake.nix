@@ -23,6 +23,7 @@
           pkgs.go
           pkgs.gotools
           pkgs.go-tools
+          pkgs.golangci-lint
 
           pkgs.delve
           pkgs.gdlv
