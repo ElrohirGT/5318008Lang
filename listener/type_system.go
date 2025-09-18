@@ -953,7 +953,7 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 					)
 				} else {
 					tfInfo := tf.ClassType.GetValue()
-					fieldType, found := tfInfo.GetFieldType(propertyName[:], &l)
+					fieldType, found := tfInfo.GetFieldType(propertyName, &l)
 					if !found {
 						l.AddError(
 							suffix.GetStart().GetLine(),

@@ -22,7 +22,7 @@ const MAX_BYTE = 256
 const OUTPUT_SEPARATOR = "---"
 
 func Fuzz_RandomInputStream(f *testing.F) {
-	err := filepath.WalkDir("../../../tests/semantic_analysis/", func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir("../../../tests/semantic_analysis/", func(path string, d fs.DirEntry, _ error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -42,6 +42,6 @@ func Fuzz_RandomInputStream(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, b string) {
 		reader := bytes.NewBufferString(b)
-		lib.TestableMain(reader)
+		_ = lib.TestableMain(reader)
 	})
 }
