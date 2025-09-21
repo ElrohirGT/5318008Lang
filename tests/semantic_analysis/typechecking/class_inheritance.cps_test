@@ -8,6 +8,9 @@ class Animal {
     this.name = addSuffix(name);
   }
 
+	function say(something: string): string {
+		return something;
+	}
 }
 
 class Dog : Animal {
@@ -16,8 +19,21 @@ class Dog : Animal {
 
 let a = new Dog("Byte");
 
-// ESTO DEBERIA FALLAR
+// THIS SHOULD FAIL!
 let b = a.speak();
+// This should not fail!
+a.say("Hola!");
+
+class Cat : Animal {
+	function speak(): string {
+		return "Hello!";
+	}
+}
+
+let c = new Cat("Felix");
+// This should not fail!
+c.speak();
+c.say("Blablabla");
 ---
 === ERRORS ===
-* Error: (line: 20, column: 9-16) Can't call undefined method `speak` on type `Dog`
+* Error: (line: 23, column: 9-16) Can't call undefined method `speak` on type `Dog`
