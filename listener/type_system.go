@@ -931,27 +931,34 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 
 			tInfo, found := l.GetTypeInfo(currentType)
 			if !found {
-				log.Panicf("Failed to get type information for `%s`\n%#v", currentType, l)
-			}
-			if !tInfo.ClassType.HasValue() {
 				l.AddError(
-					suffix.GetStart().GetLine(),
-					suffix.GetStart().GetColumn(),
-					suffix.GetStop().GetColumn(),
-					fmt.Sprintf("Can't call method `%s` on non-class type `%s`", methodName, currentType),
+					ctx.GetStart().GetLine(),
+					ctx.GetStart().GetColumn(),
+					ctx.GetStop().GetColumn(),
+					fmt.Sprintf("Type `%s` is not defined!", currentType),
 				)
 			} else {
-				classInfo := tInfo.ClassType.GetValue()
-				methodInfo, found := classInfo.Methods[methodName]
-				if !found {
+
+				if !tInfo.ClassType.HasValue() {
 					l.AddError(
 						suffix.GetStart().GetLine(),
 						suffix.GetStart().GetColumn(),
 						suffix.GetStop().GetColumn(),
-						fmt.Sprintf("Can't call undefined method `%s` on type `%s`", methodName, currentType),
+						fmt.Sprintf("Can't call method `%s` on non-class type `%s`", methodName, currentType),
 					)
 				} else {
-					currentType = methodInfo.ReturnType
+					classInfo := tInfo.ClassType.GetValue()
+					methodInfo, found := classInfo.Methods[methodName]
+					if !found {
+						l.AddError(
+							suffix.GetStart().GetLine(),
+							suffix.GetStart().GetColumn(),
+							suffix.GetStop().GetColumn(),
+							fmt.Sprintf("Can't call undefined method `%s` on type `%s`", methodName, currentType),
+						)
+					} else {
+						currentType = methodInfo.ReturnType
+					}
 				}
 			}
 
