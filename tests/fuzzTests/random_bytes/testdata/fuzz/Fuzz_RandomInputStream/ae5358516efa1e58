@@ -1,0 +1,2 @@
+go test fuzz v1
+string("class Animal:Animal{}let a=new g(\"\");//\nlet b=a.k();//\na.y(\"\");class Cat:Animal{function k():string{return\"\";}}let\xd6c=new Cat(\"\");//\nc.k();c.y(\"\")(")
