@@ -19,4 +19,5 @@ let a = new Dog("Byte");
 // ESTO DEBERIA FALLAR
 let b = a.speak();
 ---
-ARREGLAR FIXMES!
+=== ERRORS ===
+* Error: (line: 20, column: 9-16) Can't call undefined method `speak` on type `Dog`
