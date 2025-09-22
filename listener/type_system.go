@@ -925,6 +925,43 @@ func (l Listener) processValidLeftHandSide(ctx *p.LeftHandSideContext, primaryAt
 		case *p.CallExprContext:
 			log.Printf("Processing CallExpr [%d] on type '%s'", i, currentType)
 
+		case *p.MethodCallExprContext:
+			methodName := suffix.Identifier().GetText()
+			log.Printf("Processing MethodCallExpr [%d; %s] on type '%s'", i, methodName, currentType)
+
+			tInfo, found := l.GetTypeInfo(currentType)
+			if !found {
+				l.AddError(
+					ctx.GetStart().GetLine(),
+					ctx.GetStart().GetColumn(),
+					ctx.GetStop().GetColumn(),
+					fmt.Sprintf("Type `%s` is not defined!", currentType),
+				)
+			} else {
+
+				if !tInfo.ClassType.HasValue() {
+					l.AddError(
+						suffix.GetStart().GetLine(),
+						suffix.GetStart().GetColumn(),
+						suffix.GetStop().GetColumn(),
+						fmt.Sprintf("Can't call method `%s` on non-class type `%s`", methodName, currentType),
+					)
+				} else {
+					classInfo := tInfo.ClassType.GetValue()
+					methodInfo, found := classInfo.Methods[methodName]
+					if !found {
+						l.AddError(
+							suffix.GetStart().GetLine(),
+							suffix.GetStart().GetColumn(),
+							suffix.GetStop().GetColumn(),
+							fmt.Sprintf("Can't call undefined method `%s` on type `%s`", methodName, currentType),
+						)
+					} else {
+						currentType = methodInfo.ReturnType
+					}
+				}
+			}
+
 		case *p.IndexExprContext:
 			log.Printf("Processing IndexExpr [%d] on type '%s'", i, currentType)
 			extractedBaseType, _, _ := strings.Cut(string(currentType), "[]")
