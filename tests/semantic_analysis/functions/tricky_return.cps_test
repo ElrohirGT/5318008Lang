@@ -20,4 +20,8 @@ function minus(a: integer, b: integer): integer {
 	return b;
 }
 ---
-ARREGLAR LOS FIXME!
+=== ERRORS ===
+* Error: (line: 9, column: 1-16) Unreachable code detected
+ * line 9
+* Error: (line: 20, column: 1-9) Unreachable code detected
+ * line 20
