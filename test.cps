@@ -111,8 +111,12 @@ print("Multiples of 2: " + parseInt(multiples[0]) + ", " + parseInt(multiples[1]
 // Recursion
 function factorial(n: integer): integer {
   if (n <= 1) {
-
+    return 2;
+  } else {
+    return 1;
   }
+
+  return 5;
 
 }
 

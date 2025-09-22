@@ -234,7 +234,9 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	if expectedReturnType != BASE_TYPES.UNKNOWN && expectedReturnType != BASE_TYPES.INVALID {
-		if !funcScope.hasReturnStatement {
+		allPathsReturn := l.checkAllPathsReturn(ctx)
+
+		if !allPathsReturn {
 			nameColStart := ctx.Identifier().GetSymbol().GetColumn()
 			nameColEnd := nameColStart + len(funcName)
 			l.AddError(line, nameColStart, nameColEnd, fmt.Sprintf(
@@ -718,4 +720,156 @@ func (l Listener) ExitStandaloneThisExpr(ctx *p.StandaloneThisExprContext) {
 	if standaloneAtom, ok := parent.(*p.StandaloneAtomContext); ok {
 		l.ScopeManager.CurrentScope.UpsertExpressionType(standaloneAtom.GetText(), thisType)
 	}
+}
+
+func (l *Listener) checkAllPathsReturn(ctx *p.FunctionDeclarationContext) bool {
+	if ctx.Block() == nil {
+		return false
+	}
+
+	return l.blockAllPathsReturn(ctx.Block())
+}
+
+func (l *Listener) blockAllPathsReturn(blockCtx p.IBlockContext) bool {
+	if blockCtx == nil {
+		return false
+	}
+
+	statements := blockCtx.AllStatement()
+	if len(statements) == 0 {
+		return false
+	}
+
+	for i, stmt := range statements {
+		if l.statementReturns(stmt) {
+			if i < len(statements)-1 {
+				nextStmt := statements[i+1]
+				line := nextStmt.GetStart().GetLine()
+				colStart := nextStmt.GetStart().GetColumn()
+				colEnd := nextStmt.GetStop().GetColumn()
+				l.AddError(line, colStart, colEnd,
+					"Unreachable code detected after return statement",
+					fmt.Sprintf("line %d", line),
+				)
+			}
+			return true
+		}
+
+		if l.statementAllPathsReturn(stmt) {
+			if i < len(statements)-1 {
+				nextStmt := statements[i+1]
+				line := nextStmt.GetStart().GetLine()
+				colStart := nextStmt.GetStart().GetColumn()
+				colEnd := nextStmt.GetStop().GetColumn()
+				l.AddError(line, colStart, colEnd,
+					"Unreachable code detected",
+					fmt.Sprintf("line %d", line),
+				)
+			}
+			return true
+		}
+	}
+
+	return false
+}
+
+func (l *Listener) statementReturns(stmt p.IStatementContext) bool {
+	return stmt.ReturnStatement() != nil
+}
+
+func (l *Listener) statementAllPathsReturn(stmt p.IStatementContext) bool {
+	// Check for direct return statement
+	if stmt.ReturnStatement() != nil {
+		return true
+	}
+
+	// Check if statement
+	if ifStmt := stmt.IfStatement(); ifStmt != nil {
+		// An if statement guarantees return only if:
+		// Both if and else bodies exist and both return
+
+		ifReturns := l.blockAllPathsReturn(ifStmt.IfBody().Block())
+
+		if ifStmt.ElseBody() != nil {
+			elseReturns := l.blockAllPathsReturn(ifStmt.ElseBody().Block())
+			return ifReturns && elseReturns
+		}
+
+		// If there's no else branch, not all paths are guaranteed to return
+		return false
+	}
+
+	// Check while statement
+	if stmt.WhileStatement() != nil {
+		// While loops don't guarantee return (could never execute)
+		return false
+	}
+
+	// Check do-while statement
+	if stmt.DoWhileStatement() != nil {
+		// Do-while executes at least once, but still doesn't guarantee return
+		// (could break out without returning)
+		return false
+	}
+
+	// Check for statement
+	if stmt.ForStatement() != nil {
+		// For loops don't guarantee return
+		return false
+	}
+
+	// Check switch statement
+	if switchStmt := stmt.SwitchStatement(); switchStmt != nil {
+		// Switch guarantees return only if:
+		// All cases return AND there's a default case that returns
+
+		hasDefault := switchStmt.DefaultCase() != nil
+		if !hasDefault {
+			return false // Without default, not all paths are covered
+		}
+
+		// Check if all cases return
+		for _, switchCase := range switchStmt.AllSwitchCase() {
+			if !l.caseBodyAllPathsReturn(switchCase.CaseBody()) {
+				return false
+			}
+		}
+
+		// Check if default case returns
+		if hasDefault && !l.caseBodyAllPathsReturn(switchStmt.DefaultCase().CaseBody()) {
+			return false
+		}
+
+		return hasDefault // Only if we have default and all cases return
+	}
+
+	// Check block statement
+	if blockStmt := stmt.BlockStatement(); blockStmt != nil {
+		return l.blockAllPathsReturn(blockStmt.Block())
+	}
+
+	// Check try statement
+	if tryStmt := stmt.TryStatement(); tryStmt != nil {
+		// Try-catch guarantees return only if both try and catch blocks return
+		tryReturns := l.blockAllPathsReturn(tryStmt.Block())
+		catchReturns := l.blockAllPathsReturn(tryStmt.CatchStatement().Block())
+		return tryReturns && catchReturns
+	}
+
+	return false
+}
+
+func (l *Listener) caseBodyAllPathsReturn(caseBody p.ICaseBodyContext) bool {
+	statements := caseBody.AllStatement()
+	if len(statements) == 0 {
+		return false
+	}
+
+	for _, stmt := range statements {
+		if l.statementReturns(stmt) || l.statementAllPathsReturn(stmt) {
+			return true
+		}
+	}
+
+	return false
 }

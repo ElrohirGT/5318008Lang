@@ -57,7 +57,7 @@ type Scope struct {
 	expectedReturnType TypeIdentifier
 	inferredReturnType TypeIdentifier
 	hasReturnStatement bool
-	// INdicates end of block
+	// Indicates end of block
 	terminated bool
 }
 
