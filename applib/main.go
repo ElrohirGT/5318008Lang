@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	listener "github.com/ElrohirGT/5318008Lang/listener"
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
 )
 
@@ -67,7 +67,7 @@ func TestableMain(reader io.Reader) error {
 	}
 
 	walker := antlr.NewParseTreeWalker()
-	lis := listener.NewListener()
+	lis := type_checker.NewListener()
 	walker.Walk(lis, tree)
 
 	if lis.HasErrors() {
