@@ -1,5 +1,8 @@
 package lib
 
+// Represents a value that may or may not exists when it's time to use it!
+//
+// By default the Optional instance is empty, you can only create valid Optional instances using the NewOpValue constructor!
 type Optional[T any] struct {
 	isValid bool
 	value   T
