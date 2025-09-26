@@ -555,11 +555,14 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	for _, part := range parts {
 		previousTypeInfo, found := l.GetTypeInfo(previousTypeId)
 		if !found {
-			log.Panicf(
+			l.AddError(
+				ctx.GetStart().GetLine(),
+				ctx.GetStart().GetColumn(),
+				ctx.GetStop().GetColumn(),
 				"Can't find type information for type `%s` in assignment\n%s",
-				previousTypeId,
 				ctx.GetText(),
 			)
+			return
 		}
 
 		isArrayAccess := part.ConditionalExpr() != nil
