@@ -15,6 +15,12 @@ import (
 
 const OUTPUT_SEPARATOR = "---"
 
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+func stripANSI(s string) string {
+	return ansiRegex.ReplaceAllString(s, "")
+}
+
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
 	// "class",
@@ -30,7 +36,7 @@ var IGNORE_SPECIFIC = []string{
 	// "tests/semantic_analysis/typechecking/class_chaining.cps_test",
 }
 
-func Test_SnapshotTesting(t *testing.T) {
+func Test_SemanticAnalysis(t *testing.T) {
 	filePaths := []string{}
 	err := filepath.WalkDir("./tests/semantic_analysis", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -108,10 +114,4 @@ func Test_SnapshotTesting(t *testing.T) {
 			continue
 		}
 	}
-}
-
-var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
-
-func stripANSI(s string) string {
-	return ansiRegex.ReplaceAllString(s, "")
 }
