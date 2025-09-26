@@ -21,6 +21,24 @@ type AssignmentInstruction struct {
 	Value  string
 }
 
+type VariableType string
+
+var VARIABLE_TYPES = struct {
+	U8  string
+	U16 string
+	U32 string
+	I8  string
+	I16 string
+	I32 string
+}{
+	U8:  "u8",
+	U16: "u16",
+	U32: "u32",
+	I8:  "i8",
+	I16: "i16",
+	I32: "i32",
+}
+
 // Represents the operation to copy a variable.
 //
 // Example:
@@ -194,6 +212,12 @@ type Instruction struct {
 type Program struct {
 	variableCounter uint
 	Scopes          map[ScopeName][]Instruction
+}
+
+func NewProgram() *Program {
+	return &Program{
+		Scopes: make(map[ScopeName][]Instruction),
+	}
 }
 
 func (p *Program) GetNextVariableName() VariableName {

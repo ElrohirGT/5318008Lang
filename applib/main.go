@@ -82,10 +82,10 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 		return generateErrorOutput(*typeListener.Errors)
 	}
 
-	tacListener := tac_generator.NewListener()
+	tacListener := tac_generator.NewListener(&typeListener)
 	walker.Walk(tacListener, tree)
 
-	// FIXME: Does TAC generation should have errors?
+	// FIXME: Does TAC generation should have errors? I think it does not!
 	// if tacListener.HasErrors() {
 	// 	return generateErrorOutput(*tacListener.Errors)
 	// }
