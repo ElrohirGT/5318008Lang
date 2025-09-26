@@ -475,226 +475,182 @@ func (l Listener) ExitConstantDeclaration(ctx *p.ConstantDeclarationContext) {
 	}
 }
 
-func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
-	log.Println("`This` Variable Assignment!", ctx.GetText())
+func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
+	log.Println("Assignment found!", ctx.GetText())
 	line := ctx.GetStart().GetLine()
 
-	identifiers := ctx.AllIdentifier()
-	firstExpr := ctx.Identifier(0)
-	colStartF := firstExpr.GetSymbol().GetColumn()
-	colEndF := colStartF + len(firstExpr.GetText())
+	parts := []p.IAssignmentPartContext{}
+	previousTypeId := BASE_TYPES.UNKNOWN
+	var conditionalExpr p.IConditionalExprContext
+	if thisCtx := ctx.ThisAssignment(); thisCtx != nil {
+		log.Println("This assignment!")
+		classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
+		if !isInsideClassDeclaration {
+			l.AddError(line,
+				thisCtx.GetStart().GetColumn(),
+				thisCtx.GetStop().GetColumn(),
+				"Can't use `this` outside of a class declaration scope!",
+			)
+			return
+		}
 
-	classScope, isInsideClassDeclaration := l.ScopeManager.SearchClassScope()
-	if !isInsideClassDeclaration {
-		l.AddError(line, colStartF, colEndF, "Can't use `this` outside of a class declaration scope!")
+		property := thisCtx.Identifier()
+		typeInfo, found := l.GetTypeInfo(TypeIdentifier(classScope.Name))
+		if !found {
+			log.Panicf(
+				"Trying to access property `%s` for undefined class: `%s`.\nIt should be defined by this point!",
+				property.GetText(),
+				classScope.Name,
+			)
+		}
+
+		classInfo := typeInfo.ClassType.GetValue()
+		propertyType, found := classInfo.GetFieldType(property.GetText(), &l)
+		if !found {
+			l.AddError(
+				line,
+				property.GetSourceInterval().Start,
+				property.GetSourceInterval().Stop,
+				fmt.Sprintf(
+					"Trying to access field `%s` not defined in class `%s`.",
+					property.GetText(),
+					classInfo.Name,
+				),
+			)
+			return
+		}
+
+		previousTypeId = propertyType
+		parts = thisCtx.AllAssignmentPart()
+		conditionalExpr = thisCtx.ConditionalExpr()
+	} else if varCtx := ctx.VariableAssignment(); varCtx != nil {
+		log.Println("Variable assignment!")
+
+		varName := varCtx.Identifier()
+		typeId, found := l.ScopeManager.CurrentScope.GetExpressionType(varName.GetText())
+		if !found {
+			l.AddError(
+				line,
+				varName.GetSymbol().GetColumn(),
+				varName.GetSymbol().GetColumn()+len(varName.GetText()),
+				fmt.Sprintf(
+					"Undeclared variable `%s`",
+					varName.GetText(),
+				),
+			)
+		}
+
+		previousTypeId = typeId
+		parts = varCtx.AllAssignmentPart()
+		conditionalExpr = varCtx.ConditionalExpr()
+	}
+
+	if previousTypeId == BASE_TYPES.UNKNOWN {
+		log.Panicf(
+			"Can't assign variable that has unknown type! `%s`",
+			ctx.GetText(),
+		)
+	}
+
+	for _, part := range parts {
+		previousTypeInfo, found := l.GetTypeInfo(previousTypeId)
+		if !found {
+			log.Panicf(
+				"Can't find type information for type `%s` in assignment\n%s",
+				previousTypeId,
+				ctx.GetText(),
+			)
+		}
+
+		isArrayAccess := part.ConditionalExpr() != nil
+		if isArrayAccess {
+			log.Printf("Trying to access an array element on type `%s`!\n", previousTypeId)
+
+			if !previousTypeInfo.ArrayType.HasValue() {
+				l.AddError(
+					line,
+					part.GetStart().GetColumn(),
+					part.GetStart().GetColumn()+len(part.GetText()),
+					fmt.Sprintf("Can't index elements on non-array object with type `%s`!", previousTypeId),
+				)
+				return
+			}
+			arrayInfo := previousTypeInfo.ArrayType.GetValue()
+
+			idxExpr := part.ConditionalExpr()
+			idxId, found := l.ScopeManager.CurrentScope.GetExpressionType(idxExpr.GetText())
+			if !found {
+				l.AddError(
+					part.GetStart().GetLine(),
+					part.GetStart().GetColumn(),
+					part.GetStop().GetColumn(),
+					fmt.Sprintf("Can't index as `%s` because it doesn't have a type assigned to it.", idxExpr.GetText()),
+				)
+				return
+			}
+
+			if idxId != BASE_TYPES.INTEGER {
+				l.AddError(
+					part.GetStart().GetLine(),
+					part.GetStart().GetColumn(),
+					part.GetStop().GetColumn(),
+					fmt.Sprintf("Can't index as `%s` because it isn't an integer!", idxExpr.GetText()),
+				)
+				return
+			}
+			previousTypeId = arrayInfo.Type
+		} else {
+			fieldName := part.Identifier()
+			log.Printf("Trying to access an object field `%s` on type `%s`!\n", fieldName, previousTypeId)
+
+			if !previousTypeInfo.ClassType.HasValue() {
+				l.AddError(
+					line,
+					part.GetStart().GetColumn(),
+					part.GetStart().GetColumn()+len(part.GetText()),
+					"Can't access elements on an object that is not a class!",
+				)
+				return
+			}
+
+			classInfo := previousTypeInfo.ClassType.GetValue()
+			fieldTypeId, found := classInfo.GetFieldType(fieldName.GetText(), &l)
+			if !found {
+				l.AddError(
+					line,
+					part.GetStart().GetColumn(),
+					part.GetStart().GetColumn()+len(part.GetText()),
+					fmt.Sprintf("Can't access unkonwn field `%s` for class `%s`", fieldName.GetText(), classInfo.Name),
+				)
+				return
+			}
+
+			previousTypeId = fieldTypeId
+		}
+	}
+
+	assignTypeId, found := l.ScopeManager.CurrentScope.GetExpressionType(conditionalExpr.GetText())
+	if !found {
+		l.AddError(
+			conditionalExpr.GetStart().GetLine(),
+			conditionalExpr.GetStart().GetColumn(),
+			conditionalExpr.GetStop().GetColumn(),
+			fmt.Sprintf("Can't assign a value (`%s`) of an unknown type!", conditionalExpr.GetText()),
+		)
 		return
 	}
 
-	previousIdentifier := "this"
-	previousType := TypeIdentifier(classScope.Name)
-	for i, identifier := range identifiers {
-		info, found := l.GetTypeInfo(previousType)
-		if !found {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Undeclared type `%s` for variable `%s`",
-				previousType,
-				previousIdentifier,
-			))
-			return
-		}
-
-		if !info.ClassType.HasValue() {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Trying to access a field `%s` from type `%s` but `%s` is not a class!",
-				identifier.GetText(),
-				previousType,
-				previousIdentifier,
-			))
-			return
-		}
-
-		colStartI := identifier.GetSymbol().GetColumn()
-		colEndI := colStartI + len(identifier.GetText())
-		classInfo := info.ClassType.GetValue()
-		fieldType, hasField := classInfo.Fields[identifier.GetText()]
-		if !hasField {
-			log.Printf("Field `%s` not found in class:\n%#v\n", identifier.GetText(), classInfo)
-			l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-				"Trying to access field `%s` not defined in class `%s`!",
-				identifier.GetText(),
-				classInfo.Name,
-			))
-			return
-		}
-		previousType = fieldType
-
-		isLastIdentifier := i == len(identifiers)-1
-		log.Printf("Is last identifier: %d == %d -1", i, len(identifiers))
-		if isLastIdentifier {
-			assignExpr := ctx.ConditionalExpr()
-			colStartA := assignExpr.GetStart().GetColumn()
-			colEndA := colStartA + len(assignExpr.GetText())
-			assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
-			if !found {
-				l.AddError(line, colStartA, colEndA, fmt.Sprintf(
-					"Type of expression `%s` not found!",
-					assignExpr.GetText(),
-				))
-				return
-			}
-
-			log.Printf("Checking (`%s` != `%s`)", fieldType, assignType)
-			if fieldType != assignType {
-				l.AddError(line, colStartI, colEndA, fmt.Sprintf(
-					"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
-					assignExpr.GetText(),
-					identifier.GetText(),
-					fieldType,
-					assignType,
-				))
-				return
-			}
-		}
+	if previousTypeId != assignTypeId {
+		l.AddError(
+			line,
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			fmt.Sprintf("Type mismatch in assignment! (`%s` != `%s`)", previousTypeId, assignTypeId),
+		)
+		return
 	}
-}
 
-func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
-	log.Println("General Variable Assignment!", ctx.GetText())
-	line := ctx.GetStart().GetLine()
-
-	identifiers := ctx.AllIdentifier()
-	isPropertyAssignment := len(identifiers) > 1
-	if isPropertyAssignment {
-		firstExpr := ctx.Identifier(0)
-		colStartF := firstExpr.GetSymbol().GetColumn()
-		colEndF := colStartF + len(firstExpr.GetText())
-
-		initialType, found := l.ScopeManager.CurrentScope.GetExpressionType(firstExpr.GetText())
-		if !found {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Undeclared variable `%s`",
-				firstExpr.GetText(),
-			))
-			return
-		}
-
-		if initialType == BASE_TYPES.INVALID {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Can't access properties of invalid variable `%s`",
-				firstExpr.GetText(),
-			))
-			return
-		}
-
-		previousType := initialType
-		for i, identifier := range identifiers[1:] {
-			info, found := l.GetTypeInfo(previousType)
-			if !found {
-				l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-					"Undeclared type `%s` for variable `%s`",
-					initialType,
-					firstExpr.GetText(),
-				))
-				return
-			}
-
-			if !info.ClassType.HasValue() {
-				l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-					"Trying to access a field `%s` from type `%s` but `%s` is not a class!",
-					firstExpr.GetText(),
-					initialType,
-					firstExpr.GetText(),
-				))
-				return
-			}
-
-			colStartI := identifier.GetSymbol().GetColumn()
-			colEndI := colStartI + len(identifier.GetText())
-			classInfo := info.ClassType.GetValue()
-			fieldType, hasField := classInfo.Fields[identifier.GetText()]
-			if !hasField {
-				l.AddError(line, colStartI, colEndI, fmt.Sprintf(
-					"Trying to access field `%s` not defined in class `%s`!",
-					identifier.GetText(),
-					classInfo.Name,
-				))
-				return
-			}
-			previousType = fieldType
-
-			isLastIdentifier := i == len(identifiers)-1-1
-			if isLastIdentifier {
-				assignExpr := ctx.ConditionalExpr()
-				colStartA := assignExpr.GetStart().GetColumn()
-				colEndA := colStartA + len(assignExpr.GetText())
-				assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
-				if !found {
-					l.AddError(line, colStartA, colEndA, fmt.Sprintf(
-						"Type of expression `%s` not found!",
-						assignExpr.GetText(),
-					))
-					return
-				}
-
-				if fieldType != assignType {
-					l.AddError(line, colStartI, colEndA, fmt.Sprintf(
-						"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
-						assignExpr.GetText(),
-						identifier.GetText(),
-						fieldType,
-						assignType,
-					))
-					return
-				}
-			}
-
-		}
-	} else {
-		varExpr := ctx.Identifier(0)
-		colStartF := varExpr.GetSymbol().GetColumn()
-		colEndF := colStartF + len(varExpr.GetText())
-
-		varType, found := l.ScopeManager.CurrentScope.GetExpressionType(varExpr.GetText())
-		if !found {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Undeclared variable `%s`",
-				varExpr.GetText(),
-			))
-			return
-		}
-
-		if varType == BASE_TYPES.INVALID {
-			l.AddError(line, colStartF, colEndF, fmt.Sprintf(
-				"Can't assign to invalid variable: `%s`",
-				varExpr.GetText(),
-			))
-			return
-		}
-
-		assignExpr := ctx.ConditionalExpr()
-		colStartA := assignExpr.GetStart().GetColumn()
-		colEndA := colStartA + len(assignExpr.GetText())
-		assignType, found := l.ScopeManager.CurrentScope.GetExpressionType(assignExpr.GetText())
-		if !found {
-			l.AddError(line, colStartA, colEndA, fmt.Sprintf(
-				"Type of expression `%s` not found!",
-				assignExpr.GetText(),
-			))
-			return
-		}
-
-		if varType != assignType {
-			l.AddError(line, colStartF, colEndA, fmt.Sprintf(
-				"Trying to assign `%s` to variable `%s` but types don't match! (`%s` != `%s`)",
-				assignExpr.GetText(),
-				varExpr.GetText(),
-				varType,
-				assignType,
-			))
-			return
-		}
-
-	}
+	log.Printf("Valid assignment! Types match: `%s`\n", previousTypeId)
 }
 
 func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
@@ -1065,5 +1021,7 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 		}
 	}
 
-	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), NewArrayTypeIdentifier(firstExprType))
+	arrayId := NewArrayTypeIdentifier(firstExprType)
+	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), arrayId)
+	l.AddTypeInfo(arrayId, NewTypeInfo_Array(ArrayTypeInfo{firstExprType}))
 }

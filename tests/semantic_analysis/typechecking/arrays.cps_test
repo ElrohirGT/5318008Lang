@@ -1,4 +1,7 @@
 let numbers: integer[] = [5,4,3];
+numbers[2] = 5;
+numbers[0] = "Hello!";
+
 let b: integer = numbers[0];
 
 let asdf = ["Hello", 5];
@@ -19,8 +22,9 @@ let animalArray = [new Animal(), new Animal()];
 
 ---
 === ERRORS ===
-* Error: (line: 4, column: 11-21) Can't define an array with multiple types! The following types are not equal:
+* Error: (line: 3, column: 0-21) Type mismatch in assignment! (`integer` != `string`)
+* Error: (line: 7, column: 11-21) Can't define an array with multiple types! The following types are not equal:
  * `"Hello"` of type `string`
  * `5` of type `integer`
-* Error: (line: 6, column: 4-16) Can't initialize empty array variable without a type!
-* Error: (line: 9, column: 6-18) Can't initialize empty array constant without a type!
+* Error: (line: 9, column: 4-16) Can't initialize empty array variable without a type!
+* Error: (line: 12, column: 6-18) Can't initialize empty array constant without a type!

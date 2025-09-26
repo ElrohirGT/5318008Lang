@@ -25,6 +25,6 @@ cell2.setRow("10");
 cell2.setColumn(10);
 ---
 === ERRORS ===
-* Error: (line: 15, column: 7-22) Trying to assign `column` to variable `column` but types don't match! (`string` != `integer`)
+* Error: (line: 15, column: 2-22) Type mismatch in assignment! (`string` != `integer`)
 * Error: (line: 23, column: 21-22) Constructor for `Cell` requires `1` to be of type `string` but it's `integer` instead!
 * Error: (line: 23, column: 24-26) Constructor for `Cell` requires `10` to be of type `string` but it's `integer` instead!

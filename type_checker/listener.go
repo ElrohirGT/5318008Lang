@@ -23,16 +23,11 @@ type Listener struct {
 
 func NewListener() Listener {
 	baseTypes := make(TypeTable)
-	baseTypes[TypeIdentifier(BASE_TYPES.INTEGER)] = NewTypeInfo_Base()
-	baseTypes[TypeIdentifier(BASE_TYPES.BOOLEAN)] = NewTypeInfo_Base()
-	baseTypes[TypeIdentifier(BASE_TYPES.STRING)] = NewTypeInfo_Base()
-	baseTypes[TypeIdentifier(BASE_TYPES.NULL)] = NewTypeInfo_Base()
-	baseTypes[TypeIdentifier(BASE_TYPES.UNKNOWN)] = NewTypeInfo_Base()
-	baseTypes[TypeIdentifier(BASE_TYPES.INVALID)] = NewTypeInfo_Base()
-
-	for _, v := range BASE_TYPE_ARRAY {
-		baseTypes[v] = NewTypeInfo_Base()
-		baseTypes[NewArrayTypeIdentifier(v)] = NewTypeInfo_Base()
+	for _, baseType := range BASE_TYPE_ARRAY {
+		baseTypes[baseType] = NewTypeInfo_Base()
+		if baseType == BASE_TYPES.INTEGER || baseType == BASE_TYPES.BOOLEAN || baseType == BASE_TYPES.STRING {
+			baseTypes[NewArrayTypeIdentifier(baseType)] = NewTypeInfo_Array(ArrayTypeInfo{Type: baseType})
+		}
 	}
 
 	errors := []string{}

@@ -27,7 +27,7 @@ let animalVar = new Animal();
  * leftSide: `this.name` of type `**invalid**`
  * rightSide: `" makes a sound."` of type `string`
 * Error: (line: 7, column: 9-36) Return type mismatch: expected `string` but got `**invalid**`
-* Error: (line: 11, column: 7-14) Trying to assign `5` to variable `age` but types don't match! (`**invalid**` != `integer`)
+* Error: (line: 11, column: 2-14) Type mismatch in assignment! (`**invalid**` != `integer`)
 * Error: (line: 15, column: 21-21) Can't add:
  * leftSide: `this.name` of type `**invalid**`
  * rightSide: `" is "` of type `string`

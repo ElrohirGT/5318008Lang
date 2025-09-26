@@ -65,6 +65,7 @@ var BASE_TYPE_ARRAY = []TypeIdentifier{
 	BASE_TYPES.STRING,
 	BASE_TYPES.NULL,
 	BASE_TYPES.INVALID,
+	BASE_TYPES.UNKNOWN,
 }
 
 // =====================
@@ -72,8 +73,7 @@ var BASE_TYPE_ARRAY = []TypeIdentifier{
 // =====================
 
 type ArrayTypeInfo struct {
-	Type   TypeIdentifier
-	Length uint
+	Type TypeIdentifier
 }
 
 func NewTypeInfo_Array(arrInfo ArrayTypeInfo) TypeInfo {
