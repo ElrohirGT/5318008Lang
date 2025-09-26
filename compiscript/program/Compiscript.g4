@@ -43,15 +43,14 @@ typeAnnotation: ':' type;
 initializer: '=' conditionalExpr;
 
 assignment
-	: 'this' ('.' Identifier)+ '=' conditionalExpr ';'?			# ThisAssignment
-	| Identifier ('.' Identifier)* '=' conditionalExpr ';'?	# VariableAssignment
+	: 'this' ('.' Identifier) assignmentPart* '=' conditionalExpr ';'?	# ThisAssignment
+	| Identifier assignmentPart* '=' conditionalExpr ';'?								# VariableAssignment
   ;
 
-// FIXME
-// assignmentPart
-//   : '.' Identifier
-//   | '[' conditionalExpr ']'
-//   ;
+assignmentPart
+  : '.' Identifier
+  | '[' conditionalExpr ']'
+  ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
 printStatement: 'print' '(' conditionalExpr ')' ';';
@@ -94,13 +93,7 @@ classMember: functionDeclaration | variableDeclaration | constantDeclaration;
 // Expression Rules — Operator Precedence
 // ------------------
 
-expression: assignmentExpr;
-
-assignmentExpr
-  : lhs=leftHandSide '=' conditionalExpr
-  | lhs=leftHandSide '.' Identifier '=' assignmentExpr
-  | conditionalExpr
-  ;
+expression: conditionalExpr;
 
 // Ternary operators just work for assignments
 // Not as standalone expresion, in that case use if-else

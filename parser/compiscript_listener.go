@@ -35,6 +35,9 @@ type CompiscriptListener interface {
 	// EnterVariableAssignment is called when entering the VariableAssignment production.
 	EnterVariableAssignment(c *VariableAssignmentContext)
 
+	// EnterAssignmentPart is called when entering the assignmentPart production.
+	EnterAssignmentPart(c *AssignmentPartContext)
+
 	// EnterPrintStatement is called when entering the printStatement production.
 	EnterPrintStatement(c *PrintStatementContext)
 
@@ -124,9 +127,6 @@ type CompiscriptListener interface {
 
 	// EnterExpression is called when entering the expression production.
 	EnterExpression(c *ExpressionContext)
-
-	// EnterAssignmentExpr is called when entering the assignmentExpr production.
-	EnterAssignmentExpr(c *AssignmentExprContext)
 
 	// EnterConditionalExpr is called when entering the conditionalExpr production.
 	EnterConditionalExpr(c *ConditionalExprContext)
@@ -233,6 +233,9 @@ type CompiscriptListener interface {
 	// ExitVariableAssignment is called when exiting the VariableAssignment production.
 	ExitVariableAssignment(c *VariableAssignmentContext)
 
+	// ExitAssignmentPart is called when exiting the assignmentPart production.
+	ExitAssignmentPart(c *AssignmentPartContext)
+
 	// ExitPrintStatement is called when exiting the printStatement production.
 	ExitPrintStatement(c *PrintStatementContext)
 
@@ -322,9 +325,6 @@ type CompiscriptListener interface {
 
 	// ExitExpression is called when exiting the expression production.
 	ExitExpression(c *ExpressionContext)
-
-	// ExitAssignmentExpr is called when exiting the assignmentExpr production.
-	ExitAssignmentExpr(c *AssignmentExprContext)
 
 	// ExitConditionalExpr is called when exiting the conditionalExpr production.
 	ExitConditionalExpr(c *ConditionalExprContext)

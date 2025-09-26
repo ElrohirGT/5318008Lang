@@ -75,6 +75,12 @@ func (s *BaseCompiscriptListener) EnterVariableAssignment(ctx *VariableAssignmen
 // ExitVariableAssignment is called when production VariableAssignment is exited.
 func (s *BaseCompiscriptListener) ExitVariableAssignment(ctx *VariableAssignmentContext) {}
 
+// EnterAssignmentPart is called when production assignmentPart is entered.
+func (s *BaseCompiscriptListener) EnterAssignmentPart(ctx *AssignmentPartContext) {}
+
+// ExitAssignmentPart is called when production assignmentPart is exited.
+func (s *BaseCompiscriptListener) ExitAssignmentPart(ctx *AssignmentPartContext) {}
+
 // EnterPrintStatement is called when production printStatement is entered.
 func (s *BaseCompiscriptListener) EnterPrintStatement(ctx *PrintStatementContext) {}
 
@@ -254,12 +260,6 @@ func (s *BaseCompiscriptListener) EnterExpression(ctx *ExpressionContext) {}
 
 // ExitExpression is called when production expression is exited.
 func (s *BaseCompiscriptListener) ExitExpression(ctx *ExpressionContext) {}
-
-// EnterAssignmentExpr is called when production assignmentExpr is entered.
-func (s *BaseCompiscriptListener) EnterAssignmentExpr(ctx *AssignmentExprContext) {}
-
-// ExitAssignmentExpr is called when production assignmentExpr is exited.
-func (s *BaseCompiscriptListener) ExitAssignmentExpr(ctx *AssignmentExprContext) {}
 
 // EnterConditionalExpr is called when production conditionalExpr is entered.
 func (s *BaseCompiscriptListener) EnterConditionalExpr(ctx *ConditionalExprContext) {}
