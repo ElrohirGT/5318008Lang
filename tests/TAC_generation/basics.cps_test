@@ -1,0 +1,5 @@
+let normalVar = 10;
+let withTypes: integer = 10;
+---
+= t1 i32 10
+= t2 i32 10
