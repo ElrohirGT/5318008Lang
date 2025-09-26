@@ -1,6 +1,10 @@
 package tac_generator
 
-import "github.com/ElrohirGT/5318008Lang/lib"
+import (
+	"strconv"
+
+	"github.com/ElrohirGT/5318008Lang/lib"
+)
 
 type ScopeName string
 
@@ -187,4 +191,12 @@ type Instruction struct {
 }
 
 // A program represents a complete set of scopes and instructions to execute.
-type Program = map[ScopeName][]Instruction
+type Program struct {
+	variableCounter uint
+	Scopes          map[ScopeName][]Instruction
+}
+
+func (p *Program) GetNextVariableName() VariableName {
+	p.variableCounter += 1
+	return VariableName("T" + strconv.FormatUint(uint64(p.variableCounter), 10))
+}
