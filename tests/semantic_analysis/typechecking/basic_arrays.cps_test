@@ -1,0 +1,6 @@
+let numbers: integer[] = [5,4,3];
+numbers[2] = 5;
+numbers[0] = "Hello!";
+---
+=== ERRORS ===
+* Error: (line: 3, column: 0-21) Type mismatch in assignment! (`integer` != `string`)
