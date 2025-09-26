@@ -154,16 +154,17 @@ func Test_TACGeneration(t *testing.T) {
 		cpsContents := strings.TrimSpace(parts[0])
 		expectedOutput := strings.TrimSpace(parts[1])
 
+		outBuffer := bytes.Buffer{}
 		reader := bytes.NewReader([]byte(cpsContents))
 		err = applib.TestableMain(reader, applib.CompilerConfig{
-			TACBuffer: lib.NewOpValue(&bytes.Buffer{}),
+			TACBuffer: lib.NewOpValue(&outBuffer),
 		})
-		errMsg := ""
 		if err != nil {
-			errMsg = strings.TrimSpace(stripANSI(err.Error()))
+			t.Errorf("It shouldn't have failed! But still failed with:\n%s", err.Error())
 		}
 
-		if expectedOutput != errMsg {
+		actualOutput := outBuffer.String()
+		if expectedOutput != actualOutput {
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
 			b.WriteString(path)
@@ -171,8 +172,8 @@ func Test_TACGeneration(t *testing.T) {
 
 			lastI := 0
 			for i, expectedByte := range []byte(expectedOutput) {
-				if i < len(errMsg) {
-					actualByte := errMsg[i]
+				if i < len(actualOutput) {
+					actualByte := actualOutput[i]
 					if actualByte != expectedByte {
 						b.WriteString(applib.Red)
 					}
@@ -186,9 +187,9 @@ func Test_TACGeneration(t *testing.T) {
 				lastI = i
 			}
 
-			if lastI+1 < len(errMsg)-1 {
+			if lastI+1 < len(actualOutput)-1 {
 				b.WriteString(applib.Red)
-				b.WriteString(errMsg[lastI+1:])
+				b.WriteString(actualOutput[lastI+1:])
 				b.WriteString(applib.Reset)
 			}
 
