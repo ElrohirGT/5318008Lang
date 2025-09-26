@@ -1,10 +1,12 @@
 package applib
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
@@ -47,7 +49,12 @@ func (l *ErrorListener) SyntaxError(recognizer antlr.Recognizer,
 	l.errors = append(l.errors, errMsg)
 }
 
-func TestableMain(reader io.Reader) error {
+type CompilerConfig struct {
+	TACBuffer lib.Optional[bytes.Buffer]
+	ASMBuffer lib.Optional[bytes.Buffer]
+}
+
+func TestableMain(reader io.Reader, config CompilerConfig) error {
 	inputStream := antlr.NewIoStream(reader)
 
 	lexer := p.NewCompiscriptLexer(inputStream)

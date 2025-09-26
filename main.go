@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
-	lib "github.com/ElrohirGT/5318008Lang/applib"
+	innerLib "github.com/ElrohirGT/5318008Lang/applib"
+	lib "github.com/ElrohirGT/5318008Lang/lib"
 )
 
 func main() {
@@ -14,7 +16,10 @@ func main() {
 		panic(err)
 	}
 
-	err = lib.TestableMain(reader)
+	err = innerLib.TestableMain(reader, innerLib.CompilerConfig{
+		TACBuffer: lib.NewOpValue(bytes.Buffer{}),
+		ASMBuffer: lib.NewOpValue(bytes.Buffer{}),
+	})
 	if err != nil {
 		panic(err)
 	}

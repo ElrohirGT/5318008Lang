@@ -10,7 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	lib "github.com/ElrohirGT/5318008Lang/applib"
+	"github.com/ElrohirGT/5318008Lang/applib"
+	lib "github.com/ElrohirGT/5318008Lang/lib"
 )
 
 const OUTPUT_SEPARATOR = "---"
@@ -72,7 +73,7 @@ func Test_SemanticAnalysis(t *testing.T) {
 		expectedOutput := strings.TrimSpace(parts[1])
 
 		reader := bytes.NewReader([]byte(cpsContents))
-		err = lib.TestableMain(reader)
+		err = applib.TestableMain(reader, applib.CompilerConfig{})
 		errMsg := ""
 		if err != nil {
 			errMsg = strings.TrimSpace(stripANSI(err.Error()))
@@ -89,22 +90,106 @@ func Test_SemanticAnalysis(t *testing.T) {
 				if i < len(errMsg) {
 					actualByte := errMsg[i]
 					if actualByte != expectedByte {
-						b.WriteString(lib.Red)
+						b.WriteString(applib.Red)
 					}
 					b.WriteByte(actualByte)
-					b.WriteString(lib.Reset)
+					b.WriteString(applib.Reset)
 				} else {
-					b.WriteString(lib.Grey)
+					b.WriteString(applib.Grey)
 					b.WriteByte(expectedByte)
-					b.WriteString(lib.Reset)
+					b.WriteString(applib.Reset)
 				}
 				lastI = i
 			}
 
 			if lastI+1 < len(errMsg)-1 {
-				b.WriteString(lib.Red)
+				b.WriteString(applib.Red)
 				b.WriteString(errMsg[lastI+1:])
-				b.WriteString(lib.Reset)
+				b.WriteString(applib.Reset)
+			}
+
+			b.WriteString("\nBut expected:\n")
+			b.WriteString(expectedOutput)
+
+			t.Error(b.String())
+			continue
+		}
+	}
+}
+
+func Test_TACGeneration(t *testing.T) {
+	filePaths := []string{}
+	err := filepath.WalkDir("./tests/TAC_generation/", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		for _, str := range RUN_ONLY_THAT_MATCH {
+			if !strings.Contains(path, str) {
+				return nil
+			}
+		}
+
+		if slices.Contains(IGNORE_SPECIFIC, path) {
+			return nil
+		}
+
+		filePaths = append(filePaths, path)
+		return nil
+	})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, path := range filePaths {
+		fileBytes, err := os.ReadFile(path)
+		if err != nil {
+			t.Errorf("\nFAILED %s:\n %s", path, err)
+			continue
+		}
+		t.Log("Reading file:", path)
+
+		parts := strings.Split(string(fileBytes), OUTPUT_SEPARATOR)
+		cpsContents := strings.TrimSpace(parts[0])
+		expectedOutput := strings.TrimSpace(parts[1])
+
+		reader := bytes.NewReader([]byte(cpsContents))
+		err = applib.TestableMain(reader, applib.CompilerConfig{
+			TACBuffer: lib.NewOpValue(bytes.Buffer{}),
+		})
+		errMsg := ""
+		if err != nil {
+			errMsg = strings.TrimSpace(stripANSI(err.Error()))
+		}
+
+		if expectedOutput != errMsg {
+			b := strings.Builder{}
+			b.WriteString("\nProgram ")
+			b.WriteString(path)
+			b.WriteString(" failed with:\n")
+
+			lastI := 0
+			for i, expectedByte := range []byte(expectedOutput) {
+				if i < len(errMsg) {
+					actualByte := errMsg[i]
+					if actualByte != expectedByte {
+						b.WriteString(applib.Red)
+					}
+					b.WriteByte(actualByte)
+					b.WriteString(applib.Reset)
+				} else {
+					b.WriteString(applib.Grey)
+					b.WriteByte(expectedByte)
+					b.WriteString(applib.Reset)
+				}
+				lastI = i
+			}
+
+			if lastI+1 < len(errMsg)-1 {
+				b.WriteString(applib.Red)
+				b.WriteString(errMsg[lastI+1:])
+				b.WriteString(applib.Reset)
 			}
 
 			b.WriteString("\nBut expected:\n")
