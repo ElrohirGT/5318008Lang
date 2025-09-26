@@ -1,6 +1,7 @@
 package tac_generator
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -23,6 +24,10 @@ func NewListener() Listener {
 	return Listener{
 		Errors: &[]string{},
 	}
+}
+
+func (l *Listener) Generate(buff *bytes.Buffer) {
+
 }
 
 // ERROR LOGGING

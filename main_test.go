@@ -156,7 +156,7 @@ func Test_TACGeneration(t *testing.T) {
 
 		reader := bytes.NewReader([]byte(cpsContents))
 		err = applib.TestableMain(reader, applib.CompilerConfig{
-			TACBuffer: lib.NewOpValue(bytes.Buffer{}),
+			TACBuffer: lib.NewOpValue(&bytes.Buffer{}),
 		})
 		errMsg := ""
 		if err != nil {

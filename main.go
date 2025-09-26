@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"os"
 
@@ -10,16 +11,38 @@ import (
 )
 
 func main() {
-	filePath := os.Args[1]
+	var filePath string
+	flag.StringVar(&filePath, "filePath", os.Args[1], "File path of the source code")
+
+	var outPath string
+	flag.StringVar(&outPath, "o", "out.asm", "File path to the final executable")
+
+	var tacPath string
+	flag.StringVar(&tacPath, "tac", "out.ir", "File path to the intermediate representation")
+	flag.Parse()
+
 	reader, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
 	}
 
+	tacBuffer := bytes.Buffer{}
+	asmBuffer := bytes.Buffer{}
+
 	err = innerLib.TestableMain(reader, innerLib.CompilerConfig{
-		TACBuffer: lib.NewOpValue(bytes.Buffer{}),
-		ASMBuffer: lib.NewOpValue(bytes.Buffer{}),
+		TACBuffer: lib.NewOpValue(&tacBuffer),
+		ASMBuffer: lib.NewOpValue(&asmBuffer),
 	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(tacPath, tacBuffer.Bytes(), os.FileMode(os.O_WRONLY))
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(outPath, asmBuffer.Bytes(), os.FileMode(os.O_WRONLY))
 	if err != nil {
 		panic(err)
 	}

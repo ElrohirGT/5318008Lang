@@ -8,6 +8,7 @@ import (
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/tac_generator"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -50,8 +51,8 @@ func (l *ErrorListener) SyntaxError(recognizer antlr.Recognizer,
 }
 
 type CompilerConfig struct {
-	TACBuffer lib.Optional[bytes.Buffer]
-	ASMBuffer lib.Optional[bytes.Buffer]
+	TACBuffer lib.Optional[*bytes.Buffer]
+	ASMBuffer lib.Optional[*bytes.Buffer]
 }
 
 func TestableMain(reader io.Reader, config CompilerConfig) error {
@@ -74,11 +75,23 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 	}
 
 	walker := antlr.NewParseTreeWalker()
-	lis := type_checker.NewListener()
-	walker.Walk(lis, tree)
+	typeListener := type_checker.NewListener()
+	walker.Walk(typeListener, tree)
 
-	if lis.HasErrors() {
-		return generateErrorOutput(*lis.Errors)
+	if typeListener.HasErrors() {
+		return generateErrorOutput(*typeListener.Errors)
 	}
+
+	tacListener := tac_generator.NewListener()
+	walker.Walk(tacListener, tree)
+
+	if tacListener.HasErrors() {
+		return generateErrorOutput(*tacListener.Errors)
+	}
+
+	if config.TACBuffer.HasValue() {
+		tacListener.Generate(config.TACBuffer.GetValue())
+	}
+
 	return nil
 }

@@ -42,6 +42,6 @@ func Fuzz_RandomInputStream(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, b string) {
 		reader := bytes.NewBufferString(b)
-		_ = lib.TestableMain(reader)
+		_ = lib.TestableMain(reader, lib.CompilerConfig{})
 	})
 }
