@@ -59,6 +59,45 @@ func (l Listener) AddTypeInfo(identifier TypeIdentifier, info TypeInfo) {
 	(*l.KnownTypes)[identifier] = info
 }
 
+func (l Listener) CheckInheritanceTree(ctx *p.ClassDeclarationContext, baseClass TypeIdentifier, fatherClass TypeIdentifier) bool {
+	if baseClass == fatherClass {
+		l.AddError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			"Can't declare a class that inherits from itself!",
+		)
+		return false
+	}
+
+	fatherInfo, found := l.GetTypeInfo(fatherClass)
+	if !found {
+		l.AddError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			fmt.Sprintf("Can't inherit from an undefined class `%s`!", fatherClass),
+		)
+		return false
+	}
+
+	if !fatherInfo.ClassType.HasValue() {
+		l.AddError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			"Can't inherit from a non class type!",
+		)
+		return false
+	}
+
+	if fatherInfo.ClassType.GetValue().InheritsFrom != TypeIdentifier("") {
+		return l.CheckInheritanceTree(ctx, fatherClass, fatherInfo.ClassType.GetValue().InheritsFrom)
+	} else {
+		return true
+	}
+}
+
 func (l Listener) GetTypeInfo(identifier TypeIdentifier) (TypeInfo, bool) {
 	info, found := (*l.KnownTypes)[identifier]
 	return info, found

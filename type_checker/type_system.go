@@ -546,10 +546,13 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	}
 
 	if previousTypeId == BASE_TYPES.UNKNOWN {
-		log.Panicf(
-			"Can't assign variable that has unknown type! `%s`",
-			ctx.GetText(),
+		l.AddError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			"Can't assign to undeclared variable!",
 		)
+		return
 	}
 
 	for _, part := range parts {

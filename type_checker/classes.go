@@ -66,26 +66,29 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 		fColStart := fatherClassName.GetSymbol().GetColumn()
 		fColEnd := fColStart + len(fatherClassName.GetText())
 
-		log.Println("Class inherits from", fatherClassName)
-		info, found := l.GetTypeInfo(TypeIdentifier(fatherClassName.GetText()))
-		if !found {
-			l.AddError(line, fColStart, fColEnd, fmt.Sprintf(
-				"Can't inherit from a type that doesn't exists! `%s` wants to inherit from `%s`!",
-				className.GetText(),
-				fatherClassName.GetText(),
-			))
-		} else {
-			if !info.ClassType.HasValue() {
+		canInherit := l.CheckInheritanceTree(ctx, TypeIdentifier(className.GetText()), TypeIdentifier(fatherClassName.GetText()))
+		if canInherit {
+			log.Println("Class inherits from", fatherClassName)
+			info, found := l.GetTypeInfo(TypeIdentifier(fatherClassName.GetText()))
+			if !found {
 				l.AddError(line, fColStart, fColEnd, fmt.Sprintf(
-					"Can't make a nonexistent class inherit from another! `%s` wants to inherit from `%s` but `%s` is not a class!",
+					"Can't inherit from a type that doesn't exists! `%s` wants to inherit from `%s`!",
 					className.GetText(),
 					fatherClassName.GetText(),
-					className.GetText(),
 				))
 			} else {
-				l.ModifyClassTypeInfo(TypeIdentifier(className.GetText()), func(classInfo *ClassTypeInfo) {
-					classInfo.InheritsFrom = TypeIdentifier(fatherClassName.GetText())
-				})
+				if !info.ClassType.HasValue() {
+					l.AddError(line, fColStart, fColEnd, fmt.Sprintf(
+						"Can't make a nonexistent class inherit from another! `%s` wants to inherit from `%s` but `%s` is not a class!",
+						className.GetText(),
+						fatherClassName.GetText(),
+						className.GetText(),
+					))
+				} else {
+					l.ModifyClassTypeInfo(TypeIdentifier(className.GetText()), func(classInfo *ClassTypeInfo) {
+						classInfo.InheritsFrom = TypeIdentifier(fatherClassName.GetText())
+					})
+				}
 			}
 		}
 	}
