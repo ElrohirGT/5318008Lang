@@ -65,6 +65,39 @@ func NewCopyInstruction(instruction CopyInstruction) Instruction {
 	}
 }
 
+type LogicOperationType string
+
+var BOOLEAN_OPERATION_TYPES = struct {
+	Equal          LogicOperationType
+	NotEqual       LogicOperationType
+	Less           LogicOperationType
+	LessOrEqual    LogicOperationType
+	Greater        LogicOperationType
+	GreaterOrEqual LogicOperationType
+}{
+	Equal:          "EQ",
+	NotEqual:       "NEQ",
+	Less:           "LT",
+	LessOrEqual:    "LTE",
+	Greater:        "GT",
+	GreaterOrEqual: "GTE",
+}
+
+// Represents an logic instruction like and & or.
+type LogicOpInstruction struct {
+	Signed bool
+	Type   LogicOperationType
+	Target VariableName
+	P1     VariableName
+	P2     VariableName
+}
+
+func NewLogicOpInstruction(instruction LogicOpInstruction) Instruction {
+	return Instruction{
+		Logic: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents a jump instruction, it can be conditional or unconditional.
 //
 // Valid formats are:
@@ -85,28 +118,10 @@ func NewJumpInstruction(instruction JumpInstruction) Instruction {
 	}
 }
 
-type BooleanOperationType string
-
-var BOOLEAN_OPERATION_TYPES = struct {
-	Equal          BooleanOperationType
-	NotEqual       BooleanOperationType
-	Less           BooleanOperationType
-	LessOrEqual    BooleanOperationType
-	Greater        BooleanOperationType
-	GreaterOrEqual BooleanOperationType
-}{
-	Equal:          "==",
-	NotEqual:       "!=",
-	Less:           "<",
-	LessOrEqual:    "<=",
-	Greater:        ">",
-	GreaterOrEqual: ">=",
-}
-
-type BooleanOperation struct {
+type CondJumpOperation struct {
 	// If we're dealing with signed integers
 	Signed bool
-	Type   BooleanOperationType
+	Type   LogicOperationType
 	P1     VariableName
 	P2     VariableName
 }
@@ -114,7 +129,7 @@ type BooleanOperation struct {
 type JumpCondition struct {
 	Simple        lib.Optional[VariableName]
 	SimpleNegated lib.Optional[VariableName]
-	Relation      lib.Optional[BooleanOperation]
+	Relation      lib.Optional[CondJumpOperation]
 }
 
 // Represents the instruction to create a parameter for a procedure.
@@ -238,7 +253,7 @@ func NewDereferenceInstruction(instruction DereferenceInstruction) Instruction {
 type ArithmethicInstruction struct {
 	// If we're dealing with signed integers.
 	Signed bool
-	Type   ArithmethicOperationType
+	Type   ArithmethicOpType
 	Target VariableName
 	P1     LiteralOrVariable
 	P2     LiteralOrVariable
@@ -250,19 +265,19 @@ func NewArithmethicInstruction(instruction ArithmethicInstruction) Instruction {
 	}
 }
 
-type ArithmethicOperationType string
+type ArithmethicOpType string
 
 var ARITHMETHIC_OPERATION_TYPES = struct {
-	Add            ArithmethicOperationType
-	Subtract       ArithmethicOperationType
-	Multiplication ArithmethicOperationType
-	Divide         ArithmethicOperationType
+	Add            ArithmethicOpType
+	Subtract       ArithmethicOpType
+	Multiplication ArithmethicOpType
+	Divide         ArithmethicOpType
 	// TODO: Are there any others?
 }{
-	Add:            "+",
-	Subtract:       "-",
-	Multiplication: "*",
-	Divide:         "/",
+	Add:            "ADD",
+	Subtract:       "SUB",
+	Multiplication: "MULT",
+	Divide:         "DIV",
 }
 
 // Represents a TAC instruction.
@@ -282,6 +297,7 @@ type Instruction struct {
 	Reference      lib.Optional[ReferenceInstruction]
 	Dereference    lib.Optional[DereferenceInstruction]
 	Arithmethic    lib.Optional[ArithmethicInstruction]
+	Logic          lib.Optional[LogicOpInstruction]
 }
 
 // A program represents a complete set of scopes and instructions to execute.
