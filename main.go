@@ -34,7 +34,7 @@ func main() {
 		ASMBuffer: lib.NewOpValue(&asmBuffer),
 	})
 	if err != nil {
-		panic(err)
+		panic("\n" + err.Error())
 	}
 
 	err = os.WriteFile(tacPath, tacBuffer.Bytes(), os.FileMode(os.O_WRONLY))
