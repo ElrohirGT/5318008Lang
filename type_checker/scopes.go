@@ -50,10 +50,16 @@ type Scope struct {
 	Name string
 	// functions defined within the scope
 	functions map[string]MethodInfo
-	// Stores the types of each expresion within the scope
+	// Stores the types of each expression within the scope
 	typesByExpression map[string]TypeIdentifier
-	declaredArrays    map[string]uint
-	constants         lib.Set[string]
+	// Stores the length of the arrays encountered in this scope
+	// includes variables and literals:
+	//
+	// 	let a = [1,2,3];
+	//
+	// a and [1,2,3] should be inside declaredArrays.
+	declaredArrays map[string]uint
+	constants      lib.Set[string]
 	// Function fileds
 	expectedReturnType TypeIdentifier
 	inferredReturnType TypeIdentifier
