@@ -10,6 +10,8 @@ type ScopeName string
 
 type VariableName string
 
+type LiteralOrVariable string
+
 // Represents the operation to assign a value to a variable, for example:
 //
 // = t1 i32 5
@@ -18,7 +20,13 @@ type VariableName string
 type AssignmentInstruction struct {
 	Target VariableName
 	Type   VariableType
-	Value  string
+	Value  LiteralOrVariable
+}
+
+func NewAssignmentInstruction(instruction AssignmentInstruction) Instruction {
+	return Instruction{
+		Assignment: lib.NewOpValue(instruction),
+	}
 }
 
 type VariableType string
@@ -48,7 +56,13 @@ var VARIABLE_TYPES = struct {
 // Copies t2 into t1.
 type CopyInstruction struct {
 	Target VariableName
-	Source string
+	Source VariableName
+}
+
+func NewCopyInstruction(instruction CopyInstruction) Instruction {
+	return Instruction{
+		Copy: lib.NewOpValue(instruction),
+	}
 }
 
 // Represents a jump instruction, it can be conditional or unconditional.
@@ -63,6 +77,12 @@ type CopyInstruction struct {
 type JumpInstruction struct {
 	Condition lib.Optional[JumpCondition]
 	Target    ScopeName
+}
+
+func NewJumpInstruction(instruction JumpInstruction) Instruction {
+	return Instruction{
+		Jump: lib.NewOpValue(instruction),
+	}
 }
 
 type BooleanOperationType string
@@ -102,10 +122,22 @@ type ParamInstruction struct {
 	Parameter VariableName
 }
 
+func NewParamInstruction(instruction ParamInstruction) Instruction {
+	return Instruction{
+		Param: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents the instruction to call a procedure, you may need to use ParamInstruction before calling this.
 type CallInstruction struct {
 	ProcedureName  ScopeName
 	NumberOfParams uint
+}
+
+func NewCallInstruction(instruction CallInstruction) Instruction {
+	return Instruction{
+		Call: lib.NewOpValue(instruction),
+	}
 }
 
 // Represents the instruction to return from a procedure, optionally returning a variable.
@@ -113,10 +145,22 @@ type ReturnInstruction struct {
 	Value VariableName
 }
 
+func NewReturnInstruction(instruction ReturnInstruction) Instruction {
+	return Instruction{
+		Return: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents the instruction to allocate a certain amount of memory.
 type AllocInstruction struct {
 	Target VariableName
 	Size   uint
+}
+
+func NewAllocInstruction(instruction AllocInstruction) Instruction {
+	return Instruction{
+		Alloc: lib.NewOpValue(instruction),
+	}
 }
 
 // Get's from a specified source some memory pointer, and assigns it to target.
@@ -136,6 +180,12 @@ type LoadWithOffsetInstruction struct {
 	Offset uint
 }
 
+func NewLoadWithOffsetInstruction(instruction LoadWithOffsetInstruction) Instruction {
+	return Instruction{
+		LoadWithOffset: lib.NewOpValue(instruction),
+	}
+}
+
 // Get's from a specified source some memory pointer, and assigns it to target.
 //
 // Useful for arrays:
@@ -150,7 +200,13 @@ type LoadWithOffsetInstruction struct {
 type SetWithOffsetInstruction struct {
 	Target VariableName
 	Offset uint
-	Value  VariableName
+	Value  LiteralOrVariable
+}
+
+func NewSetWithOffsetInstruction(instruction SetWithOffsetInstruction) Instruction {
+	return Instruction{
+		SetWithOffset: lib.NewOpValue(instruction),
+	}
 }
 
 // Get's the memory address from the specified variable target.
@@ -159,10 +215,22 @@ type ReferenceInstruction struct {
 	Target VariableName
 }
 
+func NewReferenceInstruction(instruction ReferenceInstruction) Instruction {
+	return Instruction{
+		Reference: lib.NewOpValue(instruction),
+	}
+}
+
 // Get's the value from a memory address in the target variable.
 // Equivalent to: @.
 type DereferenceInstruction struct {
 	Target VariableName
+}
+
+func NewDereferenceInstruction(instruction DereferenceInstruction) Instruction {
+	return Instruction{
+		Dereference: lib.NewOpValue(instruction),
+	}
 }
 
 // Represents an arithmethic instruction like adding or multiplying.
@@ -171,7 +239,13 @@ type ArithmethicInstruction struct {
 	Signed bool
 	Type   ArithmethicOperationType
 	P1     VariableName
-	P2     VariableName
+	P2     LiteralOrVariable
+}
+
+func NewArithmethicInstruction(instruction ArithmethicInstruction) Instruction {
+	return Instruction{
+		Arithmethic: lib.NewOpValue(instruction),
+	}
 }
 
 type ArithmethicOperationType string
