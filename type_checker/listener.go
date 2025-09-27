@@ -60,7 +60,7 @@ func NewListener() Listener {
 	}
 }
 
-func (l Listener) AddTypeInfo(identifier TypeIdentifier, info TypeInfo) {
+func (l Listener) UpsertTypeInfo(identifier TypeIdentifier, info TypeInfo) {
 	(*l.KnownTypes)[identifier] = info
 }
 

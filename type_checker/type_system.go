@@ -1033,5 +1033,5 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 
 	arrayId := NewArrayTypeIdentifier(firstExprType)
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), arrayId)
-	l.AddTypeInfo(arrayId, NewTypeInfo_Array(ArrayTypeInfo{firstExprType}))
+	l.UpsertTypeInfo(arrayId, NewTypeInfo_Array(ArrayTypeInfo{firstExprType}))
 }
