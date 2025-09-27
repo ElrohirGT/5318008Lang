@@ -26,6 +26,7 @@ func NewListener() Listener {
 	for _, baseType := range BASE_TYPE_ARRAY {
 		baseTypes[baseType] = NewTypeInfo_Base()
 		if baseType == BASE_TYPES.INTEGER || baseType == BASE_TYPES.BOOLEAN || baseType == BASE_TYPES.STRING {
+			// string[]
 			baseTypes[NewArrayTypeIdentifier(baseType)] = NewTypeInfo_Array(ArrayTypeInfo{Type: baseType})
 		}
 	}

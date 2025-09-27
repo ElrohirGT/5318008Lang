@@ -52,6 +52,7 @@ type Scope struct {
 	functions map[string]MethodInfo
 	// Stores the types of each expresion within the scope
 	typesByExpression map[string]TypeIdentifier
+	declaredArrays    map[string]uint
 	constants         lib.Set[string]
 	// Function fileds
 	expectedReturnType TypeIdentifier
@@ -152,6 +153,10 @@ func (s *Scope) UpsertExpressionType(expr string, _type TypeIdentifier) {
 	s.typesByExpression[expr] = _type
 }
 
+func (s *Scope) UpsertArrayLength(arrayExpr string, length uint) {
+	s.declaredArrays[arrayExpr] = length
+}
+
 // Gets the TypeIdentifier searching only in this scope.
 func (s *Scope) GetOnlyInScope(expr string) (TypeIdentifier, bool) {
 	t, found := s.typesByExpression[expr]
@@ -162,6 +167,15 @@ func (s *Scope) GetExpressionType(expr string) (TypeIdentifier, bool) {
 	t, found := s.typesByExpression[expr]
 	if !found && s.Father != nil {
 		return s.Father.GetExpressionType(expr)
+	}
+
+	return t, found
+}
+
+func (s *Scope) GetArrayLength(arrayExpr string) (uint, bool) {
+	t, found := s.declaredArrays[arrayExpr]
+	if !found && s.Father != nil {
+		return s.Father.GetArrayLength(arrayExpr)
 	}
 
 	return t, found

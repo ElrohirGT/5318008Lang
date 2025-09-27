@@ -238,7 +238,8 @@ type ArithmethicInstruction struct {
 	// If we're dealing with signed integers.
 	Signed bool
 	Type   ArithmethicOperationType
-	P1     VariableName
+	Target VariableName
+	P1     LiteralOrVariable
 	P2     LiteralOrVariable
 }
 
