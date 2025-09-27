@@ -130,6 +130,7 @@ func NewParamInstruction(instruction ParamInstruction) Instruction {
 
 // Represents the instruction to call a procedure, you may need to use ParamInstruction before calling this.
 type CallInstruction struct {
+	SaveReturnOn   VariableName
 	ProcedureName  ScopeName
 	NumberOfParams uint
 }

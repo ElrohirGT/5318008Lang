@@ -733,13 +733,23 @@ func (l Listener) ExitIdentifierExpr(ctx *p.IdentifierExprContext) {
 	))
 }
 
+var LITERAL_VALUES = struct {
+	Null  string
+	True  string
+	False string
+}{
+	Null:  "null",
+	True:  "true",
+	False: "false",
+}
+
 func (l Listener) EnterLiteralExpr(ctx *p.LiteralExprContext) {
 	// fmt.Println("ENTERING LITERAL EXPRESION: " + ctx.GetText())
 	strRepresentation := ctx.GetText()
 	switch strRepresentation {
-	case "null":
+	case LITERAL_VALUES.Null:
 		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.NULL)
-	case "true", "false":
+	case LITERAL_VALUES.True, LITERAL_VALUES.False:
 		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.BOOLEAN)
 	default:
 		literal := ctx.Literal()
