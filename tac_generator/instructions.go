@@ -17,19 +17,19 @@ type VariableName string
 // = t2 u1 1.
 type AssignmentInstruction struct {
 	Target VariableName
-	Type   string
+	Type   VariableType
 	Value  string
 }
 
 type VariableType string
 
 var VARIABLE_TYPES = struct {
-	U8  string
-	U16 string
-	U32 string
-	I8  string
-	I16 string
-	I32 string
+	U8  VariableType
+	U16 VariableType
+	U32 VariableType
+	I8  VariableType
+	I16 VariableType
+	I32 VariableType
 }{
 	U8:  "u8",
 	U16: "u16",

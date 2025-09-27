@@ -10,7 +10,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	l.AppendInstruction(Instruction{
 		Assignment: lib.NewOpValue(AssignmentInstruction{
 			Target: l.Program.GetNextVariableName(),
-			Type:   "i32",
+			Type:   VARIABLE_TYPES.I32,
 		}),
 	})
 }
