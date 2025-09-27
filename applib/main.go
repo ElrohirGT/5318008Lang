@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
@@ -73,6 +74,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 	if errListener.hadError {
 		return fmt.Errorf("syntax errors:\n%s", strings.Join(errListener.errors, "\n"))
 	}
+	log.Println("✅ FASE CHECK: Syntax analysis")
 
 	walker := antlr.NewParseTreeWalker()
 	typeListener := type_checker.NewListener()
@@ -81,18 +83,22 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 	if typeListener.HasErrors() {
 		return generateErrorOutput(*typeListener.Errors)
 	}
+	log.Println("✅ FASE CHECK: Type analysis")
 
 	tacListener := tac_generator.NewListener(&typeListener)
 	walker.Walk(tacListener, tree)
 
-	// FIXME: Does TAC generation should have errors? I think it does not!
-	// if tacListener.HasErrors() {
-	// 	return generateErrorOutput(*tacListener.Errors)
-	// }
+	if tacListener.HasErrors() {
+		return generateErrorOutput(*tacListener.Errors)
+	}
 
 	if config.TACBuffer.HasValue() {
-		tacListener.Generate(config.TACBuffer.GetValue())
+		err := tacListener.Generate(config.TACBuffer.GetValue())
+		if err != nil {
+			log.Panicf("Failed to generate TAC! Reason: %s", err)
+		}
 	}
+	log.Println("✅ FASE CHECK: TAC generation")
 
 	return nil
 }

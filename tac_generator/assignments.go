@@ -1,9 +1,8 @@
 package tac_generator
 
 import (
-	"strconv"
-
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
 // let a = 5;
@@ -20,24 +19,25 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		assignExpr = ctx.VariableAssignment().ConditionalExpr()
 	}
 
-	literalType, literalValue := l.GetLiteralType(assignExpr.GetText())
-	if literalType != LITERAL_TYPES.NotALiteral {
+	literalType, found := l.TypeChecker.GetLiteralType(assignExpr.GetText())
+	if !found {
 		// FIXME: What do we do when the assignment is not a literal!?
 	} else {
-		value := "**INVALID**"
-		switch innerValue := literalValue.(type) {
-		case string:
-			value = innerValue
-		case int64:
-			value = strconv.FormatInt(innerValue, 10)
-		case bool:
-			value = strconv.FormatBool(innerValue)
+		literalValue := ""
+		switch literalType {
+		case type_checker.BASE_TYPES.BOOLEAN:
+		case type_checker.BASE_TYPES.INTEGER:
+			literalValue = assignExpr.GetText()
+		case type_checker.BASE_TYPES.STRING:
+		case type_checker.BASE_TYPES.NULL:
+		default:
+			// FIXME: It's an array! Handle array cases.
 		}
 
 		l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{
 			Target: l.Program.GetNextVariableName(),
 			Type:   VARIABLE_TYPES.I32,
-			Value:  LiteralOrVariable(value),
+			Value:  LiteralOrVariable(literalValue),
 		}))
 	}
 }

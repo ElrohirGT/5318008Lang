@@ -2,7 +2,8 @@ package tac_generator
 
 import (
 	"bytes"
-	"strconv"
+	"fmt"
+	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
@@ -19,18 +20,21 @@ type Listener struct {
 	*p.BaseCompiscriptListener
 	TypeChecker *type_checker.Listener
 	Program     *Program
+	Errors      *[]string
 }
 
 func NewListener(typeChecker *type_checker.Listener) Listener {
 	return Listener{
 		Program:     NewProgram(),
 		TypeChecker: typeChecker,
+		Errors:      &[]string{},
 	}
 }
 
 // Generates the final TAC contents.
-func (l *Listener) Generate(buff *bytes.Buffer) {
+func (l *Listener) Generate(buff *bytes.Buffer) error {
 	// FIXME: Prince needs to fill this!
+	return nil
 }
 
 func (l *Listener) AppendInstruction(inst Instruction) {
@@ -40,30 +44,23 @@ func (l *Listener) AppendInstruction(inst Instruction) {
 	l.Program.Scopes[ScopeName(currentScope.Name)] = scopeInstructions
 }
 
-type LiteralType string
+// FIXME: Improve error handling:
+// Centralize error handling in lib maybe?
+func (l Listener) AddError(line int, columnStart int, columnEnd int, content string, details ...string) {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf(Red+"* Error: (line: %d, column: %d-%d) %s"+Reset, line, columnStart, columnEnd, content))
 
-var LITERAL_TYPES = struct {
-	Integer     LiteralType
-	String      LiteralType
-	Bool        LiteralType
-	NotALiteral LiteralType
-}{
-	Integer:     "INT",
-	String:      "STR",
-	Bool:        "BOOL",
-	NotALiteral: "NAL",
+	for _, v := range details {
+		b.WriteString("\n * " + v)
+	}
+
+	*l.Errors = append(*l.Errors, b.String())
 }
 
-func (l *Listener) GetLiteralType(expression string) (LiteralType, any) {
-	n, err := strconv.ParseInt(expression, 10, 64)
-	if err == nil {
-		return LITERAL_TYPES.Integer, n
-	}
+func (l Listener) AddWarning(content string, line string, details ...string) {
+	*l.Errors = append(*l.Errors, "Warning: "+content)
+}
 
-	t, err := strconv.ParseBool(expression)
-	if err == nil {
-		return LITERAL_TYPES.Bool, t
-	}
-
-	return LITERAL_TYPES.NotALiteral, nil
+func (l Listener) HasErrors() bool {
+	return len(*l.Errors) > 0
 }
