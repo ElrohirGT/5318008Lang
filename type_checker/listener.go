@@ -18,10 +18,13 @@ type Listener struct {
 	*p.BaseCompiscriptListener
 	KnownTypes   *TypeTable
 	ScopeManager *ScopeManager
+	Literals     *LiteralTable
 	Errors       *[]string
 }
 
 func NewListener() Listener {
+	literals := make(LiteralTable)
+
 	baseTypes := make(TypeTable)
 	for _, baseType := range BASE_TYPE_ARRAY {
 		baseTypes[baseType] = NewTypeInfo_Base()
@@ -53,11 +56,21 @@ func NewListener() Listener {
 		KnownTypes:   &baseTypes,
 		Errors:       &errors,
 		ScopeManager: &scopeManager,
+		Literals:     &literals,
 	}
 }
 
 func (l Listener) AddTypeInfo(identifier TypeIdentifier, info TypeInfo) {
 	(*l.KnownTypes)[identifier] = info
+}
+
+func (l Listener) UpsertLiteral(literalExpr string, id TypeIdentifier) {
+	(*l.Literals)[literalExpr] = id
+}
+
+func (l Listener) GetLiteralType(literalExpr string) (TypeIdentifier, bool) {
+	id, found := (*l.Literals)[literalExpr]
+	return id, found
 }
 
 func (l Listener) CheckInheritanceTree(ctx *p.ClassDeclarationContext, baseClass TypeIdentifier, fatherClass TypeIdentifier) bool {

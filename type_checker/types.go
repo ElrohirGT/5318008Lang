@@ -29,6 +29,9 @@ type TypeInfo struct {
 // Data Structure to store the types defined within a compiscript code.
 type TypeTable = map[TypeIdentifier]TypeInfo
 
+// Data Structure to store the types of the literal expressions found in the program.
+type LiteralTable = map[string]TypeIdentifier
+
 func NewTypeInfo_Base() TypeInfo {
 	return TypeInfo{
 		BaseType:  true,

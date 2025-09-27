@@ -157,8 +157,10 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	switch strRepresentation {
 	case "null":
 		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.NULL)
+		l.UpsertLiteral(ctx.GetText(), BASE_TYPES.NULL)
 	case "true", "false":
 		l.ScopeManager.CurrentScope.UpsertExpressionType(strRepresentation, BASE_TYPES.BOOLEAN)
+		l.UpsertLiteral(ctx.GetText(), BASE_TYPES.BOOLEAN)
 	default:
 		literal := ctx.Literal()
 		if literal != nil {
@@ -167,9 +169,11 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 			if err != nil {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.STRING)
 				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.STRING)
+				l.UpsertLiteral(literalExpr, BASE_TYPES.STRING)
 			} else {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.INTEGER)
 				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.INTEGER)
+				l.UpsertLiteral(literalExpr, BASE_TYPES.INTEGER)
 			}
 		}
 	}
