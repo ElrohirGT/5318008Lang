@@ -24,6 +24,7 @@ type Listener struct {
 }
 
 func NewListener(typeChecker *type_checker.Listener) Listener {
+	typeChecker.ScopeManager.ReplaceCurrent(typeChecker.ScopeManager.GlobaScope)
 	return Listener{
 		Program:     NewProgram(),
 		TypeChecker: typeChecker,

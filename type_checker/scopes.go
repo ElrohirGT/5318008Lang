@@ -43,8 +43,9 @@ var SCOPE_TYPES = struct {
 //	          ▼      ▼
 //	        FUN3   FUN3
 type Scope struct {
-	Children []*Scope
-	Father   *Scope
+	Children     []*Scope
+	Father       *Scope
+	currentChild int
 
 	Type ScopeType
 	Name string
@@ -100,6 +101,17 @@ func (sc *ScopeManager) ReplaceCurrent(newScope *Scope) {
 func (sc *ScopeManager) ReplaceWithParent() {
 	log.Print("Exit Scope moving returning to parent")
 	sc.CurrentScope = sc.CurrentScope.Father
+}
+
+func (sc *ScopeManager) ReplaceWithNextChild() error {
+	if sc.CurrentScope.currentChild >= len(sc.CurrentScope.Children) {
+		return fmt.Errorf("no more children")
+	}
+	v := sc.CurrentScope.Children[sc.CurrentScope.currentChild]
+	log.Printf("Entering scope: %s - %s", v.Name, v.Type)
+	sc.CurrentScope.currentChild++
+	sc.CurrentScope = v
+	return nil
 }
 
 func (sc *ScopeManager) SearchScopeByType(scopeType ScopeType) (*Scope, bool) {
