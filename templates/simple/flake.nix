@@ -1,11 +1,16 @@
 {
-  description = "A basic multiplatform flake";
+  description = "A basic multiplatform compiscript Nix setup";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    compiscript.url = "github:ElrohirGT/5318008Lang";
   };
 
-  outputs = {nixpkgs, ...}: let
+  outputs = {
+    nixpkgs,
+    compiscript,
+    ...
+  }: let
     # System types to support.
     supportedSystems = ["x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin"];
 
@@ -15,35 +20,19 @@
     # Nixpkgs instantiated for supported system types.
     nixpkgsFor = forAllSystems (system: import nixpkgs {inherit system;});
   in {
-    templates = {
-      default = {
-        path = ./templates/simple;
-        description = "A basic multiplatform compiscript Nix setup";
-      };
-    };
-
-    packages = forAllSystems (system: let
-      pkgs = nixpkgsFor.${system};
-    in {
-      default = pkgs.callPackage ./default.nix {};
-    });
-
     devShells = forAllSystems (system: let
       pkgs = nixpkgsFor.${system};
+      compiler = compiscript.outputs.packages.${system}.default;
     in {
       default = pkgs.mkShell {
         packages = [
-          pkgs.go
-          pkgs.gotools
-          pkgs.go-tools
-          pkgs.golangci-lint
+          # Compiscript compiler
+          compiler
 
-          pkgs.delve
-          pkgs.gdlv
-          pkgs.golangci-lint
-
-          pkgs.antlr
+          # Other dev packages you want... for example nodejs?
           pkgs.nodejs
+
+          # TODO: Add other packages if you want!
         ];
       };
     });
