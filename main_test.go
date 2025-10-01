@@ -73,6 +73,7 @@ func Test_SemanticAnalysis(t *testing.T) {
 		expectedOutput := strings.TrimSpace(parts[1])
 
 		reader := bytes.NewReader([]byte(cpsContents))
+		t.Log("Testing:", path)
 		err = applib.TestableMain(reader, applib.CompilerConfig{})
 		errMsg := ""
 		if err != nil {

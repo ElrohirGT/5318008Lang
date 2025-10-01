@@ -304,11 +304,13 @@ type Instruction struct {
 type Program struct {
 	variableCounter uint
 	Scopes          map[ScopeName][]Instruction
+	MainScope       ScopeName
 }
 
 func NewProgram() *Program {
 	return &Program{
-		Scopes: make(map[ScopeName][]Instruction),
+		Scopes:    make(map[ScopeName][]Instruction),
+		MainScope: "main",
 	}
 }
 

@@ -3,6 +3,7 @@ package tac_generator
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -34,7 +35,52 @@ func NewListener(typeChecker *type_checker.Listener) Listener {
 
 // Generates the final TAC contents.
 func (l *Listener) Generate(buff *bytes.Buffer) error {
+	mainScope, found := l.Program.Scopes[l.Program.MainScope]
+	if !found {
+		log.Panicf("SKILL ISSUE:\nSomeone forgot to include the main scope inside the program!")
+	}
+
+	for _, inst := range mainScope {
+		err := instructionToBuffer(&inst, buff)
+		if err != nil {
+			return err
+		}
+	}
 	// FIXME: Prince needs to fill this!
+	return nil
+}
+
+func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
+	// FIXME: Prince needs to fill this!
+	defer buff.WriteString("\n")
+
+	// FIXME: Keep implementing branches
+	var err error
+	switch {
+	case inst.Assignment.HasValue():
+		assignment := inst.Assignment.GetValue()
+		_, err = buff.WriteString("= " + string(assignment.Target) + " " + string(assignment.Type) + " " + string(assignment.Value))
+	case inst.Copy.HasValue():
+	case inst.Jump.HasValue():
+	case inst.Param.HasValue():
+	case inst.Call.HasValue():
+	case inst.Return.HasValue():
+	case inst.Alloc.HasValue():
+	case inst.LoadWithOffset.HasValue():
+	case inst.SetWithOffset.HasValue():
+	case inst.Free.HasValue():
+	case inst.Reference.HasValue():
+	case inst.Dereference.HasValue():
+	case inst.Arithmethic.HasValue():
+	case inst.Logic.HasValue():
+	default:
+		log.Panicf("Unrecognizable instruction type!\n%#v", *inst)
+	}
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
