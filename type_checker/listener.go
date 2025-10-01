@@ -22,6 +22,8 @@ type Listener struct {
 	Errors       *[]string
 }
 
+const GLOBAL_SCOPE_NAME = "GLOBAL"
+
 func NewListener() Listener {
 	literals := make(LiteralTable)
 
@@ -35,7 +37,7 @@ func NewListener() Listener {
 	}
 
 	errors := []string{}
-	currentScope := NewScope("GLOBAL", SCOPE_TYPES.GLOBAL)
+	currentScope := NewScope(GLOBAL_SCOPE_NAME, SCOPE_TYPES.GLOBAL)
 	scopeManager := NewScopeManager(currentScope, currentScope)
 
 	// ADD BUILTINS

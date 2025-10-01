@@ -88,6 +88,7 @@ func (l *Listener) AppendInstruction(inst Instruction) {
 	currentScope := l.TypeChecker.ScopeManager.CurrentScope
 	scopeInstructions := l.Program.Scopes[ScopeName(currentScope.Name)]
 	scopeInstructions = append(scopeInstructions, inst)
+	log.Printf("Appending to scope `%s`: %s", currentScope.Name, inst)
 	l.Program.Scopes[ScopeName(currentScope.Name)] = scopeInstructions
 }
 

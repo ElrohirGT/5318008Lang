@@ -1,5 +1,9 @@
 let normalVar = 10;
+normalVar = 20;
 let withTypes: integer = 10;
+withTypes = 30;
 ---
 = t1 i32 10
+= t1 i32 20
 = t2 i32 10
+= t2 i32 30

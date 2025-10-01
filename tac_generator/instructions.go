@@ -1,9 +1,11 @@
 package tac_generator
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
 type ScopeName string
@@ -145,7 +147,7 @@ func NewParamInstruction(instruction ParamInstruction) Instruction {
 
 // Represents the instruction to call a procedure, you may need to use ParamInstruction before calling this.
 type CallInstruction struct {
-	SaveReturnOn   VariableName
+	SaveReturnOn   lib.Optional[VariableName]
 	ProcedureName  ScopeName
 	NumberOfParams uint
 }
@@ -300,6 +302,64 @@ type Instruction struct {
 	Logic          lib.Optional[LogicOpInstruction]
 }
 
+// Debug representation of an instruction.
+func (i Instruction) String() string {
+	switch {
+	case i.Assignment.HasValue():
+		ass := i.Assignment.GetValue()
+		return fmt.Sprintf("{%s: %s = %s}", ass.Target, ass.Type, ass.Value)
+	case i.Copy.HasValue():
+		ass := i.Copy.GetValue()
+		return fmt.Sprintf("{copy %s into %s}", ass.Source, ass.Target)
+	case i.Jump.HasValue():
+		ass := i.Jump.GetValue()
+		if ass.Condition.HasValue() {
+			return fmt.Sprintf("{jmp %s (IF: %#v)}", ass.Target, ass.Condition.GetValue())
+		} else {
+			return fmt.Sprintf("{jmp %s}", ass.Target)
+		}
+	case i.Param.HasValue():
+		ass := i.Param.GetValue()
+		return fmt.Sprintf("{param %s}", ass.Parameter)
+	case i.Call.HasValue():
+		ass := i.Call.GetValue()
+		if ass.SaveReturnOn.HasValue() {
+			return fmt.Sprintf("{%s = call %s with %d params}", ass.SaveReturnOn.GetValue(), ass.ProcedureName, ass.NumberOfParams)
+		} else {
+			return fmt.Sprintf("{call %s with %d params}", ass.ProcedureName, ass.NumberOfParams)
+		}
+	case i.Return.HasValue():
+		ass := i.Return.GetValue()
+		return fmt.Sprintf("{return %s}", ass.Value)
+	case i.Alloc.HasValue():
+		ass := i.Alloc.GetValue()
+		return fmt.Sprintf("{alloc %s with %d bytes}", ass.Target, ass.Size)
+	case i.LoadWithOffset.HasValue():
+		ass := i.LoadWithOffset.GetValue()
+		return fmt.Sprintf("{%s = %s[%d]}", ass.Target, ass.Source, ass.Offset)
+	case i.SetWithOffset.HasValue():
+		ass := i.SetWithOffset.GetValue()
+		return fmt.Sprintf("{%s[%d] = %s}", ass.Target, ass.Offset, ass.Value)
+	case i.Free.HasValue():
+		ass := i.Free.GetValue()
+		return fmt.Sprintf("{free %s}", ass)
+	case i.Reference.HasValue():
+		ass := i.Reference.GetValue()
+		return fmt.Sprintf("{&%s}", ass.Target)
+	case i.Dereference.HasValue():
+		ass := i.Dereference.GetValue()
+		return fmt.Sprintf("{@%s}", ass.Target)
+	case i.Arithmethic.HasValue():
+		ass := i.Arithmethic.GetValue()
+		return fmt.Sprintf("{%s = %s %s %s (signed? %t)}", ass.Target, ass.P1, ass.Type, ass.P2, ass.Signed)
+	case i.Logic.HasValue():
+		ass := i.Logic.GetValue()
+		return fmt.Sprintf("{%s = %s %s %s (signed? %t)}", ass.Target, ass.P1, ass.Type, ass.P2, ass.Signed)
+	}
+
+	return "{**invalid instruction**}"
+}
+
 // A program represents a complete set of scopes and instructions to execute.
 type Program struct {
 	variableCounter uint
@@ -310,11 +370,11 @@ type Program struct {
 func NewProgram() *Program {
 	return &Program{
 		Scopes:    make(map[ScopeName][]Instruction),
-		MainScope: "main",
+		MainScope: type_checker.GLOBAL_SCOPE_NAME,
 	}
 }
 
 func (p *Program) GetNextVariableName() VariableName {
 	p.variableCounter += 1
-	return VariableName("T" + strconv.FormatUint(uint64(p.variableCounter), 10))
+	return VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
 }
