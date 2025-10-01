@@ -158,7 +158,7 @@ func NewCallInstruction(instruction CallInstruction) Instruction {
 
 // Represents the instruction to return from a procedure, optionally returning a variable.
 type ReturnInstruction struct {
-	Value VariableName
+	Value LiteralOrVariable
 }
 
 func NewReturnInstruction(instruction ReturnInstruction) Instruction {
