@@ -85,14 +85,14 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 	}
 	log.Println("✅ FASE CHECK: Type analysis")
 
-	tacListener := tac_generator.NewListener(&typeListener)
-	walker.Walk(tacListener, tree)
-
-	if tacListener.HasErrors() {
-		return generateErrorOutput(*tacListener.Errors)
-	}
-
 	if config.TACBuffer.HasValue() {
+		tacListener := tac_generator.NewListener(&typeListener)
+		walker.Walk(tacListener, tree)
+
+		if tacListener.HasErrors() {
+			return generateErrorOutput(*tacListener.Errors)
+		}
+
 		err := tacListener.Generate(config.TACBuffer.GetValue())
 		if err != nil {
 			log.Panicf("Failed to generate TAC! Reason: %s", err)
