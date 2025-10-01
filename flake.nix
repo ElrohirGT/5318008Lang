@@ -37,6 +37,7 @@
           pkgs.gotools
           pkgs.go-tools
           pkgs.golangci-lint
+          pkgs.graphviz
 
           pkgs.delve
           pkgs.gdlv
