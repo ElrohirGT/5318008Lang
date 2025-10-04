@@ -1,6 +1,8 @@
 let numbers: integer[] = [5,4,3];
 numbers[2] = 5;
 numbers[0] = "Hello!";
+numbers[false] = 1;
 ---
 === ERRORS ===
 * Error: (line: 3, column: 0-21) Type mismatch in assignment! (`integer` != `string`)
+* Error: (line: 4, column: 7-13) Can't index as `false` because it isn't an integer!
