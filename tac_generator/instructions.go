@@ -337,10 +337,10 @@ func (i Instruction) String() string {
 		return fmt.Sprintf("{alloc %s with %d bytes}", ass.Target, ass.Size)
 	case i.LoadWithOffset.HasValue():
 		ass := i.LoadWithOffset.GetValue()
-		return fmt.Sprintf("{%s = %s[%d]}", ass.Target, ass.Source, ass.Offset)
+		return fmt.Sprintf("{%s = %s[%s]}", ass.Target, ass.Source, ass.Offset)
 	case i.SetWithOffset.HasValue():
 		ass := i.SetWithOffset.GetValue()
-		return fmt.Sprintf("{%s[%d] = %s}", ass.Target, ass.Offset, ass.Value)
+		return fmt.Sprintf("{%s[%s] = %s}", ass.Target, ass.Offset, ass.Value)
 	case i.Free.HasValue():
 		ass := i.Free.GetValue()
 		return fmt.Sprintf("{free %s}", ass)
@@ -401,6 +401,20 @@ func (p *Program) UpsertTranslation(scope ScopeName, localName string, tacName V
 
 	scopeInfo.translations[localName] = tacName
 	p.Scopes[scope] = scopeInfo
+}
+
+func (p *Program) GetVariableFor(expr string, scope ScopeName) (VariableName, bool) {
+	scopeInfo, found := p.Scopes[scope]
+	if !found {
+		log.Panicf(
+			"Failed to find scope `%s` when trying to translate `%s` expression",
+			scope,
+			expr,
+		)
+	}
+
+	varName, found := scopeInfo.translations[expr]
+	return varName, found
 }
 
 func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableName {

@@ -16,6 +16,7 @@ import (
 // CALLRET a sumar 2
 
 func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
+	scopeName := ScopeName(l.GetCurrentScope().Name)
 	variableName := ctx.Identifier().GetText()
 
 	exprText := ""
@@ -59,9 +60,14 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		isLiteral,
 	)
 	if isLiteral {
-		l.CreateLiteralAssignment(variableName, exprType, variableValue)
+		l.CreateAssignment(variableName, exprType, variableValue)
 	} else {
-		// FIXME: Manage case where is not literal
+		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+		}
+
+		l.CreateAssignment(variableName, exprType, string(exprVar))
 	}
 
 }
@@ -82,6 +88,6 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	if !isLiteral {
 		// FIXME: What do we do when the assignment is not a literal!?
 	} else {
-		l.CreateLiteralAssignment(originalName, literalType, exprText)
+		l.CreateAssignment(originalName, literalType, exprText)
 	}
 }

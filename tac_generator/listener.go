@@ -203,7 +203,7 @@ func (l *Listener) AppendInstruction(inst Instruction) {
 	l.Program.Scopes[ScopeName(currentScope.Name)] = scopeInfo
 }
 
-func (l *Listener) CreateLiteralAssignment(varName string, literalType type_checker.TypeIdentifier, rawValue string) {
+func (l *Listener) CreateAssignment(varName string, literalType type_checker.TypeIdentifier, rawValue string) {
 	currentScope := l.GetCurrentScope()
 	literalValue := "**SKILL ISSUE VALUE**"
 	target := l.Program.GetOrGenerateVariable(varName, ScopeName(currentScope.Name))
@@ -236,8 +236,6 @@ func (l *Listener) CreateLiteralAssignment(varName string, literalType type_chec
 			varName,
 			literalType,
 		)
-	default:
-		// FIXME: It's an array! Handle array cases.
 	}
 
 	l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{

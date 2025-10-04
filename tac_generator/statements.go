@@ -48,7 +48,11 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 			condExpr := suffixCtx.ConditionalExpr().GetText()
 			litType, found := l.TypeChecker.GetLiteralType(condExpr)
 			if !found {
-				// TODO: Math with register offset is dynamic
+				varName, found := l.Program.GetVariableFor(condExpr, scopeName)
+				if !found {
+					log.Panicf("Can't find the result variable for expr: `%s`", condExpr)
+				}
+				offset = string(varName)
 			} else {
 				if litType != type_checker.BASE_TYPES.INTEGER {
 					log.Panicf("Can't index with type that is not integer: %s", litType)
