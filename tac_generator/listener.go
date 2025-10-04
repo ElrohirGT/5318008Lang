@@ -35,9 +35,15 @@ func NewListener(typeChecker *type_checker.Listener) Listener {
 
 // Generates the final TAC contents.
 func (l *Listener) Generate(buff *bytes.Buffer) error {
+	// Write main scope
 	mainScope, found := l.Program.Scopes[l.Program.MainScope]
 	if !found {
 		log.Panicf("SKILL ISSUE:\nSomeone forgot to include the main scope inside the program!")
+	}
+
+	_, err := buff.WriteString(fmt.Sprintf("%s:\n", l.Program.MainScope))
+	if err != nil {
+		return err
 	}
 
 	for _, inst := range mainScope {
@@ -46,12 +52,33 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 			return err
 		}
 	}
-	// FIXME: Prince needs to fill this!
+
+	buff.WriteString("\n")
+
+	for scopeName, instructions := range l.Program.Scopes {
+		if scopeName == l.Program.MainScope {
+			continue
+		}
+
+		_, err := buff.WriteString(fmt.Sprintf("%s:\n", scopeName))
+		if err != nil {
+			return err
+		}
+
+		for _, inst := range instructions {
+			err := instructionToBuffer(&inst, buff)
+			if err != nil {
+				return err
+			}
+		}
+
+		buff.WriteString("\n")
+	}
+
 	return nil
 }
 
 func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
-	// FIXME: Prince needs to fill this!
 	defer buff.WriteString("\n")
 
 	// FIXME: Keep implementing branches
@@ -59,20 +86,95 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 	switch {
 	case inst.Assignment.HasValue():
 		assignment := inst.Assignment.GetValue()
-		_, err = buff.WriteString("= " + string(assignment.Target) + " " + string(assignment.Type) + " " + string(assignment.Value))
+		_, err = buff.WriteString(fmt.Sprintf("= %s %s %s",
+			assignment.Target, assignment.Type, assignment.Value))
+
 	case inst.Copy.HasValue():
+		copy := inst.Copy.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("CP %s %s",
+			copy.Target, copy.Source))
+
 	case inst.Jump.HasValue():
+		jump := inst.Jump.GetValue()
+		if jump.Condition.HasValue() {
+			// Conditional jumps
+			cond := jump.Condition.GetValue()
+
+			if cond.Simple.HasValue() {
+				// Conditional simple jump
+				_, err = buff.WriteString(fmt.Sprintf("IF %s GOTO %s",
+					cond.Simple.GetValue(), jump.Target))
+			} else if cond.SimpleNegated.HasValue() {
+				// Conditional negation jump
+				_, err = buff.WriteString(fmt.Sprintf("IF NOT %s GOTO %s",
+					cond.SimpleNegated.GetValue(), jump.Target))
+			} else if cond.Relation.HasValue() {
+				// Conditional multivariable jump
+				rel := cond.Relation.GetValue()
+				_, err = buff.WriteString(fmt.Sprintf("IF %s %s %s GOTO %s",
+					rel.Type, rel.P1, rel.P2, jump.Target))
+			}
+		} else {
+			// Unconditional jump
+			_, err = buff.WriteString(fmt.Sprintf("GOTO %s",
+				jump.Target))
+		}
+
 	case inst.Param.HasValue():
+		param := inst.Param.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("PARAM %s",
+			param.Parameter))
+
 	case inst.Call.HasValue():
+		call := inst.Call.GetValue()
+		if call.SaveReturnOn.HasValue() {
+			// call function with return
+			_, err = buff.WriteString(fmt.Sprintf("CALLRET %s %s %d",
+				call.SaveReturnOn.GetValue(), call.ProcedureName, call.NumberOfParams))
+		} else {
+			_, err = buff.WriteString(fmt.Sprintf("CALL %s %d",
+				call.ProcedureName, call.NumberOfParams))
+		}
+
 	case inst.Return.HasValue():
+		ret := inst.Return.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("RETURN %s",
+			ret.Value))
+
 	case inst.Alloc.HasValue():
+		alloc := inst.Alloc.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("ALLOC %s %d",
+			alloc.Target, alloc.Size))
+
 	case inst.LoadWithOffset.HasValue():
+		lwo := inst.LoadWithOffset.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("LWO %s %s %d",
+			lwo.Target, lwo.Source, lwo.Offset))
+
 	case inst.SetWithOffset.HasValue():
+		swo := inst.SetWithOffset.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("SWO %s %d %s",
+			swo.Target, swo.Offset, swo.Value))
+
 	case inst.Free.HasValue():
+		free := inst.Free.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("FREE %s",
+			free))
+
 	case inst.Reference.HasValue():
+		ref := inst.Reference.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("&%s",
+			ref.Target))
+
 	case inst.Dereference.HasValue():
+		def := inst.Dereference.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("@%s",
+			def.Target))
+
 	case inst.Arithmethic.HasValue():
+		// FIXME: implement me
 	case inst.Logic.HasValue():
+		// FIXME: implement me
 	default:
 		log.Panicf("Unrecognizable instruction type!\n%#v", *inst)
 	}
