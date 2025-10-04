@@ -149,12 +149,12 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 
 	case inst.LoadWithOffset.HasValue():
 		lwo := inst.LoadWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "LWO %s %s %d",
+		_, err = fmt.Fprintf(buff, "LWO %s %s %s",
 			lwo.Target, lwo.Source, lwo.Offset)
 
 	case inst.SetWithOffset.HasValue():
 		swo := inst.SetWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "SWO %s %d %s",
+		_, err = fmt.Fprintf(buff, "SWO %s %s %s",
 			swo.Target, swo.Offset, swo.Value)
 
 	case inst.Free.HasValue():
