@@ -196,7 +196,7 @@ func NewAllocInstruction(instruction AllocInstruction) Instruction {
 type LoadWithOffsetInstruction struct {
 	Target VariableName
 	Source VariableName
-	Offset uint
+	Offset LiteralOrVariable
 }
 
 func NewLoadWithOffsetInstruction(instruction LoadWithOffsetInstruction) Instruction {
@@ -218,7 +218,7 @@ func NewLoadWithOffsetInstruction(instruction LoadWithOffsetInstruction) Instruc
 // And objects!
 type SetWithOffsetInstruction struct {
 	Target VariableName
-	Offset uint
+	Offset LiteralOrVariable
 	Value  LiteralOrVariable
 }
 
