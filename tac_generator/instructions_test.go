@@ -1,17 +1,16 @@
 package tac_generator
 
 import (
-	"strconv"
 	"testing"
 )
 
 func Test_ProgramVariableCounter(t *testing.T) {
 	p := Program{}
 	vars := [][]VariableName{}
-	for i := range 50 {
+	for range 50 {
 		vars = append(vars, []VariableName{
-			p.GetNextVariableName(),
-			VariableName("T" + strconv.FormatUint(uint64(i+1), 10)),
+			p.GetOrGenerateVariable("a", "GLOBAL"),
+			VariableName("t1"),
 		})
 	}
 

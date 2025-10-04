@@ -1,4 +1,4 @@
-function sumar(n: int): int {
+function sumar(n: integer): integer {
 	if (n <= 0) {
 		return 0;
 	}

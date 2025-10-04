@@ -2,6 +2,7 @@ package tac_generator
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
@@ -360,21 +361,64 @@ func (i Instruction) String() string {
 	return "{**invalid instruction**}"
 }
 
+type ScopeInformation struct {
+	Instructions []Instruction
+	// We need to translate between `localName` of a variable to a `t1` or `t2`.
+	// This map aids on that.
+	translations map[string]VariableName
+}
+
 // A program represents a complete set of scopes and instructions to execute.
 type Program struct {
 	variableCounter uint
-	Scopes          map[ScopeName][]Instruction
+	Scopes          map[ScopeName]ScopeInformation
 	MainScope       ScopeName
 }
 
 func NewProgram() *Program {
+	scopes := make(map[ScopeName]ScopeInformation)
+	scopes[type_checker.GLOBAL_SCOPE_NAME] = ScopeInformation{
+		Instructions: []Instruction{},
+		translations: map[string]VariableName{},
+	}
+
 	return &Program{
-		Scopes:    make(map[ScopeName][]Instruction),
+		Scopes:    scopes,
 		MainScope: type_checker.GLOBAL_SCOPE_NAME,
 	}
 }
 
-func (p *Program) GetNextVariableName() VariableName {
-	p.variableCounter += 1
-	return VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+func (p *Program) UpsertTranslation(scope ScopeName, localName string, tacName VariableName) {
+	scopeInfo, found := p.Scopes[scope]
+	if !found {
+		log.Panicf(
+			"Failed to find scope `%s` to upsert translation for `%s` into `%s`",
+			scope,
+			localName,
+			tacName,
+		)
+	}
+
+	scopeInfo.translations[localName] = tacName
+	p.Scopes[scope] = scopeInfo
+}
+
+func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableName {
+	scopeInfo, found := p.Scopes[scope]
+	if !found {
+		log.Panicf(
+			"Failed to find scope `%s` when trying to translate `%s` variable",
+			scope,
+			name,
+		)
+	}
+
+	varName, found := scopeInfo.translations[name]
+	if !found {
+		p.variableCounter += 1
+		varName = VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+		p.UpsertTranslation(scope, name, varName)
+	}
+
+	return varName
 }
