@@ -1,0 +1,9 @@
+let a = [1,1,1];
+let b = a[0];
+---
+GLOBAL:
+ALLOC t1 12
+SWO t1 0 1
+SWO t1 1 1
+SWO t1 2 1
+LWO t2 t1 0
