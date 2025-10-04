@@ -93,7 +93,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 			return generateErrorOutput(*tacListener.Errors)
 		}
 
-		err := tacListener.GenerateTAC(config.TACBuffer.GetValue())
+		err := tacListener.Generate(config.TACBuffer.GetValue())
 		if err != nil {
 			log.Panicf("Failed to generate TAC! Reason: %s", err)
 		}

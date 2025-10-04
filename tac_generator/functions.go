@@ -16,12 +16,3 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
-
-func (s Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
-	log.Println("Left hand side:", ctx.GetText())
-	suffixes := ctx.AllSuffixOp()
-	if len(suffixes) == 0 {
-		return
-	}
-
-}

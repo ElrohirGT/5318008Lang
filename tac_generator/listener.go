@@ -35,7 +35,7 @@ func NewListener(typeChecker *type_checker.Listener) Listener {
 }
 
 // Generates the final TAC contents.
-func (l *Listener) GenerateTAC(buff *bytes.Buffer) error {
+func (l *Listener) Generate(buff *bytes.Buffer) error {
 	mainScope, found := l.Program.Scopes[l.Program.MainScope]
 	if !found {
 		log.Panicf("SKILL ISSUE:\nSomeone forgot to include the main scope inside the program!")
