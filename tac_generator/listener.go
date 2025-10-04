@@ -236,6 +236,11 @@ func (l *Listener) CreateAssignment(varName string, literalType type_checker.Typ
 			varName,
 			literalType,
 		)
+	default:
+		log.Panicf(
+			"You shouldn't create an assignment for the type: `%s`\nCheckout the array example to see what should be done!",
+			literalType,
+		)
 	}
 
 	l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{
