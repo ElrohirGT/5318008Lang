@@ -29,7 +29,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "simplified.cps_test",
+	// "basics",
 }
 
 var IGNORE_SPECIFIC = []string{
@@ -164,7 +164,7 @@ func Test_TACGeneration(t *testing.T) {
 			t.Errorf("It shouldn't have failed! But still failed with:\n%s", err.Error())
 		}
 
-		actualOutput := outBuffer.String()
+		actualOutput := strings.TrimSpace(outBuffer.String())
 		if expectedOutput != actualOutput {
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
