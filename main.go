@@ -37,12 +37,12 @@ func main() {
 		panic("\n" + err.Error())
 	}
 
-	err = os.WriteFile(tacPath, tacBuffer.Bytes(), os.FileMode(os.O_WRONLY))
+	err = os.WriteFile(tacPath, tacBuffer.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}
 
-	err = os.WriteFile(outPath, asmBuffer.Bytes(), os.FileMode(os.O_WRONLY))
+	err = os.WriteFile(outPath, asmBuffer.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}
