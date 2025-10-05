@@ -177,16 +177,14 @@ func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
 }
 
 func (l Listener) getOrCreateExpressionVariable(exprText string, scopeName ScopeName) VariableName {
+	// Check if already computed
 	if result, found := l.Program.GetVariableFor(exprText, scopeName); found {
 		return result
 	}
 
-	_, isLiteral := l.TypeChecker.GetLiteralType(exprText)
-	if isLiteral {
-		tempVar := l.Program.GetNextVariable()
-
-		l.Program.UpsertTranslation(scopeName, exprText, tempVar)
-		return tempVar
+	// Check for literal
+	if _, isLiteral := l.TypeChecker.GetLiteralType(exprText); isLiteral {
+		return VariableName(exprText)
 	}
 
 	return l.Program.GetOrGenerateVariable(exprText, scopeName)
