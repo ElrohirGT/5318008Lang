@@ -25,6 +25,10 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		exprText = init.ConditionalExpr().GetText()
 	}
 
+	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+		variableName = "this." + variableName
+	}
+
 	exprType, foundType := scope.GetExpressionType(variableName)
 	if !foundType {
 		log.Panicf(

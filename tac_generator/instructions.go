@@ -146,6 +146,17 @@ func NewParamInstruction(instruction ParamInstruction) Instruction {
 	}
 }
 
+// Loads an argument into a variable for later use.
+type LoadInstruction struct {
+	Variable VariableName
+}
+
+func NewLoadInstruction(instruction LoadInstruction) Instruction {
+	return Instruction{
+		Load: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents the instruction to call a procedure, you may need to use ParamInstruction before calling this.
 type CallInstruction struct {
 	SaveReturnOn   lib.Optional[VariableName]
@@ -291,6 +302,7 @@ type Instruction struct {
 	Copy           lib.Optional[CopyInstruction]
 	Jump           lib.Optional[JumpInstruction]
 	Param          lib.Optional[ParamInstruction]
+	Load           lib.Optional[LoadInstruction]
 	Call           lib.Optional[CallInstruction]
 	Return         lib.Optional[ReturnInstruction]
 	Alloc          lib.Optional[AllocInstruction]
@@ -356,6 +368,9 @@ func (i Instruction) String() string {
 	case i.Logic.HasValue():
 		ass := i.Logic.GetValue()
 		return fmt.Sprintf("{%s = %s %s %s (signed? %t)}", ass.Target, ass.P1, ass.Type, ass.P2, ass.Signed)
+	case i.Load.HasValue():
+		ass := i.Load.GetValue()
+		return fmt.Sprintf("{LOAD %s}", ass.Variable)
 	}
 
 	return "{**invalid instruction**}"

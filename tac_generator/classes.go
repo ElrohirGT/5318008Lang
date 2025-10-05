@@ -12,6 +12,9 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
+
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 }
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {

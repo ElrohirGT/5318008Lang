@@ -13,7 +13,24 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	scopeName := ScopeName(scope.Name)
+	l.Program.UpsertScope(scopeName)
+
+	log.Println("Adding parameters for function:", scopeName)
+	if params := ctx.Parameters(); params != nil {
+		args := params.AllParameter()
+		maxIdx := len(args) - 1
+		for idx := maxIdx; idx >= 0; idx -= 1 {
+			paramExpr := args[idx].Identifier().GetText()
+			log.Println("Appending parameter", paramExpr, "for scope", scopeName)
+			l.AppendInstruction(NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}))
+		}
+	}
+
+	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()
+	if isMethod {
+		l.AppendInstruction(NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable("this", scopeName)}))
+	}
 }
 
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {

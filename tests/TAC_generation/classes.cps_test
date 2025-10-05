@@ -1,0 +1,12 @@
+class Animal {
+	let name: string;
+
+	function setName(newName: string) {
+		this.name = newName;
+	}
+}
+
+let an = new Animal();
+an.setName("Default Name");
+---
+GENERATE TAC
