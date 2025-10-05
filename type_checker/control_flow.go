@@ -12,7 +12,7 @@ import (
 // ================
 
 func (l Listener) EnterBlockStatement(ctx *p.BlockStatementContext) {
-	blockScope := NewScope("BLOCK", SCOPE_TYPES.BLOCK)
+	blockScope := NewScope(l.ScopeManager.GetUniqueName("BLOCK"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(blockScope)
 	l.ScopeManager.ReplaceCurrent(blockScope)
 }
@@ -50,7 +50,7 @@ func (l Listener) ExitMustBoolExpr(ctx *p.MustBoolExprContext) {
 }
 
 func (l Listener) EnterIfBody(ctx *p.IfBodyContext) {
-	ifScope := NewScope("IF", SCOPE_TYPES.BLOCK)
+	ifScope := NewScope(l.ScopeManager.GetUniqueName("IF"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(ifScope)
 	l.ScopeManager.ReplaceCurrent(ifScope)
 }
@@ -60,7 +60,7 @@ func (l Listener) ExitIfBody(ctx *p.IfBodyContext) {
 }
 
 func (l Listener) EnterElseBody(ctx *p.ElseBodyContext) {
-	ifScope := NewScope("ELSE", SCOPE_TYPES.BLOCK)
+	ifScope := NewScope(l.ScopeManager.GetUniqueName("ELSE"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(ifScope)
 	l.ScopeManager.ReplaceCurrent(ifScope)
 }
@@ -102,7 +102,7 @@ func (l Listener) ExitBreakStatement(ctx *p.BreakStatementContext) {
 // ====================
 
 func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
-	whileScope := NewScope("WHILE", SCOPE_TYPES.LOOP)
+	whileScope := NewScope(l.ScopeManager.GetUniqueName("WHILE"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(whileScope)
 	l.ScopeManager.ReplaceCurrent(whileScope)
 }
@@ -116,7 +116,7 @@ func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
 // ====================
 
 func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
-	doWhileScope := NewScope("DO-WHILE", SCOPE_TYPES.LOOP)
+	doWhileScope := NewScope(l.ScopeManager.GetUniqueName("DO-WHILE"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(doWhileScope)
 	l.ScopeManager.ReplaceCurrent(doWhileScope)
 }
@@ -130,7 +130,7 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ====================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
-	forScope := NewScope("FOR", SCOPE_TYPES.LOOP)
+	forScope := NewScope(l.ScopeManager.GetUniqueName("FOR"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
@@ -144,7 +144,7 @@ func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
 // ====================
 
 func (l Listener) EnterForeachStatement(ctx *p.ForeachStatementContext) {
-	forScope := NewScope("FOR-EACH", SCOPE_TYPES.LOOP)
+	forScope := NewScope(l.ScopeManager.GetUniqueName("FOR-EACH"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
@@ -184,7 +184,7 @@ func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
 // ===========================
 
 func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
-	forScope := NewScope("SWITCH", SCOPE_TYPES.BLOCK)
+	forScope := NewScope(l.ScopeManager.GetUniqueName("SWITCH"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
@@ -212,7 +212,7 @@ func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
 }
 
 func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
-	forScope := NewScope("CASE", SCOPE_TYPES.BLOCK)
+	forScope := NewScope(l.ScopeManager.GetUniqueName("CASE"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
@@ -227,13 +227,13 @@ func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 // ===========================
 
 func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
-	tryScope := NewScope("TRY", SCOPE_TYPES.BLOCK)
+	tryScope := NewScope(l.ScopeManager.GetUniqueName("TRY"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(tryScope)
 	l.ScopeManager.ReplaceCurrent(tryScope)
 }
 
 func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
-	catchScope := NewScope("CATCH", SCOPE_TYPES.BLOCK)
+	catchScope := NewScope(l.ScopeManager.GetUniqueName("CATCH"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(catchScope)
 	l.ScopeManager.ReplaceCurrent(catchScope)
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.Identifier().GetText(), BASE_TYPES.STRING)

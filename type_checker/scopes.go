@@ -3,6 +3,7 @@ package type_checker
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
@@ -76,6 +77,8 @@ type ScopeManager struct {
 	// Quick reference to the global scope
 	// In case anyone needs it
 	GlobaScope *Scope
+
+	NumScopes uint
 }
 
 // =======================
@@ -87,6 +90,12 @@ func NewScopeManager(current *Scope, globalScope *Scope) ScopeManager {
 		CurrentScope: current,
 		GlobaScope:   globalScope,
 	}
+}
+
+func (sc *ScopeManager) GetUniqueName(prefix string) string {
+	value := prefix + strconv.FormatUint(uint64(sc.NumScopes), 10)
+	sc.NumScopes++
+	return value
 }
 
 func (sc *ScopeManager) AddToCurrent(child *Scope) {
