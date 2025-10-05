@@ -152,24 +152,7 @@ func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
 	scopeName := ScopeName(l.GetCurrentScope().Name)
 	exprText := ctx.GetText()
 
-	if ctx.LiteralExpr() != nil {
-		literalText := ctx.LiteralExpr().GetText()
-		_, isLiteral := l.TypeChecker.GetLiteralType(literalText)
-
-		if isLiteral {
-			tempVar := l.Program.GetNextVariable()
-
-			varType := VARIABLE_TYPES.I32
-
-			l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
-				Target: tempVar,
-				Type:   varType,
-				Value:  LiteralOrVariable(literalText),
-			}))
-
-			l.Program.UpsertTranslation(scopeName, exprText, tempVar)
-		}
-	} else if ctx.LeftHandSide() != nil {
+	if ctx.LeftHandSide() != nil {
 		lhs := ctx.LeftHandSide()
 
 		if lhs.PrimaryAtom() != nil {

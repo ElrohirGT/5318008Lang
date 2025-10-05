@@ -1,1 +1,2 @@
-let a : integer = 5 + 3 * 15;
+let a : integer = 5;
+let b: integer = 8 * (8 / 9);
