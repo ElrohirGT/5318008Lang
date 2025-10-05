@@ -29,7 +29,12 @@ func NewListener() Listener {
 
 	baseTypes := make(TypeTable)
 	for _, baseType := range BASE_TYPE_ARRAY {
-		baseTypes[baseType] = NewTypeInfo_Base()
+		typeSize := uint(4) // 4 bytes is the base type size except on booleans
+		if baseType == BASE_TYPES.BOOLEAN {
+			typeSize = uint(1)
+		}
+
+		baseTypes[baseType] = NewTypeInfo_Base(typeSize)
 		if baseType == BASE_TYPES.INTEGER || baseType == BASE_TYPES.BOOLEAN || baseType == BASE_TYPES.STRING {
 			// string[]
 			baseTypes[NewArrayTypeIdentifier(baseType)] = NewTypeInfo_Array(ArrayTypeInfo{Type: baseType})
@@ -123,7 +128,7 @@ func (l Listener) ModifyClassTypeInfo(identifier TypeIdentifier, exe func(*Class
 	info := (*l.KnownTypes)[identifier]
 	classInfo := info.ClassType.GetValue()
 	exe(&classInfo)
-	(*l.KnownTypes)[identifier] = NewTypeInfo_Class(classInfo)
+	(*l.KnownTypes)[identifier] = NewTypeInfo_Class(classInfo, info.Size)
 }
 
 func (l Listener) TypeExists(identifier TypeIdentifier) bool {

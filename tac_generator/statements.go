@@ -8,17 +8,25 @@ import (
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
-func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
+	log.Printf("Translating leftHandSide: %s", ctx.GetText())
 	suffixes := ctx.AllSuffixOp()
-	if len(suffixes) == 0 {
+	handleAtomAndSuffixes(l, ctx.PrimaryAtom().GetText(), &suffixes)
+}
+
+func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
+	log.Printf("Translating standalone expression: %s", ctx.GetText())
+	suffixes := ctx.AllSuffixOp()
+	handleAtomAndSuffixes(l, ctx.StandaloneAtom().GetText(), &suffixes)
+}
+
+func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffixOpContext) {
+	scopeName := ScopeName(l.GetCurrentScope().Name)
+	if len(*suffixes) == 0 {
 		return
 	}
 
-	log.Printf("Translation standalone expression:\n%s", ctx.GetText())
-	primaryExpr := ctx.StandaloneAtom().GetText()
-	previousExpr := ctx.StandaloneAtom().GetText()
-
+	previousExpr := primaryExpr
 	previousType, found := l.TypeChecker.ScopeManager.CurrentScope.GetExpressionType(previousExpr)
 	if !found {
 		log.Panicf("Can't find type of expression: `%s`", previousExpr)
@@ -33,12 +41,12 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 		scopeName,
 	)
 
-	for i, suffix := range suffixes {
+	for i, suffix := range *suffixes {
 		switch suffixCtx := suffix.(type) {
 		case *p.MethodCallExprContext:
 		case *p.CallExprContext:
 		case *p.IndexExprContext:
-			varName := primaryExpr + getUntil(&suffixes, i)
+			varName := primaryExpr + getUntil(suffixes, i)
 			tempName := l.Program.GetOrGenerateVariable(
 				varName,
 				scopeName,

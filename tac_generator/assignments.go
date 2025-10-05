@@ -16,7 +16,8 @@ import (
 // CALLRET a sumar 2
 
 func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
 	variableName := ctx.Identifier().GetText()
 
 	exprText := ""
@@ -24,7 +25,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		exprText = init.ConditionalExpr().GetText()
 	}
 
-	exprType, foundType := l.TypeChecker.ScopeManager.CurrentScope.GetExpressionType(variableName)
+	exprType, foundType := scope.GetExpressionType(variableName)
 	if !foundType {
 		log.Panicf(
 			"Variable with name: `%s`\nnot found in current scope!%#v",
@@ -46,8 +47,6 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			variableValue = "0"
 		case type_checker.BASE_TYPES.INVALID, type_checker.BASE_TYPES.NULL, type_checker.BASE_TYPES.UNKNOWN:
 			log.Panicf("Variable with name: `%s` has an invalid type! `%s`", variableName, exprType)
-		default:
-			// FIXME: Handle array type!
 		}
 	} else {
 		_, isLiteral = l.TypeChecker.GetLiteralType(exprText)
@@ -62,22 +61,28 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	if isLiteral {
 		l.CreateAssignment(variableName, exprType, variableValue)
 	} else {
-		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
-		if !found {
-			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+		if length, found := scope.GetArrayLength(exprText); found {
+			scope.UpsertArrayLength(variableName, length)
+		} else {
+			exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+			if !found {
+				log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+			}
+
+			l.CreateAssignment(variableName, exprType, string(exprVar))
 		}
-
-		l.CreateAssignment(variableName, exprType, string(exprVar))
 	}
-
 }
 
 func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
+
 	var originalName string
 	var assignExpr p.IConditionalExprContext
 	if ctx.ThisAssignment() != nil {
 		assignExpr = ctx.ThisAssignment().ConditionalExpr()
-		originalName = ctx.ThisAssignment().Identifier().GetText()
+		originalName = "this." + ctx.ThisAssignment().Identifier().GetText()
 	} else if ctx.VariableAssignment() != nil {
 		assignExpr = ctx.VariableAssignment().ConditionalExpr()
 		originalName = ctx.VariableAssignment().Identifier().GetText()
@@ -85,9 +90,25 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	exprText := assignExpr.GetText()
 
 	literalType, isLiteral := l.TypeChecker.GetLiteralType(exprText)
-	if !isLiteral {
-		// FIXME: What do we do when the assignment is not a literal!?
-	} else {
+
+	log.Printf(
+		"Assignment to variable `%s`, with value: `%s`, which is a literal? %t",
+		originalName,
+		exprText,
+		isLiteral,
+	)
+	if isLiteral {
 		l.CreateAssignment(originalName, literalType, exprText)
+	} else {
+		if length, found := scope.GetArrayLength(exprText); found {
+			scope.UpsertArrayLength(originalName, length)
+		} else {
+			exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+			if !found {
+				log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+			}
+
+			l.CreateAssignment(originalName, literalType, string(exprVar))
+		}
 	}
 }

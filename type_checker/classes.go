@@ -11,9 +11,39 @@ import (
 // METHODS FOR HANDLING CLASSES TYPES
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
-	if l.ScopeManager.CurrentScope.Type != SCOPE_TYPES.CLASS {
-		panic("Trying to exit a class declaration but the scope is not of type class!")
+	scope := l.ScopeManager.CurrentScope
+	className := ctx.Identifier(0).GetText()
+	if scope.Type != SCOPE_TYPES.CLASS {
+		log.Panicf(
+			"Trying to exit a class declaration but the scope is not of type class!\nCurrent Type: `%s`",
+			scope.Type,
+		)
 	}
+
+	typeInfo, found := l.GetTypeInfo(TypeIdentifier(className))
+	if !found {
+		log.Panicf(
+			"Can't get type information of class `%s`",
+			className,
+		)
+	}
+	classInfo := typeInfo.ClassType.GetValue()
+
+	classSize := uint(1)
+	for fieldName, fieldType := range classInfo.Fields {
+		typeInfo, found := l.GetTypeInfo(fieldType)
+		if !found {
+			log.Panicf(
+				"Can't get type information for field `%s` of class `%s`, with type: `%s`",
+				fieldName,
+				className,
+				fieldType,
+			)
+		}
+
+		classSize += typeInfo.Size
+	}
+	l.UpsertTypeInfo(classInfo.Name, NewTypeInfo_Class(classInfo, classSize))
 
 	log.Printf("Escaping class declaration: %s", ctx.AllIdentifier()[0].GetText())
 	l.ScopeManager.CurrentScope = l.ScopeManager.CurrentScope.Father
@@ -57,8 +87,8 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	} else {
 		classInfo := NewClassTypeInfo(className.GetText())
 		classTypeId := TypeIdentifier(className.GetText())
-		l.UpsertTypeInfo(classTypeId, NewTypeInfo_Class(classInfo))
-		l.UpsertTypeInfo(NewArrayTypeIdentifier(classTypeId), NewTypeInfo_Base())
+		l.UpsertTypeInfo(classTypeId, NewTypeInfo_Class(classInfo, 0))
+		l.UpsertTypeInfo(NewArrayTypeIdentifier(classTypeId), NewTypeInfo_Base(0))
 	}
 
 	if len(identifiers) > 1 {

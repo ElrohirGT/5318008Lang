@@ -154,6 +154,7 @@ func NewScope(name string, _type ScopeType) *Scope {
 		Name:               name,
 		functions:          map[string]MethodInfo{},
 		typesByExpression:  map[string]TypeIdentifier{},
+		declaredArrays:     map[string]uint{},
 		constants:          lib.NewSet[string](),
 		expectedReturnType: BASE_TYPES.UNKNOWN,
 		inferredReturnType: BASE_TYPES.UNKNOWN,

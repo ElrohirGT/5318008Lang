@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -205,43 +204,8 @@ func (l *Listener) AppendInstruction(inst Instruction) {
 
 func (l *Listener) CreateAssignment(varName string, literalType type_checker.TypeIdentifier, rawValue string) {
 	currentScope := l.GetCurrentScope()
-	literalValue := "**SKILL ISSUE VALUE**"
 	target := l.Program.GetOrGenerateVariable(varName, ScopeName(currentScope.Name))
-	varType := VARIABLE_TYPES.I32
-
-	switch literalType {
-	case type_checker.BASE_TYPES.BOOLEAN:
-		varType = VARIABLE_TYPES.I8
-		switch rawValue {
-		case type_checker.LITERAL_VALUES.False:
-			literalValue = "0"
-		case type_checker.LITERAL_VALUES.True:
-			literalValue = strconv.FormatInt(^0, 10)
-		default:
-			log.Panicf(
-				"Expression: `%s`\nis of type `%s`\nbut it isn't `%s` nor `%s`",
-				rawValue,
-				literalType,
-				type_checker.LITERAL_VALUES.False,
-				type_checker.LITERAL_VALUES.True,
-			)
-		}
-
-	case type_checker.BASE_TYPES.INTEGER:
-		literalValue = rawValue
-	case type_checker.BASE_TYPES.STRING:
-	case type_checker.BASE_TYPES.NULL, type_checker.BASE_TYPES.INVALID, type_checker.BASE_TYPES.UNKNOWN:
-		log.Panicf(
-			"Literal expression: `%s` is of invalid type! `%s`",
-			varName,
-			literalType,
-		)
-	default:
-		log.Panicf(
-			"You shouldn't create an assignment for the type: `%s`\nCheckout the array example to see what should be done!",
-			literalType,
-		)
-	}
+	varType, literalValue := literalToTAC(rawValue, literalType)
 
 	l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{
 		Target: target,

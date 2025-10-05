@@ -21,7 +21,7 @@ func NewArrayTypeIdentifier(baseType TypeIdentifier) TypeIdentifier {
 // Extra attributes may be stored on its own field as an Optional.
 type TypeInfo struct {
 	BaseType  bool // If this a simple type (does not carry class/array info)
-	Size      int  // In bytes
+	Size      uint // In bytes
 	ArrayType lib.Optional[ArrayTypeInfo]
 	ClassType lib.Optional[ClassTypeInfo]
 }
@@ -32,9 +32,10 @@ type TypeTable = map[TypeIdentifier]TypeInfo
 // Data Structure to store the types of the literal expressions found in the program.
 type LiteralTable = map[string]TypeIdentifier
 
-func NewTypeInfo_Base() TypeInfo {
+func NewTypeInfo_Base(size uint) TypeInfo {
 	return TypeInfo{
 		BaseType:  true,
+		Size:      size,
 		ArrayType: lib.NewOpEmpty[ArrayTypeInfo](),
 		ClassType: lib.NewOpEmpty[ClassTypeInfo](),
 	}
@@ -159,9 +160,10 @@ func NewClassTypeInfo(className string) ClassTypeInfo {
 	}
 }
 
-func NewTypeInfo_Class(classInfo ClassTypeInfo) TypeInfo {
+func NewTypeInfo_Class(classInfo ClassTypeInfo, size uint) TypeInfo {
 	return TypeInfo{
 		BaseType:  false,
+		Size:      size,
 		ArrayType: lib.NewOpEmpty[ArrayTypeInfo](),
 		ClassType: lib.NewOpValue(classInfo),
 	}
