@@ -61,14 +61,15 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	if isLiteral {
 		l.CreateAssignment(variableName, exprType, variableValue)
 	} else {
+		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+		}
+
 		if length, found := scope.GetArrayLength(exprText); found {
 			scope.UpsertArrayLength(variableName, length)
+			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		} else {
-			exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
-			if !found {
-				log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
-			}
-
 			l.CreateAssignment(variableName, exprType, string(exprVar))
 		}
 	}
