@@ -42,13 +42,8 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 		log.Panicf("SKILL ISSUE:\nSomeone forgot to include the main scope inside the program!")
 	}
 
-	_, err := fmt.Fprintf(buff, "%s:\n", l.Program.MainScope)
-	if err != nil {
-		return err
-	}
-
 	for _, inst := range mainScope.Instructions {
-		err := instructionToBuffer(&inst, buff)
+		err := instructionToBuffer(&inst, buff, "")
 		if err != nil {
 			return err
 		}
@@ -60,21 +55,22 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 	for name := range l.Program.Scopes {
 		scopeNames = append(scopeNames, string(name))
 	}
-
+	// Sort Alphabetically
 	sort.Strings(scopeNames)
+
 	for _, scopeName := range scopeNames {
 		scope := l.Program.Scopes[ScopeName(scopeName)]
 		if ScopeName(scopeName) == l.Program.MainScope {
 			continue
 		}
 
-		_, err := fmt.Fprintf(buff, "%s:\n", scopeName)
+		_, err := fmt.Fprintf(buff, "SEC %s:\n", scopeName)
 		if err != nil {
 			return err
 		}
 
 		for _, inst := range scope.Instructions {
-			err := instructionToBuffer(&inst, buff)
+			err := instructionToBuffer(&inst, buff, "\t")
 			if err != nil {
 				return err
 			}
@@ -86,7 +82,7 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 	return nil
 }
 
-func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
+func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) error {
 	defer buff.WriteString("\n")
 
 	// FIXME: Keep implementing branches
@@ -94,17 +90,18 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 	switch {
 	case inst.Assignment.HasValue():
 		assignment := inst.Assignment.GetValue()
-		_, err = fmt.Fprintf(buff, "= %s %s %s",
-			assignment.Target, assignment.Type, assignment.Value)
+		_, err = fmt.Fprintf(buff, "%s= %s %s %s",
+			tab, assignment.Target, assignment.Type, assignment.Value)
 
 	case inst.Copy.HasValue():
 		copy := inst.Copy.GetValue()
-		_, err = fmt.Fprintf(buff, "CP %s %s",
-			copy.Target, copy.Source)
+		_, err = fmt.Fprintf(buff, "%sCP %s %s",
+			tab, copy.Target, copy.Source)
 
 	case inst.Sec.HasValue():
 		tag := inst.Sec.GetValue()
-		_, err = fmt.Fprintf(buff, "SEC %s:", tag.Name)
+		_, err = fmt.Fprintf(buff, "%sSEC %s:",
+			tab, tag.Name)
 
 	case inst.Jump.HasValue():
 		jump := inst.Jump.GetValue()
@@ -114,85 +111,86 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 
 			if cond.Simple.HasValue() {
 				// Conditional simple jump
-				_, err = fmt.Fprintf(buff, "IF %s GOTO %s",
-					cond.Simple.GetValue(), jump.Target)
+				_, err = fmt.Fprintf(buff, "%sIF %s GOTO %s",
+					tab, cond.Simple.GetValue(), jump.Target)
 			} else if cond.SimpleNegated.HasValue() {
 				// Conditional negation jump
-				_, err = fmt.Fprintf(buff, "IF NOT %s GOTO %s",
-					cond.SimpleNegated.GetValue(), jump.Target)
+				_, err = fmt.Fprintf(buff, "%sIF NOT %s GOTO %s",
+					tab, cond.SimpleNegated.GetValue(), jump.Target)
 			} else if cond.Relation.HasValue() {
 				// Conditional multivariable jump
 				rel := cond.Relation.GetValue()
-				_, err = fmt.Fprintf(buff, "IF %s %s %s GOTO %s",
-					rel.Type, rel.P1, rel.P2, jump.Target)
+				_, err = fmt.Fprintf(buff, "%sIF %s %s %s GOTO %s",
+					tab, rel.Type, rel.P1, rel.P2, jump.Target)
 			}
 		} else {
 			// Unconditional jump
-			_, err = fmt.Fprintf(buff, "GOTO %s",
-				jump.Target)
+			_, err = fmt.Fprintf(buff, "%sGOTO %s",
+				tab, jump.Target)
 		}
 
 	case inst.Param.HasValue():
 		param := inst.Param.GetValue()
-		_, err = fmt.Fprintf(buff, "PARAM %s",
-			param.Parameter)
+		_, err = fmt.Fprintf(buff, "%sPARAM %s",
+			tab, param.Parameter)
 
 	case inst.Call.HasValue():
 		call := inst.Call.GetValue()
 		if call.SaveReturnOn.HasValue() {
 			// call function with return
-			_, err = fmt.Fprintf(buff, "CALLRET %s %s %d",
-				call.SaveReturnOn.GetValue(), call.ProcedureName, call.NumberOfParams)
+			_, err = fmt.Fprintf(buff, "%sCALLRET %s %s %d",
+				tab, call.SaveReturnOn.GetValue(), call.ProcedureName, call.NumberOfParams)
 		} else {
-			_, err = fmt.Fprintf(buff, "CALL %s %d",
-				call.ProcedureName, call.NumberOfParams)
+			_, err = fmt.Fprintf(buff, "%sCALL %s %d",
+				tab, call.ProcedureName, call.NumberOfParams)
 		}
 
 	case inst.Return.HasValue():
 		ret := inst.Return.GetValue()
-		_, err = fmt.Fprintf(buff, "RETURN %s",
-			ret.Value)
+		_, err = fmt.Fprintf(buff, "%sRETURN %s",
+			tab, ret.Value)
 
 	case inst.Alloc.HasValue():
 		alloc := inst.Alloc.GetValue()
-		_, err = fmt.Fprintf(buff, "ALLOC %s %d",
-			alloc.Target, alloc.Size)
+		_, err = fmt.Fprintf(buff, "%sALLOC %s %d",
+			tab, alloc.Target, alloc.Size)
 
 	case inst.LoadWithOffset.HasValue():
 		lwo := inst.LoadWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "LWO %s %s %s",
-			lwo.Target, lwo.Source, lwo.Offset)
+		_, err = fmt.Fprintf(buff, "%sLWO %s %s %s",
+			tab, lwo.Target, lwo.Source, lwo.Offset)
 
 	case inst.SetWithOffset.HasValue():
 		swo := inst.SetWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "SWO %s %s %s",
-			swo.Target, swo.Offset, swo.Value)
+		_, err = fmt.Fprintf(buff, "%sSWO %s %s %s",
+			tab, swo.Target, swo.Offset, swo.Value)
 
 	case inst.Free.HasValue():
 		free := inst.Free.GetValue()
-		_, err = fmt.Fprintf(buff, "FREE %s",
-			free)
+		_, err = fmt.Fprintf(buff, "%sFREE %s",
+			tab, free)
 
 	case inst.Reference.HasValue():
 		ref := inst.Reference.GetValue()
-		_, err = fmt.Fprintf(buff, "&%s",
-			ref.Target)
+		_, err = fmt.Fprintf(buff, "%s&%s",
+			tab, ref.Target)
 
 	case inst.Dereference.HasValue():
 		def := inst.Dereference.GetValue()
-		_, err = fmt.Fprintf(buff, "@%s",
-			def.Target)
+		_, err = fmt.Fprintf(buff, "%s@%s",
+			tab, def.Target)
 
 	case inst.Arithmethic.HasValue():
 		arith := inst.Arithmethic.GetValue()
-		_, err = buff.WriteString(fmt.Sprintf("%s %s %s %s",
-			arith.Type, arith.Target, arith.P1, arith.P2))
+		_, err = buff.WriteString(fmt.Sprintf("%s%s %s %s %s",
+			tab, arith.Type, arith.Target, arith.P1, arith.P2))
 
 	case inst.Logic.HasValue():
 		// FIXME: implement me
 	case inst.Load.HasValue():
 		def := inst.Load.GetValue()
-		_, err = fmt.Fprintf(buff, "LOAD %s", def.Variable)
+		_, err = fmt.Fprintf(buff, "%sLOAD %s",
+			tab, def.Variable)
 
 	default:
 		log.Panicf("Unrecognizable instruction type!\n%#v", *inst)
