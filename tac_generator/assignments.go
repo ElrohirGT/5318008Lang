@@ -58,21 +58,8 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		exprText,
 		isLiteral,
 	)
-	if isLiteral {
-		l.CreateAssignment(variableName, exprType, variableValue)
-	} else {
-		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
-		if !found {
-			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
-		}
 
-		if length, found := scope.GetArrayLength(exprText); found {
-			scope.UpsertArrayLength(variableName, length)
-			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
-		} else {
-			l.CreateAssignment(variableName, exprType, string(exprVar))
-		}
-	}
+	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, exprText)
 }
 
 func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
@@ -88,9 +75,17 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		assignExpr = ctx.VariableAssignment().ConditionalExpr()
 		originalName = ctx.VariableAssignment().Identifier().GetText()
 	}
-	exprText := assignExpr.GetText()
 
-	literalType, isLiteral := l.TypeChecker.GetLiteralType(exprText)
+	exprText := assignExpr.GetText()
+	exprType, found := l.GetCurrentScope().GetExpressionType(exprText)
+	if !found {
+		log.Panicf(
+			"Failed to get type for expression: `%s`",
+			exprText,
+		)
+	}
+
+	_, isLiteral := l.TypeChecker.GetLiteralType(exprText)
 
 	log.Printf(
 		"Assignment to variable `%s`, with value: `%s`, which is a literal? %t",
@@ -98,18 +93,33 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		exprText,
 		isLiteral,
 	)
-	if isLiteral {
-		l.CreateAssignment(originalName, literalType, exprText)
-	} else {
-		if length, found := scope.GetArrayLength(exprText); found {
-			scope.UpsertArrayLength(originalName, length)
-		} else {
-			exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
-			if !found {
-				log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
-			}
 
-			l.CreateAssignment(originalName, literalType, string(exprVar))
+	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText, exprText)
+}
+
+func createAssignment(
+	l Listener,
+	scope *type_checker.Scope,
+	scopeName ScopeName,
+	isLiteral bool,
+	variableName string,
+	exprType type_checker.TypeIdentifier,
+	variableValue string,
+	exprText string,
+) {
+	if isLiteral {
+		l.CreateAssignment(variableName, exprType, variableValue)
+	} else {
+		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+		}
+
+		if length, found := scope.GetArrayLength(exprText); found {
+			scope.UpsertArrayLength(variableName, length)
+			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
+		} else {
+			l.CreateAssignment(variableName, exprType, string(exprVar))
 		}
 	}
 }
