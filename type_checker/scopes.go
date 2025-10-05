@@ -232,6 +232,11 @@ func (s *Scope) UpsertFunctionDef(name string, info MethodInfo) {
 	log.Printf("After upsert, functions map: %v", s.functions)
 }
 
+func (s *Scope) GetFunctionDef(name string) (MethodInfo, bool) {
+	info, found := s.functions[name]
+	return info, found
+}
+
 func (s *Scope) Print(indent int) {
 	prefix := strings.Repeat("  ", indent)
 	fmt.Printf("%sScope(Name=%q, Type=%v)\n", prefix, s.Name, s.Type)

@@ -7,6 +7,8 @@ import (
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
+// let a = [1,2,3];
+
 func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 	arrayExpr := ctx.GetText()
 	scope := l.GetCurrentScope()

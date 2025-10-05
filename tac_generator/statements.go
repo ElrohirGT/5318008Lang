@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
@@ -21,7 +22,8 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 }
 
 func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffixOpContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
 	if len(*suffixes) == 0 {
 		return
 	}
@@ -42,16 +44,89 @@ func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffix
 	)
 
 	for i, suffix := range *suffixes {
+		varName := primaryExpr + getUntil(suffixes, i)
+		tempName := l.Program.GetOrGenerateVariable(
+			varName,
+			scopeName,
+		)
+
 		switch suffixCtx := suffix.(type) {
 		case *p.MethodCallExprContext:
 		case *p.CallExprContext:
+			paramCount := 0
+			if args := suffixCtx.Arguments(); args != nil {
+				paramCount = len(args.AllConditionalExpr())
+
+				for _, arg := range args.AllConditionalExpr() {
+					literalType, isLiteral := l.TypeChecker.GetLiteralType(arg.GetText())
+					if isLiteral {
+						_, literalValue := literalToTAC(arg.GetText(), literalType)
+						l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(literalValue)}))
+					} else {
+						varName, found := l.Program.GetVariableFor(arg.GetText(), scopeName)
+						if !found {
+							log.Panicf(
+								"Variable for expression: `%s` not found!",
+								arg.GetText(),
+							)
+						}
+
+						l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
+					}
+				}
+			}
+
+			funcInfo, found := scope.GetFunctionDef(previousExpr)
+			if !found {
+				log.Panicf(
+					"Failed to find function info of: `%s`",
+					previousExpr,
+				)
+			}
+			returnNonNull := funcInfo.ReturnType != type_checker.BASE_TYPES.NULL
+			switch funcInfo.ReturnType {
+			case type_checker.BASE_TYPES.UNKNOWN, type_checker.BASE_TYPES.INVALID:
+				log.Panicf(
+					"Function `%s` should not be able to return `%s`!",
+					previousExpr,
+					funcInfo.ReturnType,
+				)
+			}
+
+			saveOnReturn := lib.NewOpEmpty[VariableName]()
+			if returnNonNull {
+				saveOnReturn = lib.NewOpValue(tempName)
+			}
+
+			l.AppendInstruction(NewCallInstruction(CallInstruction{
+				SaveReturnOn:   saveOnReturn,
+				ProcedureName:  ScopeName(previousExpr),
+				NumberOfParams: uint(paramCount),
+			}))
+
+			previousInChain = tempName
+			if returnNonNull {
+				returnTypeInfo, found := l.TypeChecker.GetTypeInfo(funcInfo.ReturnType)
+				if !found {
+					log.Panicf(
+						"Failed to find return type info for function: `%s`",
+						previousExpr,
+					)
+				}
+				previousTypeInfo = returnTypeInfo
+			}
+
 		case *p.IndexExprContext:
-			varName := primaryExpr + getUntil(suffixes, i)
-			tempName := l.Program.GetOrGenerateVariable(
-				varName,
-				scopeName,
-			)
 			offset := "**INVALID OFFSET**"
+
+			elemType := previousTypeInfo.ArrayType.GetValue().Type
+			elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
+			if !found {
+				log.Panicf(
+					"Failed to find the type information for the element in:\n%s",
+					varName,
+				)
+			}
 
 			condExpr := suffixCtx.ConditionalExpr().GetText()
 			litType, found := l.TypeChecker.GetLiteralType(condExpr)
@@ -75,15 +150,6 @@ func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffix
 						)
 						return
 					}
-					elemType := previousTypeInfo.ArrayType.GetValue().Type
-					elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
-					if !found {
-						log.Panicf(
-							"Failed to find the type information for the element `%d` in:\n%s",
-							idx,
-							varName,
-						)
-					}
 
 					elemSize := int64(elemTypeInfo.Size)
 					if elemSize <= 0 {
@@ -102,6 +168,9 @@ func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffix
 				Source: previousInChain,
 				Offset: LiteralOrVariable(offset),
 			}))
+
+			previousInChain = tempName
+			previousTypeInfo = elemTypeInfo
 		case *p.PropertyAccessExprContext:
 		}
 	}

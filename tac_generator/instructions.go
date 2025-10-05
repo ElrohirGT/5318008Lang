@@ -137,7 +137,7 @@ type JumpCondition struct {
 
 // Represents the instruction to create a parameter for a procedure.
 type ParamInstruction struct {
-	Parameter VariableName
+	Parameter LiteralOrVariable
 }
 
 func NewParamInstruction(instruction ParamInstruction) Instruction {
@@ -388,6 +388,13 @@ func NewProgram() *Program {
 	}
 }
 
+func (p *Program) UpsertScope(scopeName ScopeName) {
+	p.Scopes[scopeName] = ScopeInformation{
+		Instructions: []Instruction{},
+		translations: map[string]VariableName{},
+	}
+}
+
 func (p *Program) UpsertTranslation(scope ScopeName, localName string, tacName VariableName) {
 	scopeInfo, found := p.Scopes[scope]
 	if !found {
@@ -413,8 +420,8 @@ func (p *Program) GetVariableFor(expr string, scope ScopeName) (VariableName, bo
 		)
 	}
 
-	varName, found := scopeInfo.translations[expr]
-	return varName, found
+	tacName, found := scopeInfo.translations[expr]
+	return tacName, found
 }
 
 func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableName {
