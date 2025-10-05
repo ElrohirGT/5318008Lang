@@ -172,7 +172,10 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 			def.Target)
 
 	case inst.Arithmethic.HasValue():
-		// FIXME: implement me
+		arith := inst.Arithmethic.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("%s %s %s %s",
+			arith.Type, arith.Target, arith.P1, arith.P2))
+
 	case inst.Logic.HasValue():
 		// FIXME: implement me
 	case inst.Load.HasValue():

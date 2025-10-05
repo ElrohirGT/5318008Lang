@@ -458,3 +458,8 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 
 	return varName
 }
+
+func (p *Program) GetNextVariable() VariableName {
+	p.variableCounter += 1
+	return VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+}
