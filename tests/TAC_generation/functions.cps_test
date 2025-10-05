@@ -9,13 +9,14 @@ Add(b);
 ---
 GLOBAL:
 PARAM 150
-CALLRET t2 Add 1
-= t3 i32 t2
-PARAM t3
-CALLRET t4 Add 1
-= t5 i32 t4
-PARAM t5
-CALLRET t6 Add 1
+CALLRET t3 Add 1
+= t4 i32 t3
+PARAM t4
+CALLRET t5 Add 1
+= t6 i32 t5
+PARAM t6
+CALLRET t7 Add 1
 
 Add:
+LOAD t1
 RETURN 25

@@ -41,11 +41,9 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 
 	isLiteral := false
 	variableValue := exprText
-	if exprText == "" {
+	if exprText == "" && exprType != type_checker.BASE_TYPES.STRING {
 		isLiteral = true
 		switch exprType {
-		case type_checker.BASE_TYPES.STRING:
-			variableValue = ""
 		case type_checker.BASE_TYPES.BOOLEAN:
 			variableValue = "0"
 		case type_checker.BASE_TYPES.INTEGER:
@@ -114,10 +112,22 @@ func createAssignment(
 	if isLiteral {
 		literalType, literalValue := literalToTAC(exprText, exprType)
 		l.CreateAssignment(scopeName, variableName, literalType, literalValue)
+	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
+		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
+		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+			Target: strRef,
+			Size:   1,
+		}))
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			Target: strRef,
+			Offset: "0",
+			Value:  "0",
+		}))
+		l.Program.UpsertTranslation(scopeName, variableName, strRef)
 	} else {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
-			log.Panicf("Failed to find a variable for the expression:\n%s", exprText)
+			log.Panicf("Failed to find a variable for the expression:\n`%s`", exprText)
 		}
 
 		if length, found := scope.GetArrayLength(exprText); found {

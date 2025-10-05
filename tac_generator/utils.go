@@ -31,7 +31,6 @@ func literalToTAC(literal string, literalType type_checker.TypeIdentifier) (Vari
 
 	case type_checker.BASE_TYPES.INTEGER:
 		literalValue = literal
-	case type_checker.BASE_TYPES.STRING:
 	case type_checker.BASE_TYPES.NULL, type_checker.BASE_TYPES.INVALID, type_checker.BASE_TYPES.UNKNOWN:
 		log.Panicf(
 			"Literal expression: `%s` is of invalid type! `%s`",

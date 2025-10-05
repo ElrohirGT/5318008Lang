@@ -169,7 +169,8 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 			if err != nil {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.STRING)
 				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.STRING)
-				l.UpsertLiteral(literalExpr, BASE_TYPES.STRING)
+				// NOTE: Since strings are actually u8 arrays. They're not really a literal.
+				// l.UpsertLiteral(literalExpr, BASE_TYPES.STRING)
 			} else {
 				log.Println("Adding", literalExpr, "as an expresion of type", BASE_TYPES.INTEGER)
 				l.ScopeManager.CurrentScope.UpsertExpressionType(literalExpr, BASE_TYPES.INTEGER)
