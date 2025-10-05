@@ -63,7 +63,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, exprText)
+	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue)
 }
 
 func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
@@ -98,7 +98,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText, exprText)
+	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
 }
 
 func createAssignment(
@@ -108,11 +108,11 @@ func createAssignment(
 	isLiteral bool,
 	variableName string,
 	exprType type_checker.TypeIdentifier,
-	variableValue string,
 	exprText string,
 ) {
 	if isLiteral {
-		l.CreateAssignment(variableName, exprType, variableValue)
+		literalType, literalValue := literalToTAC(exprText, exprType)
+		l.CreateAssignment(variableName, literalType, literalValue)
 	} else {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
@@ -122,8 +122,10 @@ func createAssignment(
 		if length, found := scope.GetArrayLength(exprText); found {
 			scope.UpsertArrayLength(variableName, length)
 			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
+		} else if tacType, found := l.MapBaseTypeToTacType(exprType); found {
+			l.CreateAssignment(variableName, tacType, string(exprVar))
 		} else {
-			l.CreateAssignment(variableName, exprType, string(exprVar))
+			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		}
 	}
 }

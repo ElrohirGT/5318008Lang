@@ -7,25 +7,48 @@ import (
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
+	"github.com/antlr4-go/antlr/v4"
 )
 
 func (l Listener) ExitLeftHandSide(ctx *p.LeftHandSideContext) {
 	log.Printf("Translating leftHandSide: %s", ctx.GetText())
 	suffixes := ctx.AllSuffixOp()
-	handleAtomAndSuffixes(l, ctx.PrimaryAtom().GetText(), &suffixes)
+	handleAtomAndSuffixes(l, ctx.PrimaryAtom(), &suffixes)
 }
 
 func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 	log.Printf("Translating standalone expression: %s", ctx.GetText())
 	suffixes := ctx.AllSuffixOp()
-	handleAtomAndSuffixes(l, ctx.StandaloneAtom().GetText(), &suffixes)
+	handleAtomAndSuffixes(l, ctx.StandaloneAtom(), &suffixes)
 }
 
-func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffixOpContext) {
+func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
-	if len(*suffixes) == 0 {
-		return
+
+	primaryExpr := "**INVALID PRIMARY EXPR**"
+	switch innerCtx := primaryCtx.(type) {
+	case *p.IdentifierExprContext:
+		primaryExpr = innerCtx.GetText()
+		if len(*suffixes) == 0 {
+			return
+		}
+	case *p.StandaloneIdentifierExprContext:
+		primaryExpr = innerCtx.GetText()
+		if len(*suffixes) == 0 {
+			return
+		}
+	case *p.ThisExprContext:
+		primaryExpr = innerCtx.GetText()
+	case *p.StandaloneThisExprContext:
+		primaryExpr = innerCtx.GetText()
+
+	case *p.NewExprContext:
+		primaryExpr = innerCtx.GetText()
+		handleConstructorCall(l, primaryExpr, scopeName, innerCtx.Identifier(), innerCtx.Arguments())
+	case *p.StandaloneNewExprContext:
+		primaryExpr = innerCtx.GetText()
+		handleConstructorCall(l, primaryExpr, scopeName, innerCtx.Identifier(), innerCtx.Arguments())
 	}
 
 	previousExpr := primaryExpr
@@ -174,6 +197,58 @@ func handleAtomAndSuffixes(l Listener, primaryExpr string, suffixes *[]p.ISuffix
 		case *p.PropertyAccessExprContext:
 		}
 	}
+}
+
+func handleConstructorCall(
+	l Listener,
+	completeExpr string,
+	scopeName ScopeName,
+	identifier antlr.TerminalNode,
+	args p.IArgumentsContext,
+) {
+	className := identifier.GetText()
+	typeInfo, found := l.TypeChecker.GetTypeInfo(type_checker.TypeIdentifier(className))
+	if !found {
+		log.Panicf(
+			"Failed to find class (%s) type information! When translating constructor.",
+			className,
+		)
+	}
+	log.Printf("Constructing instance of: `%s`", className)
+
+	classRefTac := l.Program.GetOrGenerateVariable(completeExpr, scopeName)
+	log.Printf("Variable for: `%s` is `%s`", completeExpr, classRefTac)
+	l.AppendInstruction(NewAllocInstruction(AllocInstruction{
+		Target: classRefTac,
+		Size:   typeInfo.Size,
+	}))
+
+	if args != nil {
+		argExprs := args.AllConditionalExpr()
+		maxIdx := len(argExprs) - 1
+		for idx := maxIdx; maxIdx >= 0; idx -= 1 {
+			currentArg := argExprs[idx].GetText()
+
+			var argValue string
+			if literalType, isLiteral := l.TypeChecker.GetLiteralType(currentArg); isLiteral {
+				_, argValue = literalToTAC(currentArg, literalType)
+			} else {
+				tacName, found := l.Program.GetVariableFor(currentArg, scopeName)
+				if !found {
+					log.Panicf(
+						"Failed to find tac variable for expression: `%s`",
+						currentArg,
+					)
+				}
+
+				argValue = string(tacName)
+			}
+
+			l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(argValue)}))
+		}
+	}
+
+	l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}))
 }
 
 func getUntil(suffixes *[]p.ISuffixOpContext, maxIdx int) string {

@@ -175,6 +175,10 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 		// FIXME: implement me
 	case inst.Logic.HasValue():
 		// FIXME: implement me
+	case inst.Load.HasValue():
+		def := inst.Load.GetValue()
+		_, err = fmt.Fprintf(buff, "LOAD %s", def.Variable)
+
 	default:
 		log.Panicf("Unrecognizable instruction type!\n%#v", *inst)
 	}
@@ -202,16 +206,26 @@ func (l *Listener) AppendInstruction(inst Instruction) {
 	l.Program.Scopes[ScopeName(currentScope.Name)] = scopeInfo
 }
 
-func (l *Listener) CreateAssignment(varName string, literalType type_checker.TypeIdentifier, rawValue string) {
+func (l *Listener) CreateAssignment(varName string, varType VariableType, rawValue string) {
 	currentScope := l.GetCurrentScope()
 	target := l.Program.GetOrGenerateVariable(varName, ScopeName(currentScope.Name))
-	varType, literalValue := literalToTAC(rawValue, literalType)
 
 	l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{
 		Target: target,
 		Type:   varType,
-		Value:  LiteralOrVariable(literalValue),
+		Value:  LiteralOrVariable(rawValue),
 	}))
+}
+
+func (l *Listener) MapBaseTypeToTacType(_type type_checker.TypeIdentifier) (VariableType, bool) {
+	switch _type {
+	case type_checker.BASE_TYPES.INTEGER:
+		return VARIABLE_TYPES.I32, true
+	case type_checker.BASE_TYPES.BOOLEAN:
+		return VARIABLE_TYPES.I8, true
+	}
+
+	return "", false
 }
 
 // FIXME: Improve error handling:
