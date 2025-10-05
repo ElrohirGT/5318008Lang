@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -55,8 +56,15 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 
 	buff.WriteString("\n")
 
-	for scopeName, instructions := range l.Program.Scopes {
-		if scopeName == l.Program.MainScope {
+	var scopeNames []string
+	for name := range l.Program.Scopes {
+		scopeNames = append(scopeNames, string(name))
+	}
+
+	sort.Strings(scopeNames)
+	for _, scopeName := range scopeNames {
+		scope := l.Program.Scopes[ScopeName(scopeName)]
+		if ScopeName(scopeName) == l.Program.MainScope {
 			continue
 		}
 
@@ -65,7 +73,7 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 			return err
 		}
 
-		for _, inst := range instructions.Instructions {
+		for _, inst := range scope.Instructions {
 			err := instructionToBuffer(&inst, buff)
 			if err != nil {
 				return err
