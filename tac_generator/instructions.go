@@ -11,6 +11,8 @@ import (
 
 type ScopeName string
 
+type TagName string
+
 type VariableName string
 
 type LiteralOrVariable string
@@ -101,6 +103,17 @@ func NewLogicOpInstruction(instruction LogicOpInstruction) Instruction {
 	}
 }
 
+// Represents a tag, used to mark sections where the program can jump to.
+type SECInstruction struct {
+	Name TagName
+}
+
+func NewSecInstruction(instruction SECInstruction) Instruction {
+	return Instruction{
+		Sec: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents a jump instruction, it can be conditional or unconditional.
 //
 // Valid formats are:
@@ -112,7 +125,7 @@ func NewLogicOpInstruction(instruction LogicOpInstruction) Instruction {
 // * IF relop variable 1 variable 2 GOTO sección/tag.
 type JumpInstruction struct {
 	Condition lib.Optional[JumpCondition]
-	Target    ScopeName
+	Target    TagName
 }
 
 func NewJumpInstruction(instruction JumpInstruction) Instruction {
@@ -300,6 +313,7 @@ var ARITHMETHIC_OPERATION_TYPES = struct {
 type Instruction struct {
 	Assignment     lib.Optional[AssignmentInstruction]
 	Copy           lib.Optional[CopyInstruction]
+	Sec            lib.Optional[SECInstruction]
 	Jump           lib.Optional[JumpInstruction]
 	Param          lib.Optional[ParamInstruction]
 	Load           lib.Optional[LoadInstruction]
@@ -387,6 +401,7 @@ type ScopeInformation struct {
 type Program struct {
 	variableCounter uint
 	Scopes          map[ScopeName]ScopeInformation
+	ScopesNames     []ScopeName
 	MainScope       ScopeName
 }
 

@@ -94,6 +94,10 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer) error {
 		_, err = fmt.Fprintf(buff, "CP %s %s",
 			copy.Target, copy.Source)
 
+	case inst.Sec.HasValue():
+		tag := inst.Sec.GetValue()
+		_, err = fmt.Fprintf(buff, "SEC %s:", tag.Name)
+
 	case inst.Jump.HasValue():
 		jump := inst.Jump.GetValue()
 		if jump.Condition.HasValue() {
