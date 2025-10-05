@@ -84,7 +84,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 					literalType, isLiteral := l.TypeChecker.GetLiteralType(arg.GetText())
 					if isLiteral {
 						_, literalValue := literalToTAC(arg.GetText(), literalType)
-						l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(literalValue)}))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(literalValue)}))
 					} else {
 						varName, found := l.Program.GetVariableFor(arg.GetText(), scopeName)
 						if !found {
@@ -94,7 +94,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 							)
 						}
 
-						l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
 					}
 				}
 			}
@@ -121,7 +121,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				saveOnReturn = lib.NewOpValue(tempName)
 			}
 
-			l.AppendInstruction(NewCallInstruction(CallInstruction{
+			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  ScopeName(previousExpr),
 				NumberOfParams: uint(paramCount),
@@ -186,7 +186,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				}
 			}
 
-			l.AppendInstruction(NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
 				Target: tempName,
 				Source: previousInChain,
 				Offset: LiteralOrVariable(offset),
@@ -218,7 +218,7 @@ func handleConstructorCall(
 
 	classRefTac := l.Program.GetOrGenerateVariable(completeExpr, scopeName)
 	log.Printf("Variable for: `%s` is `%s`", completeExpr, classRefTac)
-	l.AppendInstruction(NewAllocInstruction(AllocInstruction{
+	l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
 		Target: classRefTac,
 		Size:   typeInfo.Size,
 	}))
@@ -244,11 +244,11 @@ func handleConstructorCall(
 				argValue = string(tacName)
 			}
 
-			l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(argValue)}))
+			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(argValue)}))
 		}
 	}
 
-	l.AppendInstruction(NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}))
+	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}))
 }
 
 func getUntil(suffixes *[]p.ISuffixOpContext, maxIdx int) string {

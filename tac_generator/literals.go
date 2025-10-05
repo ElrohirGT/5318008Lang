@@ -12,6 +12,7 @@ import (
 func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 	arrayExpr := ctx.GetText()
 	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
 	expressions := ctx.AllConditionalExpr()
 
 	arrayLength := len(expressions)
@@ -51,10 +52,13 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 	varName := l.Program.GetOrGenerateVariable(arrayExpr, ScopeName(scope.Name))
 	allocSize := elemTypeInfo.Size * uint(arrayLength)
 
-	l.AppendInstruction(NewAllocInstruction(AllocInstruction{
-		Target: varName,
-		Size:   uint(allocSize),
-	}))
+	l.AppendInstruction(
+		scopeName,
+		NewAllocInstruction(AllocInstruction{
+			Target: varName,
+			Size:   uint(allocSize),
+		}),
+	)
 
 	for i, expr := range expressions {
 		instValue := expr.GetText()
@@ -71,10 +75,13 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 			instValue = string(varName)
 		}
 
-		l.AppendInstruction(NewSetWithOffsetInstruction(SetWithOffsetInstruction{
-			Target: varName,
-			Offset: LiteralOrVariable(strconv.FormatInt(int64(i*int(elemTypeInfo.Size)), 10)),
-			Value:  LiteralOrVariable(instValue),
-		}))
+		l.AppendInstruction(
+			scopeName,
+			NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+				Target: varName,
+				Offset: LiteralOrVariable(strconv.FormatInt(int64(i*int(elemTypeInfo.Size)), 10)),
+				Value:  LiteralOrVariable(instValue),
+			}),
+		)
 	}
 }

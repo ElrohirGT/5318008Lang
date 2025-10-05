@@ -26,6 +26,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	}
 
 	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
 		variableName = "this." + variableName
 	}
 
@@ -112,7 +113,7 @@ func createAssignment(
 ) {
 	if isLiteral {
 		literalType, literalValue := literalToTAC(exprText, exprType)
-		l.CreateAssignment(variableName, literalType, literalValue)
+		l.CreateAssignment(scopeName, variableName, literalType, literalValue)
 	} else {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
@@ -123,7 +124,7 @@ func createAssignment(
 			scope.UpsertArrayLength(variableName, length)
 			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		} else if tacType, found := l.MapBaseTypeToTacType(exprType); found {
-			l.CreateAssignment(variableName, tacType, string(exprVar))
+			l.CreateAssignment(scopeName, variableName, tacType, string(exprVar))
 		} else {
 			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		}

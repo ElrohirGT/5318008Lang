@@ -14,7 +14,8 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	// l.Program.UpsertScope(ScopeName(scope.Name))
+	l.Program.UpsertScope(ScopeName(scope.Name + "_" + tc.CONSTRUCTOR_NAME))
 }
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {

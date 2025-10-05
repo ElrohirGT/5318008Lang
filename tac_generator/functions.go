@@ -23,13 +23,19 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		for idx := maxIdx; idx >= 0; idx -= 1 {
 			paramExpr := args[idx].Identifier().GetText()
 			log.Println("Appending parameter", paramExpr, "for scope", scopeName)
-			l.AppendInstruction(NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}))
+			l.AppendInstruction(
+				scopeName,
+				NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}),
+			)
 		}
 	}
 
 	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()
 	if isMethod {
-		l.AppendInstruction(NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable("this", scopeName)}))
+		l.AppendInstruction(
+			scopeName,
+			NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable("this", scopeName)}),
+		)
 	}
 }
 
@@ -57,6 +63,9 @@ func (l Listener) EnterReturnStatement(ctx *p.ReturnStatementContext) {
 			returnValue = string(tacVar)
 		}
 
-		l.AppendInstruction(NewReturnInstruction(ReturnInstruction{LiteralOrVariable(returnValue)}))
+		l.AppendInstruction(
+			scopeName,
+			NewReturnInstruction(ReturnInstruction{LiteralOrVariable(returnValue)}),
+		)
 	}
 }

@@ -198,19 +198,17 @@ func (l *Listener) GetCurrentScope() *type_checker.Scope {
 	return currentScope
 }
 
-func (l *Listener) AppendInstruction(inst Instruction) {
-	currentScope := l.GetCurrentScope()
-	scopeInfo := l.Program.Scopes[ScopeName(currentScope.Name)]
+func (l *Listener) AppendInstruction(scopeName ScopeName, inst Instruction) {
+	scopeInfo := l.Program.Scopes[scopeName]
 	scopeInfo.Instructions = append(scopeInfo.Instructions, inst)
-	log.Printf("Appending to scope `%s`: %s", currentScope.Name, inst)
-	l.Program.Scopes[ScopeName(currentScope.Name)] = scopeInfo
+	log.Printf("Appending to scope `%s`: %s", scopeName, inst)
+	l.Program.Scopes[scopeName] = scopeInfo
 }
 
-func (l *Listener) CreateAssignment(varName string, varType VariableType, rawValue string) {
-	currentScope := l.GetCurrentScope()
-	target := l.Program.GetOrGenerateVariable(varName, ScopeName(currentScope.Name))
+func (l *Listener) CreateAssignment(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
+	target := l.Program.GetOrGenerateVariable(varName, scopeName)
 
-	l.AppendInstruction(NewAssignmentInstruction(AssignmentInstruction{
+	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
 		Target: target,
 		Type:   varType,
 		Value:  LiteralOrVariable(rawValue),
