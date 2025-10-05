@@ -12,6 +12,10 @@ import (
 
 func (l Listener) EnterBlockStatement(ctx *p.BlockStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
+
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -27,6 +31,8 @@ func (l Listener) ExitBlockStatement(ctx *p.BlockStatementContext) {
 
 func (l Listener) EnterIfBody(ctx *p.IfBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -42,6 +48,8 @@ func (l Listener) ExitIfBody(ctx *p.IfBodyContext) {
 
 func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -57,6 +65,8 @@ func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
 
 func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -72,6 +82,8 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -87,6 +99,8 @@ func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
 
 func (l Listener) EnterForeachStatement(ctx *p.ForeachStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -102,6 +116,8 @@ func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
 
 func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -113,6 +129,8 @@ func (l Listener) ExitSwitchStatement(ctx *p.SwitchStatementContext) {
 
 func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -128,6 +146,8 @@ func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 
 func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -135,6 +155,8 @@ func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 
 func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	l.Program.UpsertScope(ScopeName(scope.Name))
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}

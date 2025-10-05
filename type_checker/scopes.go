@@ -3,7 +3,6 @@ package type_checker
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
@@ -92,8 +91,8 @@ func NewScopeManager(current *Scope, globalScope *Scope) ScopeManager {
 	}
 }
 
-func (sc *ScopeManager) GetUniqueName(prefix string) string {
-	value := prefix + strconv.FormatUint(uint64(sc.NumScopes), 10)
+func (sc *ScopeManager) GetUniqueID() uint {
+	value := sc.NumScopes
 	sc.NumScopes++
 	return value
 }
