@@ -243,6 +243,9 @@ func (s *Scope) UpsertFunctionDef(name string, info MethodInfo) {
 
 func (s *Scope) GetFunctionDef(name string) (MethodInfo, bool) {
 	info, found := s.functions[name]
+	if !found && s.Father != nil {
+		return s.Father.GetFunctionDef(name)
+	}
 	return info, found
 }
 
