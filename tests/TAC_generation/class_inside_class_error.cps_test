@@ -1,0 +1,22 @@
+class Legs {
+	let count: integer;
+
+	function constructor(legCount: integer) {
+		this.count = legCount;
+	}
+}
+
+class Dog {
+	let legs: Legs;
+	let age: integer;
+
+	function constructor(age: integer) {
+		this.legs = new Legs(4);
+		this.age = age;
+	}
+}
+
+let a = new Dog(8);
+---
+=== ERRORS ===
+* Error: (line: 10, column: 1-15) Can't leave a variable of type `Legs` uninitialized!

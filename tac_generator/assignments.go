@@ -1,6 +1,7 @@
 package tac_generator
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -43,18 +44,36 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 
 	isLiteral := false
 	variableValue := exprText
-	if exprText == "" && exprType != type_checker.BASE_TYPES.STRING {
+	if exprType == type_checker.BASE_TYPES.NULL || exprType == type_checker.BASE_TYPES.UNKNOWN || exprType == type_checker.BASE_TYPES.INVALID {
+		log.Panicf("Variable with name: `%s` has an invalid type! `%s`", variableName, exprType)
+	} else if exprText == "" && (exprType == type_checker.BASE_TYPES.BOOLEAN || exprType == type_checker.BASE_TYPES.INTEGER) {
 		isLiteral = true
 		switch exprType {
 		case type_checker.BASE_TYPES.BOOLEAN:
 			variableValue = "0"
 		case type_checker.BASE_TYPES.INTEGER:
 			variableValue = "0"
-		case type_checker.BASE_TYPES.INVALID, type_checker.BASE_TYPES.NULL, type_checker.BASE_TYPES.UNKNOWN:
-			log.Panicf("Variable with name: `%s` has an invalid type! `%s`", variableName, exprType)
 		}
-	} else {
+	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
+		varName, found := l.Program.GetVariableFor("EMPTY STRING", scopeName)
+		if !found {
+			log.Panicf(
+				"Empty string variable not found! On: `%s`",
+				scopeName,
+			)
+		}
+
+		variableValue = string(varName)
+	} else if exprText != "" {
 		_, isLiteral = l.TypeChecker.GetLiteralType(exprText)
+	} else {
+		l.AddError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			ctx.GetStop().GetColumn(),
+			fmt.Sprintf("Can't leave a variable of type `%s` uninitialized!", exprType),
+		)
+		return
 	}
 
 	log.Printf(

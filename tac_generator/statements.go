@@ -342,7 +342,7 @@ func handleConstructorCall(
 		argExprs := args.AllConditionalExpr()
 		argCount += uint(len(argExprs))
 		maxIdx := len(argExprs) - 1
-		for idx := maxIdx; maxIdx >= 0; idx -= 1 {
+		for idx := maxIdx; idx >= 0; idx -= 1 {
 			currentArg := argExprs[idx].GetText()
 
 			var comment string
