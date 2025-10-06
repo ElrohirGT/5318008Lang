@@ -186,7 +186,9 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 			tab, arith.Type, arith.Target, arith.P1, arith.P2))
 
 	case inst.Logic.HasValue():
-		// FIXME: implement me
+		log := inst.Logic.GetValue()
+		_, err = buff.WriteString(fmt.Sprintf("%s%s %s %s %s",
+			tab, log.Type, log.Target, log.P1, log.P2))
 	case inst.Load.HasValue():
 		def := inst.Load.GetValue()
 		_, err = fmt.Fprintf(buff, "%sLOAD %s",
