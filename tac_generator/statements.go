@@ -108,7 +108,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				)
 			}
 
-			returnNonNull := !(funcInfo.ReturnType == type_checker.BASE_TYPES.NULL || funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN)
+			returnNonNull := funcInfo.ReturnType != type_checker.BASE_TYPES.NULL && funcInfo.ReturnType != type_checker.BASE_TYPES.UNKNOWN
 			switch funcInfo.ReturnType {
 			// FIXME: Unknown should be a type to throw but we're going to accept Unknown too
 			// case type_checker.BASE_TYPES.UNKNOWN, type_checker.BASE_TYPES.INVALID:

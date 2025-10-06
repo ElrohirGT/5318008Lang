@@ -113,7 +113,7 @@ func (sc *ScopeManager) ReplaceWithParent() {
 
 func (sc *ScopeManager) ReplaceWithNextChild() error {
 	if sc.CurrentScope.currentChild >= len(sc.CurrentScope.Children) {
-		return fmt.Errorf("no more children")
+		return errors.New("no more children")
 	}
 	v := sc.CurrentScope.Children[sc.CurrentScope.currentChild]
 	log.Printf("Entering scope: %s - %s", v.Name, v.Type)
