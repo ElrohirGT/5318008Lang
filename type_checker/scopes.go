@@ -1,6 +1,7 @@
 package type_checker
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
