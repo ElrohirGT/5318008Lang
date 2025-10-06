@@ -239,6 +239,11 @@ func (l Listener) ExitIfStatement(ctx *p.IfStatementContext) {
 			}),
 			Target: TagName(scope.Name + "_ELSE"),
 		}))
+	} else {
+		l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+			Condition: lib.NewOpEmpty[JumpCondition](),
+			Target:    TagName(scope.Name + "_RETURN"),
+		}))
 	}
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
