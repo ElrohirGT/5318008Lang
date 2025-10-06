@@ -532,6 +532,35 @@ func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
+// ====================
+// CONTROL KEYWORDS
+// ====================
+
+func (l Listener) ExitContinueStatement(ctx *p.ContinueStatementContext) {
+	scope := l.GetCurrentScope()
+	loopScope, inLoopScope := l.TypeChecker.ScopeManager.SearchScopeByType(type_checker.SCOPE_TYPES.LOOP)
+	if !inLoopScope {
+		panic("Continue should be on loop statement")
+	}
+	returnTag := loopScope.Name + "_UPDATE"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
+}
+func (l Listener) ExitBreakStatement(ctx *p.BreakStatementContext) {
+	scope := l.GetCurrentScope()
+	loopScope, inLoopScope := l.TypeChecker.ScopeManager.SearchScopeByType(type_checker.SCOPE_TYPES.LOOP)
+	if !inLoopScope {
+		panic("Continue should be on loop statement")
+	}
+	returnTag := loopScope.Name + "_RETURN"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
+}
+
 // ================
 // 	SWITCH
 // ================
