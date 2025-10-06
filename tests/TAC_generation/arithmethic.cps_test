@@ -1,8 +1,36 @@
 let x = 5 + 9 / 2;
 let y = 2 + x;
+
+class Number {
+    function getNumber() {
+        return 5;
+    }
+}
+
+let a = new Number();
+let b = a.getNumber() + y;
 ---
 DIV t1 9 2
 ADD t2 5 t1
 = t3 i32 t2
 ADD t4 2 t3
 = t5 i32 t4
+ALLOC t8 1
+// (this)
+PARAM t8
+// (newNumber())
+CALL Number_constructor 1
+// (previousInChain := a)
+PARAM t8
+// (a.getNumber())
+CALLRET t9 Number_getNumber 0
+ADD t10 t9 t5
+= t11 i32 t10
+
+SEC Number_constructor:
+	// (this)
+	LOAD t6
+SEC Number_getNumber:
+	// (this)
+	LOAD t7
+	RETURN 5
