@@ -14,7 +14,8 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
-	l.Program.UpsertScope(scopeName)
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(scopeName, parentName)
 
 	log.Println("Adding parameters for function:", scopeName)
 	if params := ctx.Parameters(); params != nil {

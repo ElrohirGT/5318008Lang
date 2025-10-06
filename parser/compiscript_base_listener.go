@@ -111,6 +111,12 @@ func (s *BaseCompiscriptListener) EnterIfStatement(ctx *IfStatementContext) {}
 // ExitIfStatement is called when production ifStatement is exited.
 func (s *BaseCompiscriptListener) ExitIfStatement(ctx *IfStatementContext) {}
 
+// EnterIfCondition is called when production ifCondition is entered.
+func (s *BaseCompiscriptListener) EnterIfCondition(ctx *IfConditionContext) {}
+
+// ExitIfCondition is called when production ifCondition is exited.
+func (s *BaseCompiscriptListener) ExitIfCondition(ctx *IfConditionContext) {}
+
 // EnterIfBody is called when production ifBody is entered.
 func (s *BaseCompiscriptListener) EnterIfBody(ctx *IfBodyContext) {}
 

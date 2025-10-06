@@ -53,6 +53,9 @@ type CompiscriptListener interface {
 	// EnterIfStatement is called when entering the ifStatement production.
 	EnterIfStatement(c *IfStatementContext)
 
+	// EnterIfCondition is called when entering the ifCondition production.
+	EnterIfCondition(c *IfConditionContext)
+
 	// EnterIfBody is called when entering the ifBody production.
 	EnterIfBody(c *IfBodyContext)
 
@@ -256,6 +259,9 @@ type CompiscriptListener interface {
 
 	// ExitIfStatement is called when exiting the ifStatement production.
 	ExitIfStatement(c *IfStatementContext)
+
+	// ExitIfCondition is called when exiting the ifCondition production.
+	ExitIfCondition(c *IfConditionContext)
 
 	// ExitIfBody is called when exiting the ifBody production.
 	ExitIfBody(c *IfBodyContext)

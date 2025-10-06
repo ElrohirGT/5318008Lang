@@ -58,8 +58,19 @@ func (l Listener) ExitMustBoolExpr(ctx *p.MustBoolExprContext) {
 	}
 }
 
+func (l Listener) EnterIfStatement(ctx *p.IfStatementContext) {
+	ifScope := NewScope(_buildUniqueName(l.ScopeManager, "IF_"), SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(ifScope)
+	l.ScopeManager.ReplaceCurrent(ifScope)
+}
+
+func (l Listener) ExitIfStatement(ctx *p.IfStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
 func (l Listener) EnterIfBody(ctx *p.IfBodyContext) {
-	ifScope := NewScope(_buildUniqueName(l.ScopeManager, "IF"), SCOPE_TYPES.BLOCK)
+	scopeName := l.ScopeManager.CurrentScope.Name
+	ifScope := NewScope(scopeName+"_BODY", SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(ifScope)
 	l.ScopeManager.ReplaceCurrent(ifScope)
 }
@@ -69,7 +80,8 @@ func (l Listener) ExitIfBody(ctx *p.IfBodyContext) {
 }
 
 func (l Listener) EnterElseBody(ctx *p.ElseBodyContext) {
-	ifScope := NewScope(_buildUniqueName(l.ScopeManager, "ELSE"), SCOPE_TYPES.BLOCK)
+	scopeName := l.ScopeManager.CurrentScope.Name
+	ifScope := NewScope(scopeName+"_ELSE", SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(ifScope)
 	l.ScopeManager.ReplaceCurrent(ifScope)
 }

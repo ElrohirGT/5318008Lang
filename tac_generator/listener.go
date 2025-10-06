@@ -211,6 +211,15 @@ func (l *Listener) GetCurrentScope() *type_checker.Scope {
 	return currentScope
 }
 
+func (l *Listener) GetParentScopeName() ScopeName {
+	parentScope := l.GetCurrentScope().Father
+	name := ScopeName("")
+	if parentScope != nil {
+		name = ScopeName(parentScope.Name)
+	}
+	return ScopeName(name)
+}
+
 func (l *Listener) AppendInstruction(scopeName ScopeName, inst Instruction) {
 	scopeInfo := l.Program.Scopes[scopeName]
 	scopeInfo.Instructions = append(scopeInfo.Instructions, inst)
@@ -218,8 +227,37 @@ func (l *Listener) AppendInstruction(scopeName ScopeName, inst Instruction) {
 	l.Program.Scopes[scopeName] = scopeInfo
 }
 
+// DEPRECATED:
 func (l *Listener) CreateAssignment(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
 	target := l.Program.GetOrGenerateVariable(varName, scopeName)
+
+	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+		Target: target,
+		Type:   varType,
+		Value:  LiteralOrVariable(rawValue),
+	}))
+}
+
+// Used to force de creation of a new temporal varialbe for assignment
+func (l *Listener) CreateVariableDeclaration(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
+	target := l.Program.GetNextVariable()
+
+	l.Program.UpsertTranslation(scopeName, varName, target)
+
+	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+		Target: target,
+		Type:   varType,
+		Value:  LiteralOrVariable(rawValue),
+	}))
+}
+
+// Searches for the given variable in previus scopes to do the assignment to.
+func (l *Listener) CreateVariableAssignment(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
+	target, found := l.Program.GetVariableFor(varName, scopeName)
+
+	if !found {
+		panic("Variable " + varName + " not found in any scope")
+	}
 
 	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
 		Target: target,

@@ -63,7 +63,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue)
+	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
 }
 
 func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
@@ -299,10 +299,18 @@ func createAssignment(
 	variableName string,
 	exprType type_checker.TypeIdentifier,
 	exprText string,
+	isAssigment bool, // Flag to decide  if its and assignmetn or not
 ) {
 	if isLiteral {
 		literalType, literalValue := literalToTAC(exprText, exprType)
-		l.CreateAssignment(scopeName, variableName, literalType, literalValue)
+		// l.CreateAssignment(scopeName, variableName, literalType, literalValue)
+		if isAssigment {
+			// fmt.Println("THIS IS AN ASIGMENT OF:" + variableName)
+			l.CreateVariableAssignment(scopeName, variableName, literalType, literalValue)
+		} else {
+			// fmt.Println("THIS IS A DECLARATION OF:" + variableName + " " + string(scopeName))
+			l.CreateVariableDeclaration(scopeName, variableName, literalType, literalValue)
+		}
 	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
 		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
 		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
@@ -325,7 +333,11 @@ func createAssignment(
 			scope.UpsertArrayLength(variableName, length)
 			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		} else if tacType, found := l.MapBaseTypeToTacType(exprType); found {
-			l.CreateAssignment(scopeName, variableName, tacType, string(exprVar))
+			if isAssigment {
+				l.CreateVariableAssignment(scopeName, variableName, tacType, string(exprVar))
+			} else {
+				l.CreateVariableDeclaration(scopeName, variableName, tacType, string(exprVar))
+			}
 		} else {
 			l.Program.UpsertTranslation(scopeName, variableName, exprVar)
 		}

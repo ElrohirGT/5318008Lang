@@ -394,6 +394,7 @@ func (i Instruction) String() string {
 }
 
 type ScopeInformation struct {
+	Parent       ScopeName // Set to empty when no available
 	Instructions []Instruction
 	// We need to translate between `localName` of a variable to a `t1` or `t2`.
 	// This map aids on that.
@@ -421,8 +422,9 @@ func NewProgram() *Program {
 	}
 }
 
-func (p *Program) UpsertScope(scopeName ScopeName) {
+func (p *Program) UpsertScope(scopeName, parentScope ScopeName) {
 	p.Scopes[scopeName] = ScopeInformation{
+		Parent:       parentScope,
 		Instructions: []Instruction{},
 		translations: map[string]VariableName{},
 	}
@@ -454,7 +456,18 @@ func (p *Program) GetVariableFor(expr string, scope ScopeName) (VariableName, bo
 	}
 
 	tacName, found := scopeInfo.translations[expr]
-	return tacName, found
+	if found {
+		return tacName, found
+	}
+	for scopeInfo.Parent != "" {
+		scopeInfo = p.Scopes[scopeInfo.Parent]
+		tacName, found := scopeInfo.translations[expr]
+		if found {
+			return tacName, found
+		}
+	}
+
+	return "", false
 }
 
 func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableName {
@@ -468,7 +481,23 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 	}
 
 	varName, found := scopeInfo.translations[name]
+	if found {
+		// fmt.Println("FOUND FIRST TIME =" + varName)
+		return varName
+	}
+	// Search on parents
+	for scopeInfo.Parent != "" {
+		// parent := scopeInfo.Parent
+		scopeInfo = p.Scopes[scopeInfo.Parent]
+		varName, found := scopeInfo.translations[name]
+		if found {
+			// fmt.Println("FOUND ON PARENT =" + parent)
+			return varName
+		}
+	}
+
 	if !found {
+		// fmt.Println("NOT FOUND :( CREATING")
 		p.variableCounter += 1
 		varName = VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
 		p.UpsertTranslation(scope, name, varName)

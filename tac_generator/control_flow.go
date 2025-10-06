@@ -3,7 +3,9 @@ package tac_generator
 import (
 	"fmt"
 	"log"
+	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
@@ -180,7 +182,8 @@ func (l Listener) EnterBlockStatement(ctx *p.BlockStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
@@ -195,16 +198,91 @@ func (l Listener) ExitBlockStatement(ctx *p.BlockStatementContext) {
 // 	IF - ELSE
 // ================
 
+func (l Listener) EnterIfStatement(ctx *p.IfStatementContext) {
+	scope := l.GetCurrentScope()
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	ifScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(ifScope.Name),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(ifScope.Name + "_RETURN"),
+	}))
+
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(ifScope.Name), parentName)
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+}
+
+func (l Listener) ExitIfStatement(ctx *p.IfStatementContext) {
+	scope := l.GetCurrentScope()
+	condVar, _ := l.Program.GetVariableOrLiteral(
+		ctx.IfCondition().GetText(), ScopeName(scope.Name),
+		l.TypeChecker.ScopeManager,
+		l.TypeChecker)
+	// if !found {
+	// 	panic("Unable to found condition expresion for if statement")
+	// }
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(JumpCondition{
+			Simple: lib.NewOpValue(condVar),
+		}),
+		Target: TagName(scope.Name + "_BODY"),
+	}))
+	if ctx.ElseBody() != nil {
+		l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+			Condition: lib.NewOpValue(JumpCondition{
+				SimpleNegated: lib.NewOpValue(condVar),
+			}),
+			Target: TagName(scope.Name + "_ELSE"),
+		}))
+	}
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitIfCondition(ctx *p.IfConditionContext) {
+}
+
 func (l Listener) EnterIfBody(ctx *p.IfBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
 }
 
 func (l Listener) ExitIfBody(ctx *p.IfBodyContext) {
+	scope := l.GetCurrentScope()
+	returnTag := strings.TrimSuffix(scope.Name, "_BODY") + "_RETURN"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterElseBody(ctx *p.ElseBodyContext) {
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope := l.GetCurrentScope()
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+}
+
+func (l Listener) ExitElseBody(ctx *p.ElseBodyContext) {
+	scope := l.GetCurrentScope()
+	returnTag := strings.TrimSuffix(scope.Name, "_ELSE") + "_RETURN"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
@@ -215,7 +293,8 @@ func (l Listener) ExitIfBody(ctx *p.IfBodyContext) {
 func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -232,7 +311,8 @@ func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
 func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -249,7 +329,8 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -266,7 +347,8 @@ func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
 func (l Listener) EnterForeachStatement(ctx *p.ForeachStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -283,7 +365,8 @@ func (l Listener) ExitForeachStatement(ctx *p.ForeachStatementContext) {
 func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -296,7 +379,8 @@ func (l Listener) ExitSwitchStatement(ctx *p.SwitchStatementContext) {
 func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -313,7 +397,8 @@ func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
@@ -322,7 +407,8 @@ func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
-	l.Program.UpsertScope(ScopeName(scope.Name))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}

@@ -63,7 +63,8 @@ printStatement: 'print' '(' conditionalExpr ')' ';';
 
 mustBoolExpr : conditionalExpr ;
 
-ifStatement: 'if' '(' mustBoolExpr ')' ifBody ('else' elseBody)?;
+ifStatement: 'if' '(' ifCondition ')' ifBody ('else' elseBody)?;
+ifCondition: mustBoolExpr;
 ifBody: block;
 elseBody: block;
 whileStatement: 'while' '(' mustBoolExpr ')' whileBody;
