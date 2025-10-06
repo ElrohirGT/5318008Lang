@@ -3,11 +3,39 @@ package tac_generator
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
 // let a = [1,2,3];
+
+func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
+
+	literal := ctx.Literal().GetText()
+	isString := literal[0] == '"'
+	if !isString {
+		return
+	}
+
+	strTacVar := l.Program.GetOrGenerateVariable(literal, scopeName)
+	strLength := len(literal) - 2 + 1
+	l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+		Size:   uint(strLength),
+		Target: strTacVar,
+	}))
+
+	literalWithoutEnds := strings.Trim(literal, `"`)
+	for i, b := range []byte(literalWithoutEnds) {
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			Target: strTacVar,
+			Offset: LiteralOrVariable(strconv.FormatInt(int64(i), 10)),
+			Value:  LiteralOrVariable(strconv.FormatUint(uint64(b), 10)),
+		}))
+	}
+}
 
 func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 	arrayExpr := ctx.GetText()
