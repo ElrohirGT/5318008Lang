@@ -83,6 +83,10 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) error {
 	defer buff.WriteString("\n")
 
+	if inst.Comment != "" {
+		fmt.Fprintf(buff, "%s// %s\n", tab, inst.Comment)
+	}
+
 	// FIXME: Keep implementing branches
 	var err error
 	switch {
@@ -227,18 +231,7 @@ func (l *Listener) AppendInstruction(scopeName ScopeName, inst Instruction) {
 	l.Program.Scopes[scopeName] = scopeInfo
 }
 
-// DEPRECATED:
-func (l *Listener) CreateAssignment(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
-	target := l.Program.GetOrGenerateVariable(varName, scopeName)
-
-	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
-		Target: target,
-		Type:   varType,
-		Value:  LiteralOrVariable(rawValue),
-	}))
-}
-
-// Used to force de creation of a new temporal varialbe for assignment
+// Used to force de creation of a new temporal varialbe for assignment.
 func (l *Listener) CreateVariableDeclaration(scopeName ScopeName, varName string, varType VariableType, rawValue string) {
 	target := l.Program.GetNextVariable()
 

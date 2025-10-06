@@ -10,7 +10,9 @@ let an = new Animal();
 an.setName("Default Name");
 ---
 ALLOC t5 5
+// (this)
 PARAM t5
+// (newAnimal())
 CALL Animal_constructor 1
 ALLOC t6 13
 SWO t6 0 68
@@ -26,15 +28,20 @@ SWO t6 9 97
 SWO t6 10 109
 SWO t6 11 101
 SWO t6 12 0
+// ("Default Name")
 PARAM t6
+// (previousInChain := an)
 PARAM t5
+// (an.setName("Default Name"))
 CALL Animal_setName 1
 
 SEC Animal_constructor:
 	ALLOC t1 1
 	SWO t1 0 0
 SEC Animal_setName:
+	// (this)
 	LOAD t2
+	// (newName)
 	LOAD t3
 	= t4 i32 0
-	SWO t3 t4 t2
+	SWO t2 t4 t3

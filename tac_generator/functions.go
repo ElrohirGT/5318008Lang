@@ -18,26 +18,30 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	l.Program.UpsertScope(scopeName, parentName)
 
 	log.Println("Adding parameters for function:", scopeName)
+	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()
+	if isMethod {
+		thisTacName := l.Program.GetOrGenerateVariable("this", scopeName)
+		l.AppendInstruction(
+			scopeName,
+			NewLoadInstruction(LoadInstruction{thisTacName}).
+				AddComment("(this)"),
+		)
+		l.Program.UpsertTranslation(scopeName, "this", thisTacName)
+	}
+
 	if params := ctx.Parameters(); params != nil {
 		args := params.AllParameter()
-		maxIdx := len(args) - 1
-		for idx := maxIdx; idx >= 0; idx -= 1 {
+		for idx := range args {
 			paramExpr := args[idx].Identifier().GetText()
 			log.Println("Appending parameter", paramExpr, "for scope", scopeName)
 			l.AppendInstruction(
 				scopeName,
-				NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}),
+				NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}).
+					AddComment("("+paramExpr+")"),
 			)
 		}
 	}
 
-	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()
-	if isMethod {
-		l.AppendInstruction(
-			scopeName,
-			NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable("this", scopeName)}),
-		)
-	}
 }
 
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {

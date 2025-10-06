@@ -314,6 +314,7 @@ var ARITHMETHIC_OPERATION_TYPES = struct {
 //
 // This element is an enumeration, which means only one of the optionals is valid!
 type Instruction struct {
+	Comment        string
 	Assignment     lib.Optional[AssignmentInstruction]
 	Copy           lib.Optional[CopyInstruction]
 	Sec            lib.Optional[SECInstruction]
@@ -330,6 +331,11 @@ type Instruction struct {
 	Dereference    lib.Optional[DereferenceInstruction]
 	Arithmethic    lib.Optional[ArithmethicInstruction]
 	Logic          lib.Optional[LogicOpInstruction]
+}
+
+func (i Instruction) AddComment(comment string) Instruction {
+	i.Comment = comment
+	return i
 }
 
 // Debug representation of an instruction.

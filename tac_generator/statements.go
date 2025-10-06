@@ -93,7 +93,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 							)
 						}
 
-						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment("("+arg.GetText()+")"))
 					}
 				}
 			}
@@ -127,13 +127,13 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
 				Parameter: LiteralOrVariable(previousInChain),
-			}))
+			}).AddComment("(previousInChain := "+primaryExpr+getUntil(suffixes, i-1)+")"))
 
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
 				NumberOfParams: uint(paramCount),
-			}))
+			}).AddComment("("+varName+")"))
 
 			previousInChain = tempName
 			if returnNonNull {
@@ -166,7 +166,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 							)
 						}
 
-						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment("("+arg.GetText()+")"))
 					}
 				}
 			}
@@ -197,7 +197,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  ScopeName(previousExpr),
 				NumberOfParams: uint(paramCount),
-			}))
+			}).AddComment("("+varName+")"))
 
 			previousInChain = tempName
 			if returnNonNull {
@@ -345,10 +345,12 @@ func handleConstructorCall(
 		for idx := maxIdx; maxIdx >= 0; idx -= 1 {
 			currentArg := argExprs[idx].GetText()
 
+			var comment string
 			var argValue string
 			if literalType, isLiteral := l.TypeChecker.GetLiteralType(currentArg); isLiteral {
 				_, argValue = literalToTAC(currentArg, literalType)
 			} else {
+				comment = "(" + currentArg + ")"
 				tacName, found := l.Program.GetVariableFor(currentArg, scopeName)
 				if !found {
 					log.Panicf(
@@ -360,16 +362,16 @@ func handleConstructorCall(
 				argValue = string(tacName)
 			}
 
-			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(argValue)}))
+			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(argValue)}).AddComment(comment))
 		}
 	}
 
-	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}))
+	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}).AddComment("(this)"))
 	l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 		SaveReturnOn:   lib.NewOpEmpty[VariableName](),
 		ProcedureName:  ScopeName(className + "_" + type_checker.CONSTRUCTOR_NAME),
 		NumberOfParams: argCount,
-	}))
+	}).AddComment("("+completeExpr+")"))
 }
 
 func getUntil(suffixes *[]p.ISuffixOpContext, maxIdx int) string {
