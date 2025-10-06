@@ -66,111 +66,223 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
 }
 
-func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
+func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
 
-	isFieldAssignment := ctx.ThisAssignment() != nil
-	isVariableAssignment := ctx.VariableAssignment() != nil
+	parts := ctx.AllAssignmentPart()
+	expr := ctx.ConditionalExpr()
+	fieldName := ctx.Identifier().GetText()
 
-	var found bool
-	var previousType type_checker.TypeIdentifier
-	var previousTypeInfo type_checker.TypeInfo
-	var previousTacName VariableName
+	classScope, found := l.GetCurrentScope().SearchClassScope()
+	if !found {
+		log.Panicf(
+			"Can't access a field `%s` outside of class scope!",
+			fieldName,
+		)
+	}
+
+	typeInfo, found := l.TypeChecker.GetTypeInfo(type_checker.TypeIdentifier(classScope.Name))
+	if !found {
+		log.Panicf(
+			"Can't get type information of class: `%s`",
+			classScope.Name,
+		)
+	}
+	classInfo := typeInfo.ClassType.GetValue()
+
+	previousType, found := classInfo.GetFieldType(fieldName, l.TypeChecker)
+	if !found {
+		log.Panicf(
+			"Failed to get type for field: `%s`",
+			fieldName,
+		)
+	}
+
+	previousTypeInfo, found := l.TypeChecker.GetTypeInfo(previousType)
+	if !found {
+		log.Panicf(
+			"Failed to get type information for type: `%s`",
+			previousType,
+		)
+	}
+
+	thisTacName, found := l.Program.GetVariableFor("this", scopeName)
+	if !found {
+		log.Panicf(
+			"Failed to get tac variable for `this`, even though we're on a class scope!\nScope name: `%s`",
+			scopeName,
+		)
+	}
+
+	offsetTacName := l.Program.GetNextVariable()
+	computedOffset := classInfo.GetFieldOffset(l.TypeChecker, fieldName)
+	l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+		Target: offsetTacName,
+		Type:   VARIABLE_TYPES.I32,
+		Value:  LiteralOrVariable(strconv.FormatUint(uint64(computedOffset), 10)),
+	}))
+
+	varNameUntilNow := "this." + fieldName
+	for _, part := range parts {
+		switch partCtx := part.(type) {
+		case *p.FieldAssignmentPartExprContext:
+			newFieldName := partCtx.Identifier().GetText()
+			classInfo := previousTypeInfo.ClassType.GetValue()
+
+			varNameUntilNow += partCtx.GetText()
+			innerOffset := classInfo.GetFieldOffset(l.TypeChecker, newFieldName)
+			l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+				Signed: false,
+				Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+				Target: offsetTacName,
+				P1:     LiteralOrVariable(offsetTacName),
+				P2:     LiteralOrVariable(strconv.FormatUint(uint64(innerOffset), 10)),
+			}))
+
+			previousType, found = classInfo.GetFieldType(newFieldName, l.TypeChecker)
+			if !found {
+				log.Panicf(
+					"Can't find field `%s` for class `%s`",
+					newFieldName,
+					classInfo.Name,
+				)
+			}
+
+			previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
+			if !found {
+				log.Panicf(
+					"Can't find type information for: `%s`",
+					previousType,
+				)
+			}
+
+		case *p.IndexAssignmentPartExprContext:
+			offset := "**INVALID OFFSET**"
+
+			elemType := previousTypeInfo.ArrayType.GetValue().Type
+			elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
+			if !found {
+				log.Panicf(
+					"Failed to find the type information for the element in:\n%s",
+					varNameUntilNow,
+				)
+			}
+
+			condExpr := partCtx.ConditionalExpr().GetText()
+			litType, found := l.TypeChecker.GetLiteralType(condExpr)
+			if !found {
+				varName, found := l.Program.GetVariableFor(condExpr, scopeName)
+				if !found {
+					log.Panicf("Can't find the result variable for expr: `%s`", condExpr)
+				}
+				offset = string(varName)
+			} else {
+				if litType != type_checker.BASE_TYPES.INTEGER {
+					log.Panicf("Can't index with type that is not integer: %s", litType)
+				} else {
+					idx, err := strconv.ParseInt(condExpr, 10, 64)
+					if err != nil {
+						log.Panicf(
+							"Failed to parse integer literal: `%s`",
+							condExpr,
+						)
+
+					}
+
+					if idx < 0 {
+						l.AddError(
+							partCtx.GetStart().GetLine(),
+							partCtx.GetStart().GetColumn(),
+							partCtx.GetStop().GetColumn(),
+							"Can't index an array with a negative value!",
+						)
+						return
+					}
+
+					elemSize := int64(elemTypeInfo.Size)
+					if elemSize <= 0 {
+						log.Panicf(
+							"The element size is 0 or negative! But it should be at least 1.\nElem type: %s\n%s",
+							elemType,
+							varNameUntilNow,
+						)
+					}
+					offset = strconv.FormatInt(elemSize*idx, 10)
+				}
+			}
+
+			varNameUntilNow += partCtx.GetText()
+			l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+				Signed: false,
+				Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+				Target: offsetTacName,
+				P1:     LiteralOrVariable(offsetTacName),
+				P2:     LiteralOrVariable(offset),
+			}))
+
+			previousType = elemType
+			previousTypeInfo = elemTypeInfo
+		}
+	}
+
+	exprTac := "**INVALID EXPRESSION TAC**"
+	exprText := expr.GetText()
+	if literalType, isLiteral := l.TypeChecker.GetLiteralType(exprText); isLiteral {
+		_, exprTac = literalToTAC(exprText, literalType)
+	} else {
+		exprTacName, found := l.Program.GetVariableFor(exprText, scopeName)
+		if !found {
+			log.Panicf(
+				"Failed to get TAC variable for expression: `%s`",
+				exprText,
+			)
+		}
+
+		exprTac = string(exprTacName)
+	}
+
+	l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+		Target: thisTacName,
+		Offset: LiteralOrVariable(offsetTacName),
+		Value:  LiteralOrVariable(exprTac),
+	}))
+}
+
+func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
+
+	varName := ctx.Identifier().GetText()
+
+	parts := ctx.AllAssignmentPart()
+	expr := ctx.ConditionalExpr()
 
 	varNameUntilNow := ""
-	parts := []p.IAssignmentPartContext{}
-	var expr p.IConditionalExprContext
-	if isFieldAssignment {
-		fieldCtx := ctx.ThisAssignment()
-		parts = fieldCtx.AllAssignmentPart()
-		expr = fieldCtx.ConditionalExpr()
-		fieldName := fieldCtx.Identifier().GetText()
-
-		classScope, found := l.GetCurrentScope().SearchClassScope()
-		if !found {
-			log.Panicf(
-				"Can't access a field `%s` outside of class scope!",
-				fieldName,
-			)
-		}
-
-		typeInfo, found := l.TypeChecker.GetTypeInfo(type_checker.TypeIdentifier(classScope.Name))
-		if !found {
-			log.Panicf(
-				"Can't get type information of class: `%s`",
-				classScope.Name,
-			)
-		}
-		classInfo := typeInfo.ClassType.GetValue()
-
-		previousType, found = classInfo.GetFieldType(fieldName, l.TypeChecker)
-		if !found {
-			log.Panicf(
-				"Failed to get type for field: `%s`",
-				fieldName,
-			)
-		}
-
-		previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
-		if !found {
-			log.Panicf(
-				"Failed to get type information for type: `%s`",
-				previousType,
-			)
-		}
-
-		thisTacName, found := l.Program.GetVariableFor("this", scopeName)
-		if !found {
-			log.Panicf(
-				"Failed to get tac variable for `this`, even though we're on a class scope!\nScope name: `%s`",
-				scopeName,
-			)
-		}
-
-		computedOffset := classInfo.GetFieldOffset(l.TypeChecker, fieldName)
-		offset := strconv.FormatUint(uint64(computedOffset), 10)
-
-		previousTacName = l.Program.GetOrGenerateVariable("this."+fieldName, scopeName)
-		l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
-			Target: previousTacName,
-			Source: thisTacName,
-			Offset: LiteralOrVariable(offset),
-		}))
-
-		varNameUntilNow += "this." + fieldName
-	} else if isVariableAssignment {
-		varCtx := ctx.VariableAssignment()
-		varName := varCtx.Identifier().GetText()
-
-		parts = varCtx.AllAssignmentPart()
-		expr = varCtx.ConditionalExpr()
-
-		previousType, found = scope.GetExpressionType(varName)
-		if !found {
-			log.Panicf(
-				"Failed to get type for expression: `%s`",
-				varName,
-			)
-		}
-
-		previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
-		if !found {
-			log.Panicf(
-				"Failed to get type information for type: `%s`",
-				previousType,
-			)
-		}
-
-		previousTacName, found = l.Program.GetVariableFor(varName, scopeName)
-		if !found {
-			log.Panicf(
-				"Failed to get tac name for variable: %s",
-				varName,
-			)
-		}
-		varNameUntilNow += varName
+	previousType, found := scope.GetExpressionType(varName)
+	if !found {
+		log.Panicf(
+			"Failed to get type for expression: `%s`",
+			varName,
+		)
 	}
+
+	previousTypeInfo, found := l.TypeChecker.GetTypeInfo(previousType)
+	if !found {
+		log.Panicf(
+			"Failed to get type information for type: `%s`",
+			previousType,
+		)
+	}
+
+	previousTacName, found := l.Program.GetVariableFor(varName, scopeName)
+	if !found {
+		log.Panicf(
+			"Failed to get tac name for variable: %s",
+			varName,
+		)
+	}
+	varNameUntilNow += varName
 
 	for _, part := range parts {
 		switch partCtx := part.(type) {
@@ -276,7 +388,15 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		}
 	}
 
-	_, isLiteral := l.TypeChecker.GetLiteralType(expr.GetText())
+	exprText := expr.GetText()
+	exprType, found := scope.GetExpressionType(exprText)
+	if !found {
+		log.Panicf(
+			"Failed to get type for expression: `%s`",
+			exprText,
+		)
+	}
+	_, isLiteral := l.TypeChecker.GetLiteralType(exprText)
 
 	log.Printf(
 		"Assignment to variable:\n`%s`\nwith value: `%s`\nwhich is a literal? %t",
@@ -285,10 +405,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		isLiteral,
 	)
 
-	// if isFieldAssignment {
-	// } else {
-	// 	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
-	// }
+	createAssignment(l, scope, scopeName, isLiteral, varNameUntilNow, exprType, exprText, true)
 }
 
 func createAssignment(
