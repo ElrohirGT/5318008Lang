@@ -35,6 +35,13 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 			Value:  LiteralOrVariable(strconv.FormatUint(uint64(b), 10)),
 		}))
 	}
+
+	l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+		Target: strTacVar,
+		Offset: LiteralOrVariable(strconv.FormatInt(int64(strLength-1), 10)),
+		Value:  "0",
+	}))
+
 }
 
 func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
