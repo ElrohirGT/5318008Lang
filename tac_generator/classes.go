@@ -10,13 +10,18 @@ import (
 func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	if err != nil {
-		log.Println("Something when wrong during Scope management")
+		log.Println("Something went wrong during Scope management")
 	}
 
 	scope := l.GetCurrentScope()
 	// l.Program.UpsertScope(ScopeName(scope.Name))
 	parentName := l.GetParentScopeName()
-	l.Program.UpsertScope(ScopeName(scope.Name+"_"+tc.CONSTRUCTOR_NAME), parentName)
+	constructorScopeName := ScopeName(scope.Name + "_" + tc.CONSTRUCTOR_NAME)
+	l.Program.UpsertScope(constructorScopeName, parentName)
+
+	thisTacName := l.Program.GetNextVariable()
+	l.AppendInstruction(constructorScopeName, NewLoadInstruction(LoadInstruction{thisTacName}).AddComment("(this)"))
+	l.Program.UpsertTranslation(constructorScopeName, "this", thisTacName)
 }
 
 func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {

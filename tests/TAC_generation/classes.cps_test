@@ -9,39 +9,40 @@ class Animal {
 let an = new Animal();
 an.setName("Default Name");
 ---
-ALLOC t5 5
+ALLOC t6 5
 // (this)
-PARAM t5
+PARAM t6
 // (newAnimal())
 CALL Animal_constructor 1
-ALLOC t6 13
-SWO t6 0 68
-SWO t6 1 101
-SWO t6 2 102
-SWO t6 3 97
-SWO t6 4 117
-SWO t6 5 108
-SWO t6 6 116
-SWO t6 7 32
-SWO t6 8 78
-SWO t6 9 97
-SWO t6 10 109
-SWO t6 11 101
-SWO t6 12 0
+ALLOC t7 13
+SWO t7 0 68
+SWO t7 1 101
+SWO t7 2 102
+SWO t7 3 97
+SWO t7 4 117
+SWO t7 5 108
+SWO t7 6 116
+SWO t7 7 32
+SWO t7 8 78
+SWO t7 9 97
+SWO t7 10 109
+SWO t7 11 101
+SWO t7 12 0
 // ("Default Name")
-PARAM t6
+PARAM t7
 // (previousInChain := an)
-PARAM t5
+PARAM t6
 // (an.setName("Default Name"))
 CALL Animal_setName 1
 
 SEC Animal_constructor:
-	ALLOC t1 1
-	SWO t1 0 0
+	// (this)
+	LOAD t1
+	SWO t1 0 t2
 SEC Animal_setName:
 	// (this)
-	LOAD t2
-	// (newName)
 	LOAD t3
-	= t4 i32 0
-	SWO t2 t4 t3
+	// (newName)
+	LOAD t4
+	= t5 i32 0
+	SWO t3 t5 t4

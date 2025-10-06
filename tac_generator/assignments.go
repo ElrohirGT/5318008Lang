@@ -26,7 +26,8 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		exprText = init.ConditionalExpr().GetText()
 	}
 
-	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+	isClassScope := scope.Type == type_checker.SCOPE_TYPES.CLASS
+	if isClassScope {
 		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
 		variableName = "this." + variableName
 	}
@@ -57,13 +58,62 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 	}
 
 	log.Printf(
-		"Declaring variable `%s`, with value: `%s`, which is a literal? %t",
+		"Declaring variable `%s`, with type: `%s`, with value: `%s`, which is a literal? %t",
 		variableName,
+		exprType,
 		exprText,
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
+	if isClassScope {
+		typeInfo, found := l.TypeChecker.GetTypeInfo(type_checker.TypeIdentifier(scope.Name))
+		if !found {
+			log.Panicf(
+				"Failed to get type information for type: `%s`",
+				scope.Name,
+			)
+		}
+		classInfo := typeInfo.ClassType.GetValue()
+		thisTacName, found := l.Program.GetVariableFor("this", scopeName)
+		if !found {
+			log.Panicf(
+				"Failed to get `this` tac variable on constructor! `%s`",
+				scopeName,
+			)
+		}
+		fieldOffset := classInfo.GetFieldOffset(l.TypeChecker, ctx.Identifier().GetText())
+
+		value := "**INVALID VALUE**"
+		if literalType, isLiteral := l.TypeChecker.GetLiteralType(exprText); isLiteral {
+			_, value = literalToTAC(exprText, literalType)
+		} else if exprType == type_checker.BASE_TYPES.STRING && variableValue == "" {
+			varName := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
+			if !found {
+				log.Panicf(
+					"Failed to find TAC variable for expression: `%s`",
+					exprText,
+				)
+			}
+			value = string(varName)
+		} else {
+			varName, found := l.Program.GetVariableFor(variableValue, scopeName)
+			if !found {
+				log.Panicf(
+					"Failed to find TAC variable for expression: `%s`",
+					exprText,
+				)
+			}
+			value = string(varName)
+		}
+
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			Target: thisTacName,
+			Offset: LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
+			Value:  LiteralOrVariable(value),
+		}))
+	} else {
+		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
+	}
 }
 
 func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
