@@ -22,6 +22,8 @@ func stripANSI(s string) string {
 	return ansiRegex.ReplaceAllString(s, "")
 }
 
+const ENABLE_PANIC_RECOV = true
+
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
 	// "class",
@@ -29,7 +31,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "TAC_generation/class",
+	// "TAC_generation/arrays",
 }
 
 var IGNORE_SPECIFIC = []string{
@@ -157,16 +159,23 @@ func Test_TACGeneration(t *testing.T) {
 
 		outBuffer := bytes.Buffer{}
 		reader := bytes.NewReader([]byte(cpsContents))
-		err = func() error {
-			defer func() {
-				if r := recover(); r != nil {
-					t.Errorf("THE CODE CONTAINS A SKILL ISSUE!\nPanic: %s", r)
-				}
+
+		if ENABLE_PANIC_RECOV {
+			err = func() error {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Errorf("THE CODE CONTAINS A SKILL ISSUE!\nPanic: %s", r)
+					}
+				}()
+				return applib.TestableMain(reader, applib.CompilerConfig{
+					TACBuffer: lib.NewOpValue(&outBuffer),
+				})
 			}()
-			return applib.TestableMain(reader, applib.CompilerConfig{
+		} else {
+			err = applib.TestableMain(reader, applib.CompilerConfig{
 				TACBuffer: lib.NewOpValue(&outBuffer),
 			})
-		}()
+		}
 
 		if err != nil {
 			t.Errorf("It shouldn't have failed! But still failed with:\n%s", err.Error())

@@ -14,6 +14,10 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
 
+	if ctx.Literal() == nil {
+		return
+	}
+
 	literal := ctx.Literal().GetText()
 	isString := literal[0] == '"'
 	if !isString {
