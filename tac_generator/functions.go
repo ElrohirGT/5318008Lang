@@ -48,7 +48,7 @@ func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
-func (l Listener) EnterReturnStatement(ctx *p.ReturnStatementContext) {
+func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
 	if condExpr := ctx.ConditionalExpr(); condExpr != nil {
