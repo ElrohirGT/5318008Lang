@@ -371,9 +371,43 @@ func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
 // 	DO-WHILE
 // ================
 
-func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
-	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+func (l Listener) EnterDoWhileStatement(ctx *p.DoWhileStatementContext) {
 	scope := l.GetCurrentScope()
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	loopScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(loopScope.Name),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(loopScope.Name + "_RETURN"),
+	}))
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(loopScope.Name), parentName)
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+}
+func (l Listener) ExitDoWhileStatement(ctx *p.DoWhileStatementContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(scope.Name + "_UPDATE"),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(scope.Name + "_CONDITION"),
+	}))
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(scope.Name + "_BODY"),
+	}))
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	scope = l.GetCurrentScope()
 	parentName := l.GetParentScopeName()
 	l.Program.UpsertScope(ScopeName(scope.Name), parentName)
 	if err != nil {
@@ -382,6 +416,12 @@ func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
 }
 
 func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
+	scope := l.GetCurrentScope()
+	returnTag := strings.TrimSuffix(scope.Name, "_BODY") + "_UPDATE"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 

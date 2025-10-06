@@ -147,10 +147,21 @@ func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
 // DO-WHILE
 // ====================
 
+func (l Listener) EnterDoWhileStatement(ctx *p.DoWhileStatementContext) {
+	whileScope := NewScope(_buildUniqueName(l.ScopeManager, "LOOP_"), SCOPE_TYPES.LOOP)
+	l.ScopeManager.AddToCurrent(whileScope)
+	l.ScopeManager.ReplaceCurrent(whileScope)
+}
+
+func (l Listener) ExitDoWhileStatement(ctx *p.DoWhileStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
 func (l Listener) EnterDoWhileBody(ctx *p.DoWhileBodyContext) {
-	doWhileScope := NewScope(_buildUniqueName(l.ScopeManager, "DO-WHILE"), SCOPE_TYPES.LOOP)
-	l.ScopeManager.AddToCurrent(doWhileScope)
-	l.ScopeManager.ReplaceCurrent(doWhileScope)
+	scopeName := l.ScopeManager.CurrentScope.Name
+	loopScope := NewScope(scopeName+"_BODY", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(loopScope)
+	l.ScopeManager.ReplaceCurrent(loopScope)
 }
 
 func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
