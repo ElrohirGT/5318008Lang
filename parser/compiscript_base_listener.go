@@ -135,6 +135,12 @@ func (s *BaseCompiscriptListener) EnterWhileStatement(ctx *WhileStatementContext
 // ExitWhileStatement is called when production whileStatement is exited.
 func (s *BaseCompiscriptListener) ExitWhileStatement(ctx *WhileStatementContext) {}
 
+// EnterWhileCondition is called when production whileCondition is entered.
+func (s *BaseCompiscriptListener) EnterWhileCondition(ctx *WhileConditionContext) {}
+
+// ExitWhileCondition is called when production whileCondition is exited.
+func (s *BaseCompiscriptListener) ExitWhileCondition(ctx *WhileConditionContext) {}
+
 // EnterWhileBody is called when production whileBody is entered.
 func (s *BaseCompiscriptListener) EnterWhileBody(ctx *WhileBodyContext) {}
 

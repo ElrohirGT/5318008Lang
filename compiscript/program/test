@@ -1,0 +1,26 @@
+func (l Listener) ExitRelationalExpr(ctx *parser.RelationalExprContext) {
+	additiveExprs := ctx.AllAdditiveExpr()
+
+	if len(additiveExprs) == 1 {
+		return
+	}
+
+	// Get the second child of the expresion
+	opText := ctx.GetChild(1).(antlr.Token).GetText()
+	other := ctx.GetChild(2).(antlr.Token).GetText()
+
+	// for i := 1; i < ctx.GetChildCount(); i += 2 {
+	// 	opText := ctx.GetChild(i).GetPayload().(antlr.Token).GetText()
+
+	// 	// Now you have the operator as a string
+	// 	if opText == "<" {
+	// 		fmt.Println("I FOUND A FUCKING <  OPERATOR!")
+	// 	} else if opText == "<=" {
+	// 		fmt.Println("I FOUND A FUCKING <= OPERATOR!")
+	// 	} else if opText == ">" {
+	// 		fmt.Println("I FOUND A FUCKING > OPERATOR!")
+	// 	} else if opText == ">=" {
+	// 		fmt.Println("I FOUND A FUCKING >= OPERATOR!")
+	// 	}
+	// }
+}

@@ -65,6 +65,9 @@ type CompiscriptListener interface {
 	// EnterWhileStatement is called when entering the whileStatement production.
 	EnterWhileStatement(c *WhileStatementContext)
 
+	// EnterWhileCondition is called when entering the whileCondition production.
+	EnterWhileCondition(c *WhileConditionContext)
+
 	// EnterWhileBody is called when entering the whileBody production.
 	EnterWhileBody(c *WhileBodyContext)
 
@@ -280,6 +283,9 @@ type CompiscriptListener interface {
 
 	// ExitWhileStatement is called when exiting the whileStatement production.
 	ExitWhileStatement(c *WhileStatementContext)
+
+	// ExitWhileCondition is called when exiting the whileCondition production.
+	ExitWhileCondition(c *WhileConditionContext)
 
 	// ExitWhileBody is called when exiting the whileBody production.
 	ExitWhileBody(c *WhileBodyContext)

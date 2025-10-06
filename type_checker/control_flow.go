@@ -122,10 +122,21 @@ func (l Listener) ExitBreakStatement(ctx *p.BreakStatementContext) {
 // WHILE
 // ====================
 
-func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
-	whileScope := NewScope(_buildUniqueName(l.ScopeManager, "WHILE"), SCOPE_TYPES.LOOP)
+func (l Listener) EnterWhileStatement(ctx *p.WhileStatementContext) {
+	whileScope := NewScope(_buildUniqueName(l.ScopeManager, "LOOP_"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(whileScope)
 	l.ScopeManager.ReplaceCurrent(whileScope)
+}
+
+func (l Listener) ExitWhileStatement(ctx *p.WhileStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
+	scopeName := l.ScopeManager.CurrentScope.Name
+	loopScope := NewScope(scopeName+"_BODY", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(loopScope)
+	l.ScopeManager.ReplaceCurrent(loopScope)
 }
 
 func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {

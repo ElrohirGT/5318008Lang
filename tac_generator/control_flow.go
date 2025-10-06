@@ -290,6 +290,63 @@ func (l Listener) ExitElseBody(ctx *p.ElseBodyContext) {
 // 	WHILE
 // ================
 
+func (l Listener) EnterWhileStatement(ctx *p.WhileStatementContext) {
+	scope := l.GetCurrentScope()
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	loopScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(loopScope.Name),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(loopScope.Name + "_RETURN"),
+	}))
+
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(loopScope.Name), parentName)
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+}
+func (l Listener) ExitWhileStatement(ctx *p.WhileStatementContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(scope.Name + "_UPDATE"),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(scope.Name + "_CONDITION"),
+	}))
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterWhileCondition(ctx *p.WhileConditionContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(scope.Name + "_CONDITION"),
+	}))
+}
+
+func (l Listener) ExitWhileCondition(ctx *p.WhileConditionContext) {
+	scope := l.GetCurrentScope()
+	condVar, _ := l.Program.GetVariableOrLiteral(
+		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name),
+		l.TypeChecker.ScopeManager,
+		l.TypeChecker)
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(JumpCondition{
+			Simple: lib.NewOpValue(condVar),
+		}),
+		Target: TagName(scope.Name + "_BODY"),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(JumpCondition{
+			SimpleNegated: lib.NewOpValue(condVar),
+		}),
+		Target: TagName(scope.Name + "_RETURN"),
+	}))
+}
+
 func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
@@ -301,6 +358,12 @@ func (l Listener) EnterWhileBody(ctx *p.WhileBodyContext) {
 }
 
 func (l Listener) ExitWhileBody(ctx *p.WhileBodyContext) {
+	scope := l.GetCurrentScope()
+	returnTag := strings.TrimSuffix(scope.Name, "_BODY") + "_UPDATE"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
@@ -327,14 +390,6 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
-	// err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
-	// scope := l.GetCurrentScope()
-	// parentName := l.GetParentScopeName()
-	// l.Program.UpsertScope(ScopeName(scope.Name), parentName)
-	// if err != nil {
-	// 	log.Println("Something when wrong during Scope management")
-	// }
-
 	scope := l.GetCurrentScope()
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	loopScope := l.GetCurrentScope()
