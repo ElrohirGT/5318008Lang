@@ -55,14 +55,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			variableValue = "0"
 		}
 	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
-		varName, found := l.Program.GetVariableFor("EMPTY STRING", scopeName)
-		if !found {
-			log.Panicf(
-				"Empty string variable not found! On: `%s`",
-				scopeName,
-			)
-		}
-
+		varName := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
 		variableValue = string(varName)
 	} else if exprText != "" {
 		_, isLiteral = l.TypeChecker.GetLiteralType(exprText)
@@ -102,33 +95,10 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		}
 		fieldOffset := classInfo.GetFieldOffset(l.TypeChecker, ctx.Identifier().GetText())
 
-		value := "**INVALID VALUE**"
-		if isLiteral {
-			_, value = literalToTAC(variableValue, exprType)
-		} else if exprType == type_checker.BASE_TYPES.STRING && variableValue == "" {
-			varName := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
-			if !found {
-				log.Panicf(
-					"Failed to find TAC variable for expression: `%s`",
-					exprText,
-				)
-			}
-			value = string(varName)
-		} else {
-			varName, found := l.Program.GetVariableFor(exprText, scopeName)
-			if !found {
-				log.Panicf(
-					"Failed to find TAC variable for expression: `%s`",
-					exprText,
-				)
-			}
-			value = string(varName)
-		}
-
 		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
 			Target: thisTacName,
 			Offset: LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
-			Value:  LiteralOrVariable(value),
+			Value:  LiteralOrVariable(variableValue),
 		}))
 	} else {
 		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
