@@ -77,6 +77,15 @@ type CompiscriptListener interface {
 	// EnterForStatement is called when entering the forStatement production.
 	EnterForStatement(c *ForStatementContext)
 
+	// EnterForBody is called when entering the forBody production.
+	EnterForBody(c *ForBodyContext)
+
+	// EnterForCondition is called when entering the forCondition production.
+	EnterForCondition(c *ForConditionContext)
+
+	// EnterForUpdate is called when entering the forUpdate production.
+	EnterForUpdate(c *ForUpdateContext)
+
 	// EnterForeachValue is called when entering the foreachValue production.
 	EnterForeachValue(c *ForeachValueContext)
 
@@ -283,6 +292,15 @@ type CompiscriptListener interface {
 
 	// ExitForStatement is called when exiting the forStatement production.
 	ExitForStatement(c *ForStatementContext)
+
+	// ExitForBody is called when exiting the forBody production.
+	ExitForBody(c *ForBodyContext)
+
+	// ExitForCondition is called when exiting the forCondition production.
+	ExitForCondition(c *ForConditionContext)
+
+	// ExitForUpdate is called when exiting the forUpdate production.
+	ExitForUpdate(c *ForUpdateContext)
 
 	// ExitForeachValue is called when exiting the foreachValue production.
 	ExitForeachValue(c *ForeachValueContext)

@@ -159,6 +159,24 @@ func (s *BaseCompiscriptListener) EnterForStatement(ctx *ForStatementContext) {}
 // ExitForStatement is called when production forStatement is exited.
 func (s *BaseCompiscriptListener) ExitForStatement(ctx *ForStatementContext) {}
 
+// EnterForBody is called when production forBody is entered.
+func (s *BaseCompiscriptListener) EnterForBody(ctx *ForBodyContext) {}
+
+// ExitForBody is called when production forBody is exited.
+func (s *BaseCompiscriptListener) ExitForBody(ctx *ForBodyContext) {}
+
+// EnterForCondition is called when production forCondition is entered.
+func (s *BaseCompiscriptListener) EnterForCondition(ctx *ForConditionContext) {}
+
+// ExitForCondition is called when production forCondition is exited.
+func (s *BaseCompiscriptListener) ExitForCondition(ctx *ForConditionContext) {}
+
+// EnterForUpdate is called when production forUpdate is entered.
+func (s *BaseCompiscriptListener) EnterForUpdate(ctx *ForUpdateContext) {}
+
+// ExitForUpdate is called when production forUpdate is exited.
+func (s *BaseCompiscriptListener) ExitForUpdate(ctx *ForUpdateContext) {}
+
 // EnterForeachValue is called when production foreachValue is entered.
 func (s *BaseCompiscriptListener) EnterForeachValue(ctx *ForeachValueContext) {}
 

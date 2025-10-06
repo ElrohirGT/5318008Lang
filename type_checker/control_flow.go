@@ -151,12 +151,23 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ====================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
-	forScope := NewScope(_buildUniqueName(l.ScopeManager, "FOR"), SCOPE_TYPES.LOOP)
+	forScope := NewScope(_buildUniqueName(l.ScopeManager, "LOOP_"), SCOPE_TYPES.LOOP)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
 
 func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterForBody(ctx *p.ForBodyContext) {
+	scopeName := l.ScopeManager.CurrentScope.Name
+	loopScope := NewScope(scopeName+"_BODY", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(loopScope)
+	l.ScopeManager.ReplaceCurrent(loopScope)
+}
+
+func (l Listener) ExitForBody(ctx *p.ForBodyContext) {
 	l.ScopeManager.ReplaceWithParent()
 }
 

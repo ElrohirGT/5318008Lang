@@ -327,6 +327,79 @@ func (l Listener) ExitDoWhileBody(ctx *p.DoWhileBodyContext) {
 // ================
 
 func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
+	// err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	// scope := l.GetCurrentScope()
+	// parentName := l.GetParentScopeName()
+	// l.Program.UpsertScope(ScopeName(scope.Name), parentName)
+	// if err != nil {
+	// 	log.Println("Something when wrong during Scope management")
+	// }
+
+	scope := l.GetCurrentScope()
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	loopScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(loopScope.Name),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(loopScope.Name + "_RETURN"),
+	}))
+
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(loopScope.Name), parentName)
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+}
+
+func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterForCondition(ctx *p.ForConditionContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(scope.Name + "_CONDITION"),
+	}))
+}
+
+func (l Listener) ExitForCondition(ctx *p.ForConditionContext) {
+	scope := l.GetCurrentScope()
+	condVar, _ := l.Program.GetVariableOrLiteral(
+		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name),
+		l.TypeChecker.ScopeManager,
+		l.TypeChecker)
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(JumpCondition{
+			Simple: lib.NewOpValue(condVar),
+		}),
+		Target: TagName(scope.Name + "_BODY"),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(JumpCondition{
+			SimpleNegated: lib.NewOpValue(condVar),
+		}),
+		Target: TagName(scope.Name + "_RETURN"),
+	}))
+}
+
+func (l Listener) EnterForUpdate(ctx *p.ForUpdateContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(scope.Name + "_UPDATE"),
+	}))
+}
+
+func (l Listener) ExitForUpdate(ctx *p.ForUpdateContext) {
+	scope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpEmpty[JumpCondition](),
+		Target:    TagName(scope.Name + "_CONDITION"),
+	}))
+}
+
+func (l Listener) EnterForBody(ctx *p.ForBodyContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
 	parentName := l.GetParentScopeName()
@@ -336,7 +409,13 @@ func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
 	}
 }
 
-func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
+func (l Listener) ExitForBody(ctx *p.ForBodyContext) {
+	scope := l.GetCurrentScope()
+	returnTag := strings.TrimSuffix(scope.Name, "_BODY") + "_UPDATE"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(returnTag),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
