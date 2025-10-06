@@ -49,8 +49,6 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 		}
 	}
 
-	buff.WriteString("\n")
-
 	var scopeNames []string
 	for name := range l.Program.Scopes {
 		scopeNames = append(scopeNames, string(name))
@@ -75,8 +73,6 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 				return err
 			}
 		}
-
-		buff.WriteString("\n")
 	}
 
 	return nil
