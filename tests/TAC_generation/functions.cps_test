@@ -7,7 +7,6 @@ let b = Add(a);
 Add(b);
 
 ---
-GLOBAL:
 PARAM 150
 CALLRET t3 Add 1
 = t4 i32 t3
@@ -16,7 +15,6 @@ CALLRET t5 Add 1
 = t6 i32 t5
 PARAM t6
 CALLRET t7 Add 1
-
-Add:
-LOAD t1
-RETURN 25
+SEC Add:
+	LOAD t1
+	RETURN 25
