@@ -157,9 +157,17 @@ func Test_TACGeneration(t *testing.T) {
 
 		outBuffer := bytes.Buffer{}
 		reader := bytes.NewReader([]byte(cpsContents))
-		err = applib.TestableMain(reader, applib.CompilerConfig{
-			TACBuffer: lib.NewOpValue(&outBuffer),
-		})
+		err = func() error {
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("THE CODE CONTAINS A SKILL ISSUE!\nPanic: %s", r)
+				}
+			}()
+			return applib.TestableMain(reader, applib.CompilerConfig{
+				TACBuffer: lib.NewOpValue(&outBuffer),
+			})
+		}()
+
 		if err != nil {
 			t.Errorf("It shouldn't have failed! But still failed with:\n%s", err.Error())
 		}
