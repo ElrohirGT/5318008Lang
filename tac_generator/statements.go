@@ -75,6 +75,78 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 		switch suffixCtx := suffix.(type) {
 		case *p.MethodCallExprContext:
+			paramCount := 0
+			if args := suffixCtx.Arguments(); args != nil {
+				paramCount = len(args.AllConditionalExpr())
+
+				for _, arg := range args.AllConditionalExpr() {
+					literalType, isLiteral := l.TypeChecker.GetLiteralType(arg.GetText())
+					if isLiteral {
+						_, literalValue := literalToTAC(arg.GetText(), literalType)
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(literalValue)}))
+					} else {
+						varName, found := l.Program.GetVariableFor(arg.GetText(), scopeName)
+						if !found {
+							log.Panicf(
+								"Variable for expression: `%s` not found!",
+								arg.GetText(),
+							)
+						}
+
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}))
+					}
+				}
+			}
+
+			classInfo := previousTypeInfo.ClassType.GetValue()
+			methodName := suffixCtx.Identifier().GetText()
+			funcInfo, found := classInfo.Methods[methodName]
+			if !found {
+				log.Panicf(
+					"Failed to find method info of: `%s`",
+					methodName,
+				)
+			}
+
+			returnNonNull := !(funcInfo.ReturnType == type_checker.BASE_TYPES.NULL || funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN)
+			switch funcInfo.ReturnType {
+			// FIXME: Unknown should be a type to throw but we're going to accept Unknown too
+			// case type_checker.BASE_TYPES.UNKNOWN, type_checker.BASE_TYPES.INVALID:
+			case type_checker.BASE_TYPES.INVALID:
+				log.Panicf(
+					"Function `%s` should not be able to return `%s`!",
+					methodName,
+					funcInfo.ReturnType,
+				)
+			}
+
+			saveOnReturn := lib.NewOpEmpty[VariableName]()
+			if returnNonNull {
+				saveOnReturn = lib.NewOpValue(tempName)
+			}
+
+			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+				Parameter: LiteralOrVariable(previousInChain),
+			}))
+
+			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
+				SaveReturnOn:   saveOnReturn,
+				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
+				NumberOfParams: uint(paramCount),
+			}))
+
+			previousInChain = tempName
+			if returnNonNull {
+				returnTypeInfo, found := l.TypeChecker.GetTypeInfo(funcInfo.ReturnType)
+				if !found {
+					log.Panicf(
+						"Failed to find return type info for function: `%s`",
+						previousExpr,
+					)
+				}
+				previousTypeInfo = returnTypeInfo
+			}
+
 		case *p.CallExprContext:
 			paramCount := 0
 			if args := suffixCtx.Arguments(); args != nil {
@@ -231,8 +303,10 @@ func handleConstructorCall(
 		Size:   typeInfo.Size,
 	}))
 
+	var argCount uint = 1 // The default argument is the class ref!
 	if args != nil {
 		argExprs := args.AllConditionalExpr()
+		argCount += uint(len(argExprs))
 		maxIdx := len(argExprs) - 1
 		for idx := maxIdx; maxIdx >= 0; idx -= 1 {
 			currentArg := argExprs[idx].GetText()
@@ -257,6 +331,11 @@ func handleConstructorCall(
 	}
 
 	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}))
+	l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
+		SaveReturnOn:   lib.NewOpEmpty[VariableName](),
+		ProcedureName:  ScopeName(className + "_" + type_checker.CONSTRUCTOR_NAME),
+		NumberOfParams: argCount,
+	}))
 }
 
 func getUntil(suffixes *[]p.ISuffixOpContext, maxIdx int) string {

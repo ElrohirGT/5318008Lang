@@ -9,4 +9,14 @@ class Animal {
 let an = new Animal();
 an.setName("Default Name");
 ---
-GENERATE TAC
+ALLOC t4 5
+PARAM t4
+CALL Animal_constructor 1
+ALLOC t5 13
+
+SEC Animal_constructor:
+	ALLOC t1 1
+	SWO t1 0 0
+SEC Animal_setName:
+	LOAD t2
+	LOAD t3
