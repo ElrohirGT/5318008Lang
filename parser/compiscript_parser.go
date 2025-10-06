@@ -2457,11 +2457,6 @@ type IAssignmentPartContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
-	// Getter signatures
-	Identifier() antlr.TerminalNode
-	ConditionalExpr() IConditionalExprContext
-
 	// IsAssignmentPartContext differentiates from other interfaces.
 	IsAssignmentPartContext()
 }
@@ -2498,11 +2493,37 @@ func NewAssignmentPartContext(parser antlr.Parser, parent antlr.ParserRuleContex
 
 func (s *AssignmentPartContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *AssignmentPartContext) Identifier() antlr.TerminalNode {
-	return s.GetToken(CompiscriptParserIdentifier, 0)
+func (s *AssignmentPartContext) CopyAll(ctx *AssignmentPartContext) {
+	s.CopyFrom(&ctx.BaseParserRuleContext)
 }
 
-func (s *AssignmentPartContext) ConditionalExpr() IConditionalExprContext {
+func (s *AssignmentPartContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *AssignmentPartContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+type IndexAssignmentPartExprContext struct {
+	AssignmentPartContext
+}
+
+func NewIndexAssignmentPartExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *IndexAssignmentPartExprContext {
+	var p = new(IndexAssignmentPartExprContext)
+
+	InitEmptyAssignmentPartContext(&p.AssignmentPartContext)
+	p.parser = parser
+	p.CopyAll(ctx.(*AssignmentPartContext))
+
+	return p
+}
+
+func (s *IndexAssignmentPartExprContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *IndexAssignmentPartExprContext) ConditionalExpr() IConditionalExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IConditionalExprContext); ok {
@@ -2518,23 +2539,49 @@ func (s *AssignmentPartContext) ConditionalExpr() IConditionalExprContext {
 	return t.(IConditionalExprContext)
 }
 
-func (s *AssignmentPartContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *AssignmentPartContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *AssignmentPartContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *IndexAssignmentPartExprContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.EnterAssignmentPart(s)
+		listenerT.EnterIndexAssignmentPartExpr(s)
 	}
 }
 
-func (s *AssignmentPartContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *IndexAssignmentPartExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CompiscriptListener); ok {
-		listenerT.ExitAssignmentPart(s)
+		listenerT.ExitIndexAssignmentPartExpr(s)
+	}
+}
+
+type FieldAssignmentPartExprContext struct {
+	AssignmentPartContext
+}
+
+func NewFieldAssignmentPartExprContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *FieldAssignmentPartExprContext {
+	var p = new(FieldAssignmentPartExprContext)
+
+	InitEmptyAssignmentPartContext(&p.AssignmentPartContext)
+	p.parser = parser
+	p.CopyAll(ctx.(*AssignmentPartContext))
+
+	return p
+}
+
+func (s *FieldAssignmentPartExprContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *FieldAssignmentPartExprContext) Identifier() antlr.TerminalNode {
+	return s.GetToken(CompiscriptParserIdentifier, 0)
+}
+
+func (s *FieldAssignmentPartExprContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CompiscriptListener); ok {
+		listenerT.EnterFieldAssignmentPartExpr(s)
+	}
+}
+
+func (s *FieldAssignmentPartExprContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CompiscriptListener); ok {
+		listenerT.ExitFieldAssignmentPartExpr(s)
 	}
 }
 
@@ -2549,6 +2596,7 @@ func (p *CompiscriptParser) AssignmentPart() (localctx IAssignmentPartContext) {
 
 	switch p.GetTokenStream().LA(1) {
 	case CompiscriptParserT__9:
+		localctx = NewFieldAssignmentPartExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(211)
@@ -2568,6 +2616,7 @@ func (p *CompiscriptParser) AssignmentPart() (localctx IAssignmentPartContext) {
 		}
 
 	case CompiscriptParserT__10:
+		localctx = NewIndexAssignmentPartExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(213)

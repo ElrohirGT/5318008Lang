@@ -38,8 +38,11 @@ type CompiscriptListener interface {
 	// EnterVariableAssignment is called when entering the variableAssignment production.
 	EnterVariableAssignment(c *VariableAssignmentContext)
 
-	// EnterAssignmentPart is called when entering the assignmentPart production.
-	EnterAssignmentPart(c *AssignmentPartContext)
+	// EnterFieldAssignmentPartExpr is called when entering the FieldAssignmentPartExpr production.
+	EnterFieldAssignmentPartExpr(c *FieldAssignmentPartExprContext)
+
+	// EnterIndexAssignmentPartExpr is called when entering the IndexAssignmentPartExpr production.
+	EnterIndexAssignmentPartExpr(c *IndexAssignmentPartExprContext)
 
 	// EnterPrintStatement is called when entering the printStatement production.
 	EnterPrintStatement(c *PrintStatementContext)
@@ -239,8 +242,11 @@ type CompiscriptListener interface {
 	// ExitVariableAssignment is called when exiting the variableAssignment production.
 	ExitVariableAssignment(c *VariableAssignmentContext)
 
-	// ExitAssignmentPart is called when exiting the assignmentPart production.
-	ExitAssignmentPart(c *AssignmentPartContext)
+	// ExitFieldAssignmentPartExpr is called when exiting the FieldAssignmentPartExpr production.
+	ExitFieldAssignmentPartExpr(c *FieldAssignmentPartExprContext)
+
+	// ExitIndexAssignmentPartExpr is called when exiting the IndexAssignmentPartExpr production.
+	ExitIndexAssignmentPartExpr(c *IndexAssignmentPartExprContext)
 
 	// ExitPrintStatement is called when exiting the printStatement production.
 	ExitPrintStatement(c *PrintStatementContext)

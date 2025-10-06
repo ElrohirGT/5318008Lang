@@ -51,9 +51,12 @@ thisAssignment: 'this' ('.' Identifier) assignmentPart* '=' conditionalExpr ';' 
 variableAssignment: Identifier assignmentPart* '=' conditionalExpr ';' ;
 
 assignmentPart
-  : '.' Identifier
-  | '[' conditionalExpr ']'
+  : '.' Identifier						# FieldAssignmentPartExpr
+  | '[' conditionalExpr ']' 	# IndexAssignmentPartExpr
   ;
+
+// fieldAssignmentPart: '.' Identifier ;
+// indexAssignmentPart: '[' conditionalExpr ']' ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
 printStatement: 'print' '(' conditionalExpr ')' ';';
