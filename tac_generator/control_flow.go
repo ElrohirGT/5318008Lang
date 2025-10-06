@@ -4,7 +4,79 @@ import (
 	"log"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
+	"github.com/antlr4-go/antlr/v4"
 )
+
+func (l Listener) ExitRelationalExpr(ctx *p.RelationalExprContext) {
+	scopeName := ScopeName(l.GetCurrentScope().Name)
+
+	if len(ctx.AllAdditiveExpr()) == 1 {
+		return
+	}
+
+	opToken := ctx.GetChild(1).(antlr.TerminalNode).GetSymbol()
+	operator := BOOLEAN_OPERATION_TYPES.Greater
+	destiny := l.getOrCreateExpressionVariable(ctx.GetText(), scopeName)
+
+	p1, _ := l.Program.GetVariableOrLiteral(
+		ctx.AdditiveExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+	p2, _ := l.Program.GetVariableOrLiteral(
+		ctx.AdditiveExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+	switch opToken.GetText() {
+	case "<":
+		operator = BOOLEAN_OPERATION_TYPES.Less
+	case "<=":
+		operator = BOOLEAN_OPERATION_TYPES.LessOrEqual
+	case ">":
+		operator = BOOLEAN_OPERATION_TYPES.Greater
+	case ">=":
+		operator = BOOLEAN_OPERATION_TYPES.GreaterOrEqual
+	}
+
+	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+		Type:   operator,
+		Target: destiny,
+		P1:     p1,
+		P2:     p2,
+	}))
+}
+
+func (l Listener) ExitEqualityExpr(ctx *p.EqualityExprContext) {
+	scopeName := ScopeName(l.GetCurrentScope().Name)
+
+	if len(ctx.AllRelationalExpr()) == 1 {
+		return
+	}
+
+	opToken := ctx.GetChild(1).(antlr.TerminalNode).GetSymbol()
+	operator := BOOLEAN_OPERATION_TYPES.Equal
+	destiny := l.getOrCreateExpressionVariable(ctx.GetText(), scopeName)
+
+	p1, exprType := l.Program.GetVariableOrLiteral(
+		ctx.RelationalExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+	p2, _ := l.Program.GetVariableOrLiteral(
+		ctx.RelationalExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+	if exprType == type_checker.BASE_TYPES.STRING {
+		panic("Equality between strings not supported yet :p")
+	}
+
+	switch opToken.GetText() {
+	case "==":
+		operator = BOOLEAN_OPERATION_TYPES.Equal
+	case "!=":
+		operator = BOOLEAN_OPERATION_TYPES.NotEqual
+	}
+
+	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+		Type:   operator,
+		Target: destiny,
+		P1:     p1,
+		P2:     p2,
+	}))
+}
 
 // ================
 // 	BLOCK

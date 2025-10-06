@@ -90,7 +90,6 @@ var BOOLEAN_OPERATION_TYPES = struct {
 
 // Represents an logic instruction like and & or.
 type LogicOpInstruction struct {
-	Signed bool
 	Type   LogicOperationType
 	Target VariableName
 	P1     VariableName
@@ -381,7 +380,7 @@ func (i Instruction) String() string {
 		return fmt.Sprintf("{%s = %s %s %s (signed? %t)}", ass.Target, ass.P1, ass.Type, ass.P2, ass.Signed)
 	case i.Logic.HasValue():
 		ass := i.Logic.GetValue()
-		return fmt.Sprintf("{%s = %s %s %s (signed? %t)}", ass.Target, ass.P1, ass.Type, ass.P2, ass.Signed)
+		return fmt.Sprintf("{%s = %s %s %s}", ass.Target, ass.P1, ass.Type, ass.P2)
 	case i.Load.HasValue():
 		ass := i.Load.GetValue()
 		return fmt.Sprintf("{LOAD %s}", ass.Variable)
@@ -477,4 +476,27 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 func (p *Program) GetNextVariable() VariableName {
 	p.variableCounter += 1
 	return VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+}
+
+// Given and expresion and scope, if the expresion is a literal it returns
+// its TAC representation, if not it attemps to find the variable TAC name.
+func (p *Program) GetVariableOrLiteral(expresion string,
+	scopeName ScopeName,
+	sc *type_checker.ScopeManager, l *type_checker.Listener) (VariableName, type_checker.TypeIdentifier) {
+	if literalType, isLiteral := l.GetLiteralType(expresion); isLiteral {
+		literalType, value := literalToTAC(expresion, literalType)
+		return VariableName(value), type_checker.TypeIdentifier(literalType)
+	} else {
+		exprType, found := sc.CurrentScope.GetExpressionType(expresion)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n`%s`",
+				expresion)
+		}
+		tacName, found := p.GetVariableFor(expresion, scopeName)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n`%s`",
+				expresion)
+		}
+		return tacName, exprType
+	}
 }

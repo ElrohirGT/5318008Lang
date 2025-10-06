@@ -114,11 +114,11 @@ logicalAndExpr
 
 // Values should be of the same type and just primary
 equalityExpr
-  : relationalExpr ( ('==' | '!=') relationalExpr )*
+  : relationalExpr ( ('==' | '!=') relationalExpr )?
   ;
 
 relationalExpr
-  : additiveExpr ( ('<' | '<=' | '>' | '>=') additiveExpr )*
+  : additiveExpr ( ('<' | '<=' | '>' | '>=') additiveExpr )?
   ;
 
 additiveExpr

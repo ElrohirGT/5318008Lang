@@ -65,7 +65,7 @@ func compiscriptParserInit() {
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 62, 556, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 62, 550, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
@@ -106,70 +106,69 @@ func compiscriptParserInit() {
 		39, 1, 39, 1, 39, 3, 39, 387, 8, 39, 1, 40, 1, 40, 1, 41, 1, 41, 1, 41,
 		1, 41, 1, 41, 1, 41, 3, 41, 397, 8, 41, 1, 42, 1, 42, 1, 42, 5, 42, 402,
 		8, 42, 10, 42, 12, 42, 405, 9, 42, 1, 43, 1, 43, 1, 43, 5, 43, 410, 8,
-		43, 10, 43, 12, 43, 413, 9, 43, 1, 44, 1, 44, 1, 44, 5, 44, 418, 8, 44,
-		10, 44, 12, 44, 421, 9, 44, 1, 45, 1, 45, 1, 45, 5, 45, 426, 8, 45, 10,
-		45, 12, 45, 429, 9, 45, 1, 46, 1, 46, 1, 46, 5, 46, 434, 8, 46, 10, 46,
-		12, 46, 437, 9, 46, 1, 47, 1, 47, 1, 47, 5, 47, 442, 8, 47, 10, 47, 12,
-		47, 445, 9, 47, 1, 48, 1, 48, 1, 48, 3, 48, 450, 8, 48, 1, 49, 1, 49, 1,
-		49, 1, 49, 1, 49, 1, 49, 3, 49, 458, 8, 49, 1, 50, 1, 50, 1, 50, 1, 50,
-		1, 50, 3, 50, 465, 8, 50, 1, 51, 1, 51, 5, 51, 469, 8, 51, 10, 51, 12,
-		51, 472, 9, 51, 1, 52, 1, 52, 5, 52, 476, 8, 52, 10, 52, 12, 52, 479, 9,
-		52, 1, 52, 1, 52, 1, 53, 1, 53, 1, 53, 1, 53, 1, 53, 3, 53, 488, 8, 53,
-		1, 53, 1, 53, 3, 53, 492, 8, 53, 1, 54, 1, 54, 1, 54, 1, 54, 1, 54, 3,
-		54, 499, 8, 54, 1, 54, 1, 54, 3, 54, 503, 8, 54, 1, 55, 1, 55, 1, 55, 1,
-		55, 3, 55, 509, 8, 55, 1, 55, 1, 55, 1, 55, 3, 55, 514, 8, 55, 1, 55, 1,
-		55, 1, 55, 1, 55, 1, 55, 1, 55, 1, 55, 3, 55, 523, 8, 55, 1, 56, 1, 56,
-		1, 56, 5, 56, 528, 8, 56, 10, 56, 12, 56, 531, 9, 56, 1, 57, 1, 57, 1,
-		57, 1, 57, 5, 57, 537, 8, 57, 10, 57, 12, 57, 540, 9, 57, 3, 57, 542, 8,
-		57, 1, 57, 1, 57, 1, 58, 1, 58, 1, 58, 5, 58, 549, 8, 58, 10, 58, 12, 58,
-		552, 9, 58, 1, 59, 1, 59, 1, 59, 0, 0, 60, 0, 2, 4, 6, 8, 10, 12, 14, 16,
-		18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
-		54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88,
-		90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 0,
-		7, 1, 0, 3, 4, 1, 0, 37, 38, 1, 0, 39, 42, 1, 0, 43, 44, 1, 0, 45, 47,
-		2, 0, 44, 44, 48, 48, 2, 0, 53, 55, 59, 59, 568, 0, 123, 1, 0, 0, 0, 2,
-		146, 1, 0, 0, 0, 4, 148, 1, 0, 0, 0, 6, 157, 1, 0, 0, 0, 8, 167, 1, 0,
-		0, 0, 10, 176, 1, 0, 0, 0, 12, 179, 1, 0, 0, 0, 14, 184, 1, 0, 0, 0, 16,
-		186, 1, 0, 0, 0, 18, 200, 1, 0, 0, 0, 20, 217, 1, 0, 0, 0, 22, 219, 1,
-		0, 0, 0, 24, 225, 1, 0, 0, 0, 26, 227, 1, 0, 0, 0, 28, 236, 1, 0, 0, 0,
-		30, 238, 1, 0, 0, 0, 32, 240, 1, 0, 0, 0, 34, 246, 1, 0, 0, 0, 36, 248,
-		1, 0, 0, 0, 38, 256, 1, 0, 0, 0, 40, 258, 1, 0, 0, 0, 42, 273, 1, 0, 0,
-		0, 44, 277, 1, 0, 0, 0, 46, 283, 1, 0, 0, 0, 48, 286, 1, 0, 0, 0, 50, 289,
-		1, 0, 0, 0, 52, 295, 1, 0, 0, 0, 54, 297, 1, 0, 0, 0, 56, 301, 1, 0, 0,
-		0, 58, 307, 1, 0, 0, 0, 60, 309, 1, 0, 0, 0, 62, 311, 1, 0, 0, 0, 64, 327,
-		1, 0, 0, 0, 66, 332, 1, 0, 0, 0, 68, 339, 1, 0, 0, 0, 70, 342, 1, 0, 0,
-		0, 72, 355, 1, 0, 0, 0, 74, 363, 1, 0, 0, 0, 76, 368, 1, 0, 0, 0, 78, 386,
-		1, 0, 0, 0, 80, 388, 1, 0, 0, 0, 82, 390, 1, 0, 0, 0, 84, 398, 1, 0, 0,
-		0, 86, 406, 1, 0, 0, 0, 88, 414, 1, 0, 0, 0, 90, 422, 1, 0, 0, 0, 92, 430,
-		1, 0, 0, 0, 94, 438, 1, 0, 0, 0, 96, 449, 1, 0, 0, 0, 98, 457, 1, 0, 0,
-		0, 100, 464, 1, 0, 0, 0, 102, 466, 1, 0, 0, 0, 104, 473, 1, 0, 0, 0, 106,
-		491, 1, 0, 0, 0, 108, 502, 1, 0, 0, 0, 110, 522, 1, 0, 0, 0, 112, 524,
-		1, 0, 0, 0, 114, 532, 1, 0, 0, 0, 116, 545, 1, 0, 0, 0, 118, 553, 1, 0,
-		0, 0, 120, 122, 3, 2, 1, 0, 121, 120, 1, 0, 0, 0, 122, 125, 1, 0, 0, 0,
-		123, 121, 1, 0, 0, 0, 123, 124, 1, 0, 0, 0, 124, 126, 1, 0, 0, 0, 125,
-		123, 1, 0, 0, 0, 126, 127, 5, 0, 0, 1, 127, 1, 1, 0, 0, 0, 128, 147, 3,
-		104, 52, 0, 129, 147, 3, 6, 3, 0, 130, 147, 3, 8, 4, 0, 131, 147, 3, 14,
-		7, 0, 132, 147, 3, 70, 35, 0, 133, 147, 3, 76, 38, 0, 134, 147, 3, 22,
-		11, 0, 135, 147, 3, 52, 26, 0, 136, 147, 3, 26, 13, 0, 137, 147, 3, 32,
-		16, 0, 138, 147, 3, 36, 18, 0, 139, 147, 3, 40, 20, 0, 140, 147, 3, 44,
-		22, 0, 141, 147, 3, 54, 27, 0, 142, 147, 3, 62, 31, 0, 143, 147, 3, 46,
-		23, 0, 144, 147, 3, 48, 24, 0, 145, 147, 3, 50, 25, 0, 146, 128, 1, 0,
-		0, 0, 146, 129, 1, 0, 0, 0, 146, 130, 1, 0, 0, 0, 146, 131, 1, 0, 0, 0,
-		146, 132, 1, 0, 0, 0, 146, 133, 1, 0, 0, 0, 146, 134, 1, 0, 0, 0, 146,
-		135, 1, 0, 0, 0, 146, 136, 1, 0, 0, 0, 146, 137, 1, 0, 0, 0, 146, 138,
-		1, 0, 0, 0, 146, 139, 1, 0, 0, 0, 146, 140, 1, 0, 0, 0, 146, 141, 1, 0,
-		0, 0, 146, 142, 1, 0, 0, 0, 146, 143, 1, 0, 0, 0, 146, 144, 1, 0, 0, 0,
-		146, 145, 1, 0, 0, 0, 147, 3, 1, 0, 0, 0, 148, 152, 5, 1, 0, 0, 149, 151,
-		3, 2, 1, 0, 150, 149, 1, 0, 0, 0, 151, 154, 1, 0, 0, 0, 152, 150, 1, 0,
-		0, 0, 152, 153, 1, 0, 0, 0, 153, 155, 1, 0, 0, 0, 154, 152, 1, 0, 0, 0,
-		155, 156, 5, 2, 0, 0, 156, 5, 1, 0, 0, 0, 157, 158, 7, 0, 0, 0, 158, 160,
-		5, 59, 0, 0, 159, 161, 3, 10, 5, 0, 160, 159, 1, 0, 0, 0, 160, 161, 1,
-		0, 0, 0, 161, 163, 1, 0, 0, 0, 162, 164, 3, 12, 6, 0, 163, 162, 1, 0, 0,
-		0, 163, 164, 1, 0, 0, 0, 164, 165, 1, 0, 0, 0, 165, 166, 5, 5, 0, 0, 166,
-		7, 1, 0, 0, 0, 167, 168, 5, 6, 0, 0, 168, 170, 5, 59, 0, 0, 169, 171, 3,
-		10, 5, 0, 170, 169, 1, 0, 0, 0, 170, 171, 1, 0, 0, 0, 171, 172, 1, 0, 0,
-		0, 172, 173, 5, 7, 0, 0, 173, 174, 3, 82, 41, 0, 174, 175, 5, 5, 0, 0,
-		175, 9, 1, 0, 0, 0, 176, 177, 5, 8, 0, 0, 177, 178, 3, 116, 58, 0, 178,
+		43, 10, 43, 12, 43, 413, 9, 43, 1, 44, 1, 44, 1, 44, 3, 44, 418, 8, 44,
+		1, 45, 1, 45, 1, 45, 3, 45, 423, 8, 45, 1, 46, 1, 46, 1, 46, 5, 46, 428,
+		8, 46, 10, 46, 12, 46, 431, 9, 46, 1, 47, 1, 47, 1, 47, 5, 47, 436, 8,
+		47, 10, 47, 12, 47, 439, 9, 47, 1, 48, 1, 48, 1, 48, 3, 48, 444, 8, 48,
+		1, 49, 1, 49, 1, 49, 1, 49, 1, 49, 1, 49, 3, 49, 452, 8, 49, 1, 50, 1,
+		50, 1, 50, 1, 50, 1, 50, 3, 50, 459, 8, 50, 1, 51, 1, 51, 5, 51, 463, 8,
+		51, 10, 51, 12, 51, 466, 9, 51, 1, 52, 1, 52, 5, 52, 470, 8, 52, 10, 52,
+		12, 52, 473, 9, 52, 1, 52, 1, 52, 1, 53, 1, 53, 1, 53, 1, 53, 1, 53, 3,
+		53, 482, 8, 53, 1, 53, 1, 53, 3, 53, 486, 8, 53, 1, 54, 1, 54, 1, 54, 1,
+		54, 1, 54, 3, 54, 493, 8, 54, 1, 54, 1, 54, 3, 54, 497, 8, 54, 1, 55, 1,
+		55, 1, 55, 1, 55, 3, 55, 503, 8, 55, 1, 55, 1, 55, 1, 55, 3, 55, 508, 8,
+		55, 1, 55, 1, 55, 1, 55, 1, 55, 1, 55, 1, 55, 1, 55, 3, 55, 517, 8, 55,
+		1, 56, 1, 56, 1, 56, 5, 56, 522, 8, 56, 10, 56, 12, 56, 525, 9, 56, 1,
+		57, 1, 57, 1, 57, 1, 57, 5, 57, 531, 8, 57, 10, 57, 12, 57, 534, 9, 57,
+		3, 57, 536, 8, 57, 1, 57, 1, 57, 1, 58, 1, 58, 1, 58, 5, 58, 543, 8, 58,
+		10, 58, 12, 58, 546, 9, 58, 1, 59, 1, 59, 1, 59, 0, 0, 60, 0, 2, 4, 6,
+		8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42,
+		44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78,
+		80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112,
+		114, 116, 118, 0, 7, 1, 0, 3, 4, 1, 0, 37, 38, 1, 0, 39, 42, 1, 0, 43,
+		44, 1, 0, 45, 47, 2, 0, 44, 44, 48, 48, 2, 0, 53, 55, 59, 59, 562, 0, 123,
+		1, 0, 0, 0, 2, 146, 1, 0, 0, 0, 4, 148, 1, 0, 0, 0, 6, 157, 1, 0, 0, 0,
+		8, 167, 1, 0, 0, 0, 10, 176, 1, 0, 0, 0, 12, 179, 1, 0, 0, 0, 14, 184,
+		1, 0, 0, 0, 16, 186, 1, 0, 0, 0, 18, 200, 1, 0, 0, 0, 20, 217, 1, 0, 0,
+		0, 22, 219, 1, 0, 0, 0, 24, 225, 1, 0, 0, 0, 26, 227, 1, 0, 0, 0, 28, 236,
+		1, 0, 0, 0, 30, 238, 1, 0, 0, 0, 32, 240, 1, 0, 0, 0, 34, 246, 1, 0, 0,
+		0, 36, 248, 1, 0, 0, 0, 38, 256, 1, 0, 0, 0, 40, 258, 1, 0, 0, 0, 42, 273,
+		1, 0, 0, 0, 44, 277, 1, 0, 0, 0, 46, 283, 1, 0, 0, 0, 48, 286, 1, 0, 0,
+		0, 50, 289, 1, 0, 0, 0, 52, 295, 1, 0, 0, 0, 54, 297, 1, 0, 0, 0, 56, 301,
+		1, 0, 0, 0, 58, 307, 1, 0, 0, 0, 60, 309, 1, 0, 0, 0, 62, 311, 1, 0, 0,
+		0, 64, 327, 1, 0, 0, 0, 66, 332, 1, 0, 0, 0, 68, 339, 1, 0, 0, 0, 70, 342,
+		1, 0, 0, 0, 72, 355, 1, 0, 0, 0, 74, 363, 1, 0, 0, 0, 76, 368, 1, 0, 0,
+		0, 78, 386, 1, 0, 0, 0, 80, 388, 1, 0, 0, 0, 82, 390, 1, 0, 0, 0, 84, 398,
+		1, 0, 0, 0, 86, 406, 1, 0, 0, 0, 88, 414, 1, 0, 0, 0, 90, 419, 1, 0, 0,
+		0, 92, 424, 1, 0, 0, 0, 94, 432, 1, 0, 0, 0, 96, 443, 1, 0, 0, 0, 98, 451,
+		1, 0, 0, 0, 100, 458, 1, 0, 0, 0, 102, 460, 1, 0, 0, 0, 104, 467, 1, 0,
+		0, 0, 106, 485, 1, 0, 0, 0, 108, 496, 1, 0, 0, 0, 110, 516, 1, 0, 0, 0,
+		112, 518, 1, 0, 0, 0, 114, 526, 1, 0, 0, 0, 116, 539, 1, 0, 0, 0, 118,
+		547, 1, 0, 0, 0, 120, 122, 3, 2, 1, 0, 121, 120, 1, 0, 0, 0, 122, 125,
+		1, 0, 0, 0, 123, 121, 1, 0, 0, 0, 123, 124, 1, 0, 0, 0, 124, 126, 1, 0,
+		0, 0, 125, 123, 1, 0, 0, 0, 126, 127, 5, 0, 0, 1, 127, 1, 1, 0, 0, 0, 128,
+		147, 3, 104, 52, 0, 129, 147, 3, 6, 3, 0, 130, 147, 3, 8, 4, 0, 131, 147,
+		3, 14, 7, 0, 132, 147, 3, 70, 35, 0, 133, 147, 3, 76, 38, 0, 134, 147,
+		3, 22, 11, 0, 135, 147, 3, 52, 26, 0, 136, 147, 3, 26, 13, 0, 137, 147,
+		3, 32, 16, 0, 138, 147, 3, 36, 18, 0, 139, 147, 3, 40, 20, 0, 140, 147,
+		3, 44, 22, 0, 141, 147, 3, 54, 27, 0, 142, 147, 3, 62, 31, 0, 143, 147,
+		3, 46, 23, 0, 144, 147, 3, 48, 24, 0, 145, 147, 3, 50, 25, 0, 146, 128,
+		1, 0, 0, 0, 146, 129, 1, 0, 0, 0, 146, 130, 1, 0, 0, 0, 146, 131, 1, 0,
+		0, 0, 146, 132, 1, 0, 0, 0, 146, 133, 1, 0, 0, 0, 146, 134, 1, 0, 0, 0,
+		146, 135, 1, 0, 0, 0, 146, 136, 1, 0, 0, 0, 146, 137, 1, 0, 0, 0, 146,
+		138, 1, 0, 0, 0, 146, 139, 1, 0, 0, 0, 146, 140, 1, 0, 0, 0, 146, 141,
+		1, 0, 0, 0, 146, 142, 1, 0, 0, 0, 146, 143, 1, 0, 0, 0, 146, 144, 1, 0,
+		0, 0, 146, 145, 1, 0, 0, 0, 147, 3, 1, 0, 0, 0, 148, 152, 5, 1, 0, 0, 149,
+		151, 3, 2, 1, 0, 150, 149, 1, 0, 0, 0, 151, 154, 1, 0, 0, 0, 152, 150,
+		1, 0, 0, 0, 152, 153, 1, 0, 0, 0, 153, 155, 1, 0, 0, 0, 154, 152, 1, 0,
+		0, 0, 155, 156, 5, 2, 0, 0, 156, 5, 1, 0, 0, 0, 157, 158, 7, 0, 0, 0, 158,
+		160, 5, 59, 0, 0, 159, 161, 3, 10, 5, 0, 160, 159, 1, 0, 0, 0, 160, 161,
+		1, 0, 0, 0, 161, 163, 1, 0, 0, 0, 162, 164, 3, 12, 6, 0, 163, 162, 1, 0,
+		0, 0, 163, 164, 1, 0, 0, 0, 164, 165, 1, 0, 0, 0, 165, 166, 5, 5, 0, 0,
+		166, 7, 1, 0, 0, 0, 167, 168, 5, 6, 0, 0, 168, 170, 5, 59, 0, 0, 169, 171,
+		3, 10, 5, 0, 170, 169, 1, 0, 0, 0, 170, 171, 1, 0, 0, 0, 171, 172, 1, 0,
+		0, 0, 172, 173, 5, 7, 0, 0, 173, 174, 3, 82, 41, 0, 174, 175, 5, 5, 0,
+		0, 175, 9, 1, 0, 0, 0, 176, 177, 5, 8, 0, 0, 177, 178, 3, 116, 58, 0, 178,
 		11, 1, 0, 0, 0, 179, 180, 5, 7, 0, 0, 180, 181, 3, 82, 41, 0, 181, 13,
 		1, 0, 0, 0, 182, 185, 3, 16, 8, 0, 183, 185, 3, 18, 9, 0, 184, 182, 1,
 		0, 0, 0, 184, 183, 1, 0, 0, 0, 185, 15, 1, 0, 0, 0, 186, 187, 5, 9, 0,
@@ -250,62 +249,61 @@ func compiscriptParserInit() {
 		403, 1, 0, 0, 0, 406, 411, 3, 88, 44, 0, 407, 408, 5, 36, 0, 0, 408, 410,
 		3, 88, 44, 0, 409, 407, 1, 0, 0, 0, 410, 413, 1, 0, 0, 0, 411, 409, 1,
 		0, 0, 0, 411, 412, 1, 0, 0, 0, 412, 87, 1, 0, 0, 0, 413, 411, 1, 0, 0,
-		0, 414, 419, 3, 90, 45, 0, 415, 416, 7, 1, 0, 0, 416, 418, 3, 90, 45, 0,
-		417, 415, 1, 0, 0, 0, 418, 421, 1, 0, 0, 0, 419, 417, 1, 0, 0, 0, 419,
-		420, 1, 0, 0, 0, 420, 89, 1, 0, 0, 0, 421, 419, 1, 0, 0, 0, 422, 427, 3,
-		92, 46, 0, 423, 424, 7, 2, 0, 0, 424, 426, 3, 92, 46, 0, 425, 423, 1, 0,
-		0, 0, 426, 429, 1, 0, 0, 0, 427, 425, 1, 0, 0, 0, 427, 428, 1, 0, 0, 0,
-		428, 91, 1, 0, 0, 0, 429, 427, 1, 0, 0, 0, 430, 435, 3, 94, 47, 0, 431,
-		432, 7, 3, 0, 0, 432, 434, 3, 94, 47, 0, 433, 431, 1, 0, 0, 0, 434, 437,
-		1, 0, 0, 0, 435, 433, 1, 0, 0, 0, 435, 436, 1, 0, 0, 0, 436, 93, 1, 0,
-		0, 0, 437, 435, 1, 0, 0, 0, 438, 443, 3, 96, 48, 0, 439, 440, 7, 4, 0,
-		0, 440, 442, 3, 96, 48, 0, 441, 439, 1, 0, 0, 0, 442, 445, 1, 0, 0, 0,
-		443, 441, 1, 0, 0, 0, 443, 444, 1, 0, 0, 0, 444, 95, 1, 0, 0, 0, 445, 443,
-		1, 0, 0, 0, 446, 447, 7, 5, 0, 0, 447, 450, 3, 96, 48, 0, 448, 450, 3,
-		98, 49, 0, 449, 446, 1, 0, 0, 0, 449, 448, 1, 0, 0, 0, 450, 97, 1, 0, 0,
-		0, 451, 458, 3, 100, 50, 0, 452, 458, 3, 102, 51, 0, 453, 454, 5, 14, 0,
-		0, 454, 455, 3, 82, 41, 0, 455, 456, 5, 15, 0, 0, 456, 458, 1, 0, 0, 0,
-		457, 451, 1, 0, 0, 0, 457, 452, 1, 0, 0, 0, 457, 453, 1, 0, 0, 0, 458,
-		99, 1, 0, 0, 0, 459, 465, 5, 56, 0, 0, 460, 465, 3, 114, 57, 0, 461, 465,
-		5, 49, 0, 0, 462, 465, 5, 50, 0, 0, 463, 465, 5, 51, 0, 0, 464, 459, 1,
-		0, 0, 0, 464, 460, 1, 0, 0, 0, 464, 461, 1, 0, 0, 0, 464, 462, 1, 0, 0,
-		0, 464, 463, 1, 0, 0, 0, 465, 101, 1, 0, 0, 0, 466, 470, 3, 106, 53, 0,
-		467, 469, 3, 110, 55, 0, 468, 467, 1, 0, 0, 0, 469, 472, 1, 0, 0, 0, 470,
-		468, 1, 0, 0, 0, 470, 471, 1, 0, 0, 0, 471, 103, 1, 0, 0, 0, 472, 470,
-		1, 0, 0, 0, 473, 477, 3, 108, 54, 0, 474, 476, 3, 110, 55, 0, 475, 474,
-		1, 0, 0, 0, 476, 479, 1, 0, 0, 0, 477, 475, 1, 0, 0, 0, 477, 478, 1, 0,
-		0, 0, 478, 480, 1, 0, 0, 0, 479, 477, 1, 0, 0, 0, 480, 481, 5, 5, 0, 0,
-		481, 105, 1, 0, 0, 0, 482, 492, 5, 59, 0, 0, 483, 484, 5, 52, 0, 0, 484,
-		485, 5, 59, 0, 0, 485, 487, 5, 14, 0, 0, 486, 488, 3, 112, 56, 0, 487,
-		486, 1, 0, 0, 0, 487, 488, 1, 0, 0, 0, 488, 489, 1, 0, 0, 0, 489, 492,
-		5, 15, 0, 0, 490, 492, 5, 9, 0, 0, 491, 482, 1, 0, 0, 0, 491, 483, 1, 0,
-		0, 0, 491, 490, 1, 0, 0, 0, 492, 107, 1, 0, 0, 0, 493, 503, 5, 59, 0, 0,
-		494, 495, 5, 52, 0, 0, 495, 496, 5, 59, 0, 0, 496, 498, 5, 14, 0, 0, 497,
-		499, 3, 112, 56, 0, 498, 497, 1, 0, 0, 0, 498, 499, 1, 0, 0, 0, 499, 500,
-		1, 0, 0, 0, 500, 503, 5, 15, 0, 0, 501, 503, 5, 9, 0, 0, 502, 493, 1, 0,
-		0, 0, 502, 494, 1, 0, 0, 0, 502, 501, 1, 0, 0, 0, 503, 109, 1, 0, 0, 0,
-		504, 505, 5, 10, 0, 0, 505, 506, 5, 59, 0, 0, 506, 508, 5, 14, 0, 0, 507,
-		509, 3, 112, 56, 0, 508, 507, 1, 0, 0, 0, 508, 509, 1, 0, 0, 0, 509, 510,
-		1, 0, 0, 0, 510, 523, 5, 15, 0, 0, 511, 513, 5, 14, 0, 0, 512, 514, 3,
-		112, 56, 0, 513, 512, 1, 0, 0, 0, 513, 514, 1, 0, 0, 0, 514, 515, 1, 0,
-		0, 0, 515, 523, 5, 15, 0, 0, 516, 517, 5, 11, 0, 0, 517, 518, 3, 82, 41,
-		0, 518, 519, 5, 12, 0, 0, 519, 523, 1, 0, 0, 0, 520, 521, 5, 10, 0, 0,
-		521, 523, 5, 59, 0, 0, 522, 504, 1, 0, 0, 0, 522, 511, 1, 0, 0, 0, 522,
-		516, 1, 0, 0, 0, 522, 520, 1, 0, 0, 0, 523, 111, 1, 0, 0, 0, 524, 529,
-		3, 82, 41, 0, 525, 526, 5, 32, 0, 0, 526, 528, 3, 82, 41, 0, 527, 525,
-		1, 0, 0, 0, 528, 531, 1, 0, 0, 0, 529, 527, 1, 0, 0, 0, 529, 530, 1, 0,
-		0, 0, 530, 113, 1, 0, 0, 0, 531, 529, 1, 0, 0, 0, 532, 541, 5, 11, 0, 0,
-		533, 538, 3, 82, 41, 0, 534, 535, 5, 32, 0, 0, 535, 537, 3, 82, 41, 0,
-		536, 534, 1, 0, 0, 0, 537, 540, 1, 0, 0, 0, 538, 536, 1, 0, 0, 0, 538,
-		539, 1, 0, 0, 0, 539, 542, 1, 0, 0, 0, 540, 538, 1, 0, 0, 0, 541, 533,
-		1, 0, 0, 0, 541, 542, 1, 0, 0, 0, 542, 543, 1, 0, 0, 0, 543, 544, 5, 12,
-		0, 0, 544, 115, 1, 0, 0, 0, 545, 550, 3, 118, 59, 0, 546, 547, 5, 11, 0,
-		0, 547, 549, 5, 12, 0, 0, 548, 546, 1, 0, 0, 0, 549, 552, 1, 0, 0, 0, 550,
-		548, 1, 0, 0, 0, 550, 551, 1, 0, 0, 0, 551, 117, 1, 0, 0, 0, 552, 550,
-		1, 0, 0, 0, 553, 554, 7, 6, 0, 0, 554, 119, 1, 0, 0, 0, 47, 123, 146, 152,
-		160, 163, 170, 184, 193, 204, 217, 234, 263, 268, 291, 319, 323, 339, 346,
-		351, 360, 366, 372, 378, 386, 396, 403, 411, 419, 427, 435, 443, 449, 457,
-		464, 470, 477, 487, 491, 498, 502, 508, 513, 522, 529, 538, 541, 550,
+		0, 414, 417, 3, 90, 45, 0, 415, 416, 7, 1, 0, 0, 416, 418, 3, 90, 45, 0,
+		417, 415, 1, 0, 0, 0, 417, 418, 1, 0, 0, 0, 418, 89, 1, 0, 0, 0, 419, 422,
+		3, 92, 46, 0, 420, 421, 7, 2, 0, 0, 421, 423, 3, 92, 46, 0, 422, 420, 1,
+		0, 0, 0, 422, 423, 1, 0, 0, 0, 423, 91, 1, 0, 0, 0, 424, 429, 3, 94, 47,
+		0, 425, 426, 7, 3, 0, 0, 426, 428, 3, 94, 47, 0, 427, 425, 1, 0, 0, 0,
+		428, 431, 1, 0, 0, 0, 429, 427, 1, 0, 0, 0, 429, 430, 1, 0, 0, 0, 430,
+		93, 1, 0, 0, 0, 431, 429, 1, 0, 0, 0, 432, 437, 3, 96, 48, 0, 433, 434,
+		7, 4, 0, 0, 434, 436, 3, 96, 48, 0, 435, 433, 1, 0, 0, 0, 436, 439, 1,
+		0, 0, 0, 437, 435, 1, 0, 0, 0, 437, 438, 1, 0, 0, 0, 438, 95, 1, 0, 0,
+		0, 439, 437, 1, 0, 0, 0, 440, 441, 7, 5, 0, 0, 441, 444, 3, 96, 48, 0,
+		442, 444, 3, 98, 49, 0, 443, 440, 1, 0, 0, 0, 443, 442, 1, 0, 0, 0, 444,
+		97, 1, 0, 0, 0, 445, 452, 3, 100, 50, 0, 446, 452, 3, 102, 51, 0, 447,
+		448, 5, 14, 0, 0, 448, 449, 3, 82, 41, 0, 449, 450, 5, 15, 0, 0, 450, 452,
+		1, 0, 0, 0, 451, 445, 1, 0, 0, 0, 451, 446, 1, 0, 0, 0, 451, 447, 1, 0,
+		0, 0, 452, 99, 1, 0, 0, 0, 453, 459, 5, 56, 0, 0, 454, 459, 3, 114, 57,
+		0, 455, 459, 5, 49, 0, 0, 456, 459, 5, 50, 0, 0, 457, 459, 5, 51, 0, 0,
+		458, 453, 1, 0, 0, 0, 458, 454, 1, 0, 0, 0, 458, 455, 1, 0, 0, 0, 458,
+		456, 1, 0, 0, 0, 458, 457, 1, 0, 0, 0, 459, 101, 1, 0, 0, 0, 460, 464,
+		3, 106, 53, 0, 461, 463, 3, 110, 55, 0, 462, 461, 1, 0, 0, 0, 463, 466,
+		1, 0, 0, 0, 464, 462, 1, 0, 0, 0, 464, 465, 1, 0, 0, 0, 465, 103, 1, 0,
+		0, 0, 466, 464, 1, 0, 0, 0, 467, 471, 3, 108, 54, 0, 468, 470, 3, 110,
+		55, 0, 469, 468, 1, 0, 0, 0, 470, 473, 1, 0, 0, 0, 471, 469, 1, 0, 0, 0,
+		471, 472, 1, 0, 0, 0, 472, 474, 1, 0, 0, 0, 473, 471, 1, 0, 0, 0, 474,
+		475, 5, 5, 0, 0, 475, 105, 1, 0, 0, 0, 476, 486, 5, 59, 0, 0, 477, 478,
+		5, 52, 0, 0, 478, 479, 5, 59, 0, 0, 479, 481, 5, 14, 0, 0, 480, 482, 3,
+		112, 56, 0, 481, 480, 1, 0, 0, 0, 481, 482, 1, 0, 0, 0, 482, 483, 1, 0,
+		0, 0, 483, 486, 5, 15, 0, 0, 484, 486, 5, 9, 0, 0, 485, 476, 1, 0, 0, 0,
+		485, 477, 1, 0, 0, 0, 485, 484, 1, 0, 0, 0, 486, 107, 1, 0, 0, 0, 487,
+		497, 5, 59, 0, 0, 488, 489, 5, 52, 0, 0, 489, 490, 5, 59, 0, 0, 490, 492,
+		5, 14, 0, 0, 491, 493, 3, 112, 56, 0, 492, 491, 1, 0, 0, 0, 492, 493, 1,
+		0, 0, 0, 493, 494, 1, 0, 0, 0, 494, 497, 5, 15, 0, 0, 495, 497, 5, 9, 0,
+		0, 496, 487, 1, 0, 0, 0, 496, 488, 1, 0, 0, 0, 496, 495, 1, 0, 0, 0, 497,
+		109, 1, 0, 0, 0, 498, 499, 5, 10, 0, 0, 499, 500, 5, 59, 0, 0, 500, 502,
+		5, 14, 0, 0, 501, 503, 3, 112, 56, 0, 502, 501, 1, 0, 0, 0, 502, 503, 1,
+		0, 0, 0, 503, 504, 1, 0, 0, 0, 504, 517, 5, 15, 0, 0, 505, 507, 5, 14,
+		0, 0, 506, 508, 3, 112, 56, 0, 507, 506, 1, 0, 0, 0, 507, 508, 1, 0, 0,
+		0, 508, 509, 1, 0, 0, 0, 509, 517, 5, 15, 0, 0, 510, 511, 5, 11, 0, 0,
+		511, 512, 3, 82, 41, 0, 512, 513, 5, 12, 0, 0, 513, 517, 1, 0, 0, 0, 514,
+		515, 5, 10, 0, 0, 515, 517, 5, 59, 0, 0, 516, 498, 1, 0, 0, 0, 516, 505,
+		1, 0, 0, 0, 516, 510, 1, 0, 0, 0, 516, 514, 1, 0, 0, 0, 517, 111, 1, 0,
+		0, 0, 518, 523, 3, 82, 41, 0, 519, 520, 5, 32, 0, 0, 520, 522, 3, 82, 41,
+		0, 521, 519, 1, 0, 0, 0, 522, 525, 1, 0, 0, 0, 523, 521, 1, 0, 0, 0, 523,
+		524, 1, 0, 0, 0, 524, 113, 1, 0, 0, 0, 525, 523, 1, 0, 0, 0, 526, 535,
+		5, 11, 0, 0, 527, 532, 3, 82, 41, 0, 528, 529, 5, 32, 0, 0, 529, 531, 3,
+		82, 41, 0, 530, 528, 1, 0, 0, 0, 531, 534, 1, 0, 0, 0, 532, 530, 1, 0,
+		0, 0, 532, 533, 1, 0, 0, 0, 533, 536, 1, 0, 0, 0, 534, 532, 1, 0, 0, 0,
+		535, 527, 1, 0, 0, 0, 535, 536, 1, 0, 0, 0, 536, 537, 1, 0, 0, 0, 537,
+		538, 5, 12, 0, 0, 538, 115, 1, 0, 0, 0, 539, 544, 3, 118, 59, 0, 540, 541,
+		5, 11, 0, 0, 541, 543, 5, 12, 0, 0, 542, 540, 1, 0, 0, 0, 543, 546, 1,
+		0, 0, 0, 544, 542, 1, 0, 0, 0, 544, 545, 1, 0, 0, 0, 545, 117, 1, 0, 0,
+		0, 546, 544, 1, 0, 0, 0, 547, 548, 7, 6, 0, 0, 548, 119, 1, 0, 0, 0, 47,
+		123, 146, 152, 160, 163, 170, 184, 193, 204, 217, 234, 263, 268, 291, 319,
+		323, 339, 346, 351, 360, 366, 372, 378, 386, 396, 403, 411, 417, 422, 429,
+		437, 443, 451, 458, 464, 471, 481, 485, 492, 496, 502, 507, 516, 523, 532,
+		535, 544,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -7483,14 +7481,14 @@ func (p *CompiscriptParser) EqualityExpr() (localctx IEqualityExprContext) {
 		p.SetState(414)
 		p.RelationalExpr()
 	}
-	p.SetState(419)
+	p.SetState(417)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	for _la == CompiscriptParserT__36 || _la == CompiscriptParserT__37 {
+	if _la == CompiscriptParserT__36 || _la == CompiscriptParserT__37 {
 		{
 			p.SetState(415)
 			_la = p.GetTokenStream().LA(1)
@@ -7507,12 +7505,6 @@ func (p *CompiscriptParser) EqualityExpr() (localctx IEqualityExprContext) {
 			p.RelationalExpr()
 		}
 
-		p.SetState(421)
-		p.GetErrorHandler().Sync(p)
-		if p.HasError() {
-			goto errorExit
-		}
-		_la = p.GetTokenStream().LA(1)
 	}
 
 errorExit:
@@ -7643,19 +7635,19 @@ func (p *CompiscriptParser) RelationalExpr() (localctx IRelationalExprContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(422)
+		p.SetState(419)
 		p.AdditiveExpr()
 	}
-	p.SetState(427)
+	p.SetState(422)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&8246337208320) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&8246337208320) != 0 {
 		{
-			p.SetState(423)
+			p.SetState(420)
 			_la = p.GetTokenStream().LA(1)
 
 			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&8246337208320) != 0) {
@@ -7666,16 +7658,10 @@ func (p *CompiscriptParser) RelationalExpr() (localctx IRelationalExprContext) {
 			}
 		}
 		{
-			p.SetState(424)
+			p.SetState(421)
 			p.AdditiveExpr()
 		}
 
-		p.SetState(429)
-		p.GetErrorHandler().Sync(p)
-		if p.HasError() {
-			goto errorExit
-		}
-		_la = p.GetTokenStream().LA(1)
 	}
 
 errorExit:
@@ -7806,10 +7792,10 @@ func (p *CompiscriptParser) AdditiveExpr() (localctx IAdditiveExprContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(430)
+		p.SetState(424)
 		p.MultiplicativeExpr()
 	}
-	p.SetState(435)
+	p.SetState(429)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -7818,7 +7804,7 @@ func (p *CompiscriptParser) AdditiveExpr() (localctx IAdditiveExprContext) {
 
 	for _la == CompiscriptParserT__42 || _la == CompiscriptParserT__43 {
 		{
-			p.SetState(431)
+			p.SetState(425)
 			_la = p.GetTokenStream().LA(1)
 
 			if !(_la == CompiscriptParserT__42 || _la == CompiscriptParserT__43) {
@@ -7829,11 +7815,11 @@ func (p *CompiscriptParser) AdditiveExpr() (localctx IAdditiveExprContext) {
 			}
 		}
 		{
-			p.SetState(432)
+			p.SetState(426)
 			p.MultiplicativeExpr()
 		}
 
-		p.SetState(437)
+		p.SetState(431)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -7969,10 +7955,10 @@ func (p *CompiscriptParser) MultiplicativeExpr() (localctx IMultiplicativeExprCo
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(438)
+		p.SetState(432)
 		p.UnaryExpr()
 	}
-	p.SetState(443)
+	p.SetState(437)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -7981,7 +7967,7 @@ func (p *CompiscriptParser) MultiplicativeExpr() (localctx IMultiplicativeExprCo
 
 	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&246290604621824) != 0 {
 		{
-			p.SetState(439)
+			p.SetState(433)
 			_la = p.GetTokenStream().LA(1)
 
 			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&246290604621824) != 0) {
@@ -7992,11 +7978,11 @@ func (p *CompiscriptParser) MultiplicativeExpr() (localctx IMultiplicativeExprCo
 			}
 		}
 		{
-			p.SetState(440)
+			p.SetState(434)
 			p.UnaryExpr()
 		}
 
-		p.SetState(445)
+		p.SetState(439)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8121,7 +8107,7 @@ func (p *CompiscriptParser) UnaryExpr() (localctx IUnaryExprContext) {
 	p.EnterRule(localctx, 96, CompiscriptParserRULE_unaryExpr)
 	var _la int
 
-	p.SetState(449)
+	p.SetState(443)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8131,7 +8117,7 @@ func (p *CompiscriptParser) UnaryExpr() (localctx IUnaryExprContext) {
 	case CompiscriptParserT__43, CompiscriptParserT__47:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(446)
+			p.SetState(440)
 			_la = p.GetTokenStream().LA(1)
 
 			if !(_la == CompiscriptParserT__43 || _la == CompiscriptParserT__47) {
@@ -8142,14 +8128,14 @@ func (p *CompiscriptParser) UnaryExpr() (localctx IUnaryExprContext) {
 			}
 		}
 		{
-			p.SetState(447)
+			p.SetState(441)
 			p.UnaryExpr()
 		}
 
 	case CompiscriptParserT__8, CompiscriptParserT__10, CompiscriptParserT__13, CompiscriptParserT__48, CompiscriptParserT__49, CompiscriptParserT__50, CompiscriptParserT__51, CompiscriptParserLiteral, CompiscriptParserIdentifier:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(448)
+			p.SetState(442)
 			p.PrimaryExpr()
 		}
 
@@ -8290,7 +8276,7 @@ func (s *PrimaryExprContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *CompiscriptParser) PrimaryExpr() (localctx IPrimaryExprContext) {
 	localctx = NewPrimaryExprContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 98, CompiscriptParserRULE_primaryExpr)
-	p.SetState(457)
+	p.SetState(451)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8300,21 +8286,21 @@ func (p *CompiscriptParser) PrimaryExpr() (localctx IPrimaryExprContext) {
 	case CompiscriptParserT__10, CompiscriptParserT__48, CompiscriptParserT__49, CompiscriptParserT__50, CompiscriptParserLiteral:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(451)
+			p.SetState(445)
 			p.LiteralExpr()
 		}
 
 	case CompiscriptParserT__8, CompiscriptParserT__51, CompiscriptParserIdentifier:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(452)
+			p.SetState(446)
 			p.LeftHandSide()
 		}
 
 	case CompiscriptParserT__13:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(453)
+			p.SetState(447)
 			p.Match(CompiscriptParserT__13)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8322,11 +8308,11 @@ func (p *CompiscriptParser) PrimaryExpr() (localctx IPrimaryExprContext) {
 			}
 		}
 		{
-			p.SetState(454)
+			p.SetState(448)
 			p.ConditionalExpr()
 		}
 		{
-			p.SetState(455)
+			p.SetState(449)
 			p.Match(CompiscriptParserT__14)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8442,7 +8428,7 @@ func (s *LiteralExprContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *CompiscriptParser) LiteralExpr() (localctx ILiteralExprContext) {
 	localctx = NewLiteralExprContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 100, CompiscriptParserRULE_literalExpr)
-	p.SetState(464)
+	p.SetState(458)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8452,7 +8438,7 @@ func (p *CompiscriptParser) LiteralExpr() (localctx ILiteralExprContext) {
 	case CompiscriptParserLiteral:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(459)
+			p.SetState(453)
 			p.Match(CompiscriptParserLiteral)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8463,14 +8449,14 @@ func (p *CompiscriptParser) LiteralExpr() (localctx ILiteralExprContext) {
 	case CompiscriptParserT__10:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(460)
+			p.SetState(454)
 			p.ArrayLiteral()
 		}
 
 	case CompiscriptParserT__48:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(461)
+			p.SetState(455)
 			p.Match(CompiscriptParserT__48)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8481,7 +8467,7 @@ func (p *CompiscriptParser) LiteralExpr() (localctx ILiteralExprContext) {
 	case CompiscriptParserT__49:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(462)
+			p.SetState(456)
 			p.Match(CompiscriptParserT__49)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8492,7 +8478,7 @@ func (p *CompiscriptParser) LiteralExpr() (localctx ILiteralExprContext) {
 	case CompiscriptParserT__50:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(463)
+			p.SetState(457)
 			p.Match(CompiscriptParserT__50)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -8650,10 +8636,10 @@ func (p *CompiscriptParser) LeftHandSide() (localctx ILeftHandSideContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(466)
+		p.SetState(460)
 		p.PrimaryAtom()
 	}
-	p.SetState(470)
+	p.SetState(464)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8662,11 +8648,11 @@ func (p *CompiscriptParser) LeftHandSide() (localctx ILeftHandSideContext) {
 
 	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&19456) != 0 {
 		{
-			p.SetState(467)
+			p.SetState(461)
 			p.SuffixOp()
 		}
 
-		p.SetState(472)
+		p.SetState(466)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8819,10 +8805,10 @@ func (p *CompiscriptParser) StandaloneExpresion() (localctx IStandaloneExpresion
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(473)
+		p.SetState(467)
 		p.StandaloneAtom()
 	}
-	p.SetState(477)
+	p.SetState(471)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -8831,11 +8817,11 @@ func (p *CompiscriptParser) StandaloneExpresion() (localctx IStandaloneExpresion
 
 	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&19456) != 0 {
 		{
-			p.SetState(474)
+			p.SetState(468)
 			p.SuffixOp()
 		}
 
-		p.SetState(479)
+		p.SetState(473)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -8843,7 +8829,7 @@ func (p *CompiscriptParser) StandaloneExpresion() (localctx IStandaloneExpresion
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(480)
+		p.SetState(474)
 		p.Match(CompiscriptParserT__4)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -9037,7 +9023,7 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 	p.EnterRule(localctx, 106, CompiscriptParserRULE_primaryAtom)
 	var _la int
 
-	p.SetState(491)
+	p.SetState(485)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -9048,7 +9034,7 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 		localctx = NewIdentifierExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(482)
+			p.SetState(476)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9060,7 +9046,7 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 		localctx = NewNewExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(483)
+			p.SetState(477)
 			p.Match(CompiscriptParserT__51)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9068,7 +9054,7 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 			}
 		}
 		{
-			p.SetState(484)
+			p.SetState(478)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9076,14 +9062,14 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 			}
 		}
 		{
-			p.SetState(485)
+			p.SetState(479)
 			p.Match(CompiscriptParserT__13)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(487)
+		p.SetState(481)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -9092,13 +9078,13 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 
 		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&657261662805445120) != 0 {
 			{
-				p.SetState(486)
+				p.SetState(480)
 				p.Arguments()
 			}
 
 		}
 		{
-			p.SetState(489)
+			p.SetState(483)
 			p.Match(CompiscriptParserT__14)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9110,7 +9096,7 @@ func (p *CompiscriptParser) PrimaryAtom() (localctx IPrimaryAtomContext) {
 		localctx = NewThisExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(490)
+			p.SetState(484)
 			p.Match(CompiscriptParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9309,7 +9295,7 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 	p.EnterRule(localctx, 108, CompiscriptParserRULE_standaloneAtom)
 	var _la int
 
-	p.SetState(502)
+	p.SetState(496)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -9320,7 +9306,7 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 		localctx = NewStandaloneIdentifierExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(493)
+			p.SetState(487)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9332,7 +9318,7 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 		localctx = NewStandaloneNewExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(494)
+			p.SetState(488)
 			p.Match(CompiscriptParserT__51)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9340,7 +9326,7 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 			}
 		}
 		{
-			p.SetState(495)
+			p.SetState(489)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9348,14 +9334,14 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 			}
 		}
 		{
-			p.SetState(496)
+			p.SetState(490)
 			p.Match(CompiscriptParserT__13)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(498)
+		p.SetState(492)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -9364,13 +9350,13 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 
 		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&657261662805445120) != 0 {
 			{
-				p.SetState(497)
+				p.SetState(491)
 				p.Arguments()
 			}
 
 		}
 		{
-			p.SetState(500)
+			p.SetState(494)
 			p.Match(CompiscriptParserT__14)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9382,7 +9368,7 @@ func (p *CompiscriptParser) StandaloneAtom() (localctx IStandaloneAtomContext) {
 		localctx = NewStandaloneThisExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(501)
+			p.SetState(495)
 			p.Match(CompiscriptParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9643,7 +9629,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 	p.EnterRule(localctx, 110, CompiscriptParserRULE_suffixOp)
 	var _la int
 
-	p.SetState(522)
+	p.SetState(516)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -9654,7 +9640,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 		localctx = NewMethodCallExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(504)
+			p.SetState(498)
 			p.Match(CompiscriptParserT__9)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9662,7 +9648,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(505)
+			p.SetState(499)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9670,14 +9656,14 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(506)
+			p.SetState(500)
 			p.Match(CompiscriptParserT__13)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(508)
+		p.SetState(502)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -9686,13 +9672,13 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 
 		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&657261662805445120) != 0 {
 			{
-				p.SetState(507)
+				p.SetState(501)
 				p.Arguments()
 			}
 
 		}
 		{
-			p.SetState(510)
+			p.SetState(504)
 			p.Match(CompiscriptParserT__14)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9704,14 +9690,14 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 		localctx = NewCallExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(511)
+			p.SetState(505)
 			p.Match(CompiscriptParserT__13)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(513)
+		p.SetState(507)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -9720,13 +9706,13 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 
 		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&657261662805445120) != 0 {
 			{
-				p.SetState(512)
+				p.SetState(506)
 				p.Arguments()
 			}
 
 		}
 		{
-			p.SetState(515)
+			p.SetState(509)
 			p.Match(CompiscriptParserT__14)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9738,7 +9724,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 		localctx = NewIndexExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(516)
+			p.SetState(510)
 			p.Match(CompiscriptParserT__10)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9746,11 +9732,11 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(517)
+			p.SetState(511)
 			p.ConditionalExpr()
 		}
 		{
-			p.SetState(518)
+			p.SetState(512)
 			p.Match(CompiscriptParserT__11)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9762,7 +9748,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 		localctx = NewPropertyAccessExprContext(p, localctx)
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(520)
+			p.SetState(514)
 			p.Match(CompiscriptParserT__9)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9770,7 +9756,7 @@ func (p *CompiscriptParser) SuffixOp() (localctx ISuffixOpContext) {
 			}
 		}
 		{
-			p.SetState(521)
+			p.SetState(515)
 			p.Match(CompiscriptParserIdentifier)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9910,10 +9896,10 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(524)
+		p.SetState(518)
 		p.ConditionalExpr()
 	}
-	p.SetState(529)
+	p.SetState(523)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -9922,7 +9908,7 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 
 	for _la == CompiscriptParserT__31 {
 		{
-			p.SetState(525)
+			p.SetState(519)
 			p.Match(CompiscriptParserT__31)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -9930,11 +9916,11 @@ func (p *CompiscriptParser) Arguments() (localctx IArgumentsContext) {
 			}
 		}
 		{
-			p.SetState(526)
+			p.SetState(520)
 			p.ConditionalExpr()
 		}
 
-		p.SetState(531)
+		p.SetState(525)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -10070,14 +10056,14 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(532)
+		p.SetState(526)
 		p.Match(CompiscriptParserT__10)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(541)
+	p.SetState(535)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -10086,10 +10072,10 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&657261662805445120) != 0 {
 		{
-			p.SetState(533)
+			p.SetState(527)
 			p.ConditionalExpr()
 		}
-		p.SetState(538)
+		p.SetState(532)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -10098,7 +10084,7 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 		for _la == CompiscriptParserT__31 {
 			{
-				p.SetState(534)
+				p.SetState(528)
 				p.Match(CompiscriptParserT__31)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -10106,11 +10092,11 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 				}
 			}
 			{
-				p.SetState(535)
+				p.SetState(529)
 				p.ConditionalExpr()
 			}
 
-			p.SetState(540)
+			p.SetState(534)
 			p.GetErrorHandler().Sync(p)
 			if p.HasError() {
 				goto errorExit
@@ -10120,7 +10106,7 @@ func (p *CompiscriptParser) ArrayLiteral() (localctx IArrayLiteralContext) {
 
 	}
 	{
-		p.SetState(543)
+		p.SetState(537)
 		p.Match(CompiscriptParserT__11)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -10230,10 +10216,10 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(545)
+		p.SetState(539)
 		p.BaseType()
 	}
-	p.SetState(550)
+	p.SetState(544)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -10242,7 +10228,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 
 	for _la == CompiscriptParserT__10 {
 		{
-			p.SetState(546)
+			p.SetState(540)
 			p.Match(CompiscriptParserT__10)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -10250,7 +10236,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 			}
 		}
 		{
-			p.SetState(547)
+			p.SetState(541)
 			p.Match(CompiscriptParserT__11)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -10258,7 +10244,7 @@ func (p *CompiscriptParser) Type_() (localctx ITypeContext) {
 			}
 		}
 
-		p.SetState(552)
+		p.SetState(546)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -10356,7 +10342,7 @@ func (p *CompiscriptParser) BaseType() (localctx IBaseTypeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(553)
+		p.SetState(547)
 		_la = p.GetTokenStream().LA(1)
 
 		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&639511147086610432) != 0) {
