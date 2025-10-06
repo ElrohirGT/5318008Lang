@@ -1,12 +1,17 @@
 package tac_generator
 
 import (
+	"fmt"
 	"log"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
 )
+
+// ========================
+// CONDITIONAL EXPRESIONS
+// =======================
 
 func (l Listener) ExitRelationalExpr(ctx *p.RelationalExprContext) {
 	scopeName := ScopeName(l.GetCurrentScope().Name)
@@ -76,6 +81,95 @@ func (l Listener) ExitEqualityExpr(ctx *p.EqualityExprContext) {
 		P1:     p1,
 		P2:     p2,
 	}))
+}
+
+func (l Listener) ExitLogicalAndExpr(ctx *p.LogicalAndExprContext) {
+
+	if len(ctx.AllEqualityExpr()) == 1 {
+		return
+	}
+
+	// Process first instruction
+	firstExpr := ctx.EqualityExpr(0).GetText() + "&&" + ctx.EqualityExpr(1).GetText()
+	fmt.Println(firstExpr)
+
+	scopeName := ScopeName(l.GetCurrentScope().Name)
+	destiny := l.getOrCreateExpressionVariable(firstExpr, scopeName)
+	p1, _ := l.Program.GetVariableOrLiteral(
+		ctx.EqualityExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+	p2, _ := l.Program.GetVariableOrLiteral(
+		ctx.EqualityExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+		Type:   BOOLEAN_OPERATION_TYPES.And,
+		Target: destiny,
+		P1:     p1,
+		P2:     p2,
+	}))
+
+	secondExpr := ""
+	p1 = destiny
+	// Concat the rest of the expresions
+	for i := 2; i < len(ctx.AllEqualityExpr()); i++ {
+		secondExpr = firstExpr + "&&" + ctx.EqualityExpr(i).GetText()
+		destiny = l.getOrCreateExpressionVariable(secondExpr, scopeName)
+		p2, _ = l.Program.GetVariableOrLiteral(
+			ctx.EqualityExpr(i).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+		l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+			Type:   BOOLEAN_OPERATION_TYPES.And,
+			Target: destiny,
+			P1:     p1,
+			P2:     p2,
+		}))
+
+		p1 = p2
+		firstExpr = secondExpr
+	}
+}
+
+func (l Listener) ExitLogicalOrExpr(ctx *p.LogicalOrExprContext) {
+	if len(ctx.AllLogicalAndExpr()) == 1 {
+		return
+	}
+
+	// Process first instruction
+	firstExpr := ctx.LogicalAndExpr(0).GetText() + "||" + ctx.LogicalAndExpr(1).GetText()
+	fmt.Println(firstExpr)
+
+	scopeName := ScopeName(l.GetCurrentScope().Name)
+	destiny := l.getOrCreateExpressionVariable(firstExpr, scopeName)
+	p1, _ := l.Program.GetVariableOrLiteral(
+		ctx.LogicalAndExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+	p2, _ := l.Program.GetVariableOrLiteral(
+		ctx.LogicalAndExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+		Type:   BOOLEAN_OPERATION_TYPES.Or,
+		Target: destiny,
+		P1:     p1,
+		P2:     p2,
+	}))
+
+	secondExpr := ""
+	p1 = destiny
+	// Concat the rest of the expresions
+	for i := 2; i < len(ctx.AllLogicalAndExpr()); i++ {
+		secondExpr = firstExpr + "||" + ctx.LogicalAndExpr(i).GetText()
+		destiny = l.getOrCreateExpressionVariable(secondExpr, scopeName)
+		p2, _ = l.Program.GetVariableOrLiteral(
+			ctx.LogicalAndExpr(i).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+
+		l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+			Type:   BOOLEAN_OPERATION_TYPES.Or,
+			Target: destiny,
+			P1:     p1,
+			P2:     p2,
+		}))
+
+		p1 = p2
+		firstExpr = secondExpr
+	}
 }
 
 // ================

@@ -73,6 +73,8 @@ func NewCopyInstruction(instruction CopyInstruction) Instruction {
 type LogicOperationType string
 
 var BOOLEAN_OPERATION_TYPES = struct {
+	And            LogicOperationType
+	Or             LogicOperationType
 	Equal          LogicOperationType
 	NotEqual       LogicOperationType
 	Less           LogicOperationType
@@ -80,6 +82,8 @@ var BOOLEAN_OPERATION_TYPES = struct {
 	Greater        LogicOperationType
 	GreaterOrEqual LogicOperationType
 }{
+	And:            "AND",
+	Or:             "OR",
 	Equal:          "EQ",
 	NotEqual:       "NEQ",
 	Less:           "LT",
