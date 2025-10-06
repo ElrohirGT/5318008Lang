@@ -6,7 +6,6 @@ function sumar(n: integer): integer {
 	return n + sumar(n-1);
 }
 ---
-
 SEC sumar:
 	LOAD t1
 
