@@ -2,6 +2,7 @@ package type_checker
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 )
@@ -111,10 +112,44 @@ const CONSTRUCTOR_NAME = "constructor"
 type ClassTypeInfo struct {
 	Name           TypeIdentifier
 	InheritsFrom   TypeIdentifier
+	FieldOrder     []string
 	Fields         map[string]TypeIdentifier
 	ConstantFields lib.Set[string]
 	Methods        map[string]MethodInfo
 	constructor    *MethodInfo
+}
+
+func (classInfo *ClassTypeInfo) GetFieldOffset(l *Listener, fieldName string) uint {
+	var computedOffset uint = 0
+	// FIXME: FUCK INHERITANCE
+	// ALL MY HOMIES HATE INHERITANCE
+	for _, fName := range classInfo.FieldOrder {
+		fieldType, found := classInfo.GetFieldType(fieldName, l)
+		if !found {
+			log.Panicf(
+				"Failed to find type for field `%s` of class `%s`",
+				fieldName,
+				classInfo.Name,
+			)
+		}
+
+		fieldTypeInfo, found := l.GetTypeInfo(fieldType)
+		if !found {
+			log.Panicf(
+				"Failed to find the type information for field `%s` of class `%s`",
+				fieldName,
+				classInfo.Name,
+			)
+		}
+
+		if fName == fieldName {
+			break
+		}
+
+		computedOffset += fieldTypeInfo.Size
+	}
+
+	return computedOffset
 }
 
 func (c *ClassTypeInfo) GetConstructor(l *Listener) MethodInfo {
@@ -145,6 +180,7 @@ func (c *ClassTypeInfo) GetFieldType(fieldName string, listener *Listener) (Type
 }
 
 func (c *ClassTypeInfo) UpsertField(name string, _type TypeIdentifier) {
+	c.FieldOrder = append(c.FieldOrder, name)
 	c.Fields[name] = _type
 }
 
@@ -154,9 +190,10 @@ func (c *ClassTypeInfo) UpsertMethod(name string, info MethodInfo) {
 
 func NewClassTypeInfo(className string) ClassTypeInfo {
 	return ClassTypeInfo{
-		Name:    TypeIdentifier(className),
-		Fields:  make(map[string]TypeIdentifier),
-		Methods: make(map[string]MethodInfo),
+		Name:       TypeIdentifier(className),
+		Fields:     make(map[string]TypeIdentifier),
+		Methods:    make(map[string]MethodInfo),
+		FieldOrder: make([]string, 0),
 	}
 }
 

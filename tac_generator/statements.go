@@ -273,8 +273,42 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			}))
 
 			previousInChain = tempName
+			previousType = elemType
 			previousTypeInfo = elemTypeInfo
 		case *p.PropertyAccessExprContext:
+			fieldName := suffixCtx.Identifier().GetText()
+			classInfo := previousTypeInfo.ClassType.GetValue()
+
+			computedOffset := classInfo.GetFieldOffset(l.TypeChecker, fieldName)
+			offset := strconv.FormatUint(uint64(computedOffset), 10)
+
+			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				Target: tempName,
+				Source: previousInChain,
+				Offset: LiteralOrVariable(offset),
+			}))
+
+			previousInChain = tempName
+
+			fieldType, found := classInfo.GetFieldType(fieldName, l.TypeChecker)
+			if !found {
+				log.Panicf(
+					"Failed to find type for field `%s` of class `%s`",
+					fieldName,
+					classInfo.Name,
+				)
+			}
+			previousType = fieldType
+
+			fieldTypeInfo, found := l.TypeChecker.GetTypeInfo(fieldType)
+			if !found {
+				log.Panicf(
+					"Failed to find the type information for field `%s` of class `%s`",
+					fieldName,
+					classInfo.Name,
+				)
+			}
+			previousTypeInfo = fieldTypeInfo
 		}
 	}
 }

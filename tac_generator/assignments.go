@@ -2,6 +2,7 @@ package tac_generator
 
 import (
 	"log"
+	"strconv"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
@@ -69,35 +70,225 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
 
-	var originalName string
-	var assignExpr p.IConditionalExprContext
-	if ctx.ThisAssignment() != nil {
-		assignExpr = ctx.ThisAssignment().ConditionalExpr()
-		originalName = "this." + ctx.ThisAssignment().Identifier().GetText()
-	} else if ctx.VariableAssignment() != nil {
-		assignExpr = ctx.VariableAssignment().ConditionalExpr()
-		originalName = ctx.VariableAssignment().Identifier().GetText()
+	isFieldAssignment := ctx.ThisAssignment() != nil
+	isVariableAssignment := ctx.VariableAssignment() != nil
+
+	var found bool
+	var previousType type_checker.TypeIdentifier
+	var previousTypeInfo type_checker.TypeInfo
+	var previousTacName VariableName
+
+	varNameUntilNow := ""
+	parts := []p.IAssignmentPartContext{}
+	var expr p.IConditionalExprContext
+	if isFieldAssignment {
+		fieldCtx := ctx.ThisAssignment()
+		parts = fieldCtx.AllAssignmentPart()
+		expr = fieldCtx.ConditionalExpr()
+		fieldName := fieldCtx.Identifier().GetText()
+
+		classScope, found := l.GetCurrentScope().SearchClassScope()
+		if !found {
+			log.Panicf(
+				"Can't access a field `%s` outside of class scope!",
+				fieldName,
+			)
+		}
+
+		typeInfo, found := l.TypeChecker.GetTypeInfo(type_checker.TypeIdentifier(classScope.Name))
+		if !found {
+			log.Panicf(
+				"Can't get type information of class: `%s`",
+				classScope.Name,
+			)
+		}
+		classInfo := typeInfo.ClassType.GetValue()
+
+		previousType, found = classInfo.GetFieldType(fieldName, l.TypeChecker)
+		if !found {
+			log.Panicf(
+				"Failed to get type for field: `%s`",
+				fieldName,
+			)
+		}
+
+		previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
+		if !found {
+			log.Panicf(
+				"Failed to get type information for type: `%s`",
+				previousType,
+			)
+		}
+
+		thisTacName, found := l.Program.GetVariableFor("this", scopeName)
+		if !found {
+			log.Panicf(
+				"Failed to get tac variable for `this`, even though we're on a class scope!\nScope name: `%s`",
+				scopeName,
+			)
+		}
+
+		computedOffset := classInfo.GetFieldOffset(l.TypeChecker, fieldName)
+		offset := strconv.FormatUint(uint64(computedOffset), 10)
+
+		previousTacName = l.Program.GetOrGenerateVariable("this."+fieldName, scopeName)
+		l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+			Target: previousTacName,
+			Source: thisTacName,
+			Offset: LiteralOrVariable(offset),
+		}))
+
+		varNameUntilNow += "this." + fieldName
+	} else if isVariableAssignment {
+		varCtx := ctx.VariableAssignment()
+		varName := varCtx.Identifier().GetText()
+
+		parts = varCtx.AllAssignmentPart()
+		expr = varCtx.ConditionalExpr()
+
+		previousType, found = scope.GetExpressionType(varName)
+		if !found {
+			log.Panicf(
+				"Failed to get type for expression: `%s`",
+				varName,
+			)
+		}
+
+		previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
+		if !found {
+			log.Panicf(
+				"Failed to get type information for type: `%s`",
+				previousType,
+			)
+		}
+
+		previousTacName, found = l.Program.GetVariableFor(varName, scopeName)
+		if !found {
+			log.Panicf(
+				"Failed to get tac name for variable: %s",
+				varName,
+			)
+		}
+		varNameUntilNow += varName
 	}
 
-	exprText := assignExpr.GetText()
-	exprType, found := l.GetCurrentScope().GetExpressionType(exprText)
-	if !found {
-		log.Panicf(
-			"Failed to get type for expression: `%s`",
-			exprText,
-		)
+	for _, part := range parts {
+		switch partCtx := part.(type) {
+		case *p.FieldAssignmentPartExprContext:
+			newFieldName := partCtx.Identifier().GetText()
+			classInfo := previousTypeInfo.ClassType.GetValue()
+
+			computedOffset := classInfo.GetFieldOffset(l.TypeChecker, newFieldName)
+			offset := strconv.FormatUint(uint64(computedOffset), 10)
+
+			varNameUntilNow += partCtx.GetText()
+			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
+			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				Target: target,
+				Source: previousTacName,
+				Offset: LiteralOrVariable(offset),
+			}))
+
+			previousTacName = target
+			previousType, found = classInfo.GetFieldType(newFieldName, l.TypeChecker)
+			if !found {
+				log.Panicf(
+					"Can't find field `%s` for class `%s`",
+					newFieldName,
+					classInfo.Name,
+				)
+			}
+
+			previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
+			if !found {
+				log.Panicf(
+					"Can't find type information for: `%s`",
+					previousType,
+				)
+			}
+
+		case *p.IndexAssignmentPartExprContext:
+			offset := "**INVALID OFFSET**"
+
+			elemType := previousTypeInfo.ArrayType.GetValue().Type
+			elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
+			if !found {
+				log.Panicf(
+					"Failed to find the type information for the element in:\n%s",
+					varNameUntilNow,
+				)
+			}
+
+			condExpr := partCtx.ConditionalExpr().GetText()
+			litType, found := l.TypeChecker.GetLiteralType(condExpr)
+			if !found {
+				varName, found := l.Program.GetVariableFor(condExpr, scopeName)
+				if !found {
+					log.Panicf("Can't find the result variable for expr: `%s`", condExpr)
+				}
+				offset = string(varName)
+			} else {
+				if litType != type_checker.BASE_TYPES.INTEGER {
+					log.Panicf("Can't index with type that is not integer: %s", litType)
+				} else {
+					idx, err := strconv.ParseInt(condExpr, 10, 64)
+					if err != nil {
+						log.Panicf(
+							"Failed to parse integer literal: `%s`",
+							condExpr,
+						)
+
+					}
+
+					if idx < 0 {
+						l.AddError(
+							partCtx.GetStart().GetLine(),
+							partCtx.GetStart().GetColumn(),
+							partCtx.GetStop().GetColumn(),
+							"Can't index an array with a negative value!",
+						)
+						return
+					}
+
+					elemSize := int64(elemTypeInfo.Size)
+					if elemSize <= 0 {
+						log.Panicf(
+							"The element size is 0 or negative! But it should be at least 1.\nElem type: %s\n%s",
+							elemType,
+							varNameUntilNow,
+						)
+					}
+					offset = strconv.FormatInt(elemSize*idx, 10)
+				}
+			}
+
+			varNameUntilNow += partCtx.GetText()
+			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
+			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				Target: target,
+				Source: previousTacName,
+				Offset: LiteralOrVariable(offset),
+			}))
+
+			previousTacName = target
+			previousType = elemType
+			previousTypeInfo = elemTypeInfo
+		}
 	}
 
-	_, isLiteral := l.TypeChecker.GetLiteralType(exprText)
+	_, isLiteral := l.TypeChecker.GetLiteralType(expr.GetText())
 
 	log.Printf(
-		"Assignment to variable `%s`, with value: `%s`, which is a literal? %t",
-		originalName,
-		exprText,
+		"Assignment to variable:\n`%s`\nwith value: `%s`\nwhich is a literal? %t",
+		varNameUntilNow,
+		expr.GetText(),
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
+	if isFieldAssignment {
+	} else {
+		createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
+	}
 }
 
 func createAssignment(
