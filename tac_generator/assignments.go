@@ -285,10 +285,10 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 		isLiteral,
 	)
 
-	if isFieldAssignment {
-	} else {
-		createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
-	}
+	// if isFieldAssignment {
+	// } else {
+	// 	createAssignment(l, scope, scopeName, isLiteral, originalName, exprType, exprText)
+	// }
 }
 
 func createAssignment(

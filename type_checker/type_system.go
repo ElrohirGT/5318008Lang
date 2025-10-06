@@ -573,8 +573,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			return
 		}
 
-		isArrayAccess := part.ConditionalExpr() != nil
-		if isArrayAccess {
+		if partCtx, isArrayAccess := part.(*p.IndexAssignmentPartExprContext); isArrayAccess {
 			log.Printf("Trying to access an array element on type `%s`!\n", previousTypeId)
 
 			if !previousTypeInfo.ArrayType.HasValue() {
@@ -588,7 +587,7 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			}
 			arrayInfo := previousTypeInfo.ArrayType.GetValue()
 
-			idxExpr := part.ConditionalExpr()
+			idxExpr := partCtx.ConditionalExpr()
 			idxId, found := l.ScopeManager.CurrentScope.GetExpressionType(idxExpr.GetText())
 			if !found {
 				l.AddError(
@@ -611,7 +610,8 @@ func (l Listener) ExitAssignment(ctx *p.AssignmentContext) {
 			}
 			previousTypeId = arrayInfo.Type
 		} else {
-			fieldName := part.Identifier()
+			partCtx := part.(*p.FieldAssignmentPartExprContext)
+			fieldName := partCtx.Identifier()
 			log.Printf("Trying to access an object field `%s` on type `%s`!\n", fieldName, previousTypeId)
 
 			if !previousTypeInfo.ClassType.HasValue() {
