@@ -165,6 +165,14 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				} else {
 					idx, err := strconv.ParseInt(condExpr, 10, 64)
 					if err != nil {
+						log.Panicf(
+							"Failed to parse integer literal: `%s`",
+							condExpr,
+						)
+
+					}
+
+					if idx < 0 {
 						l.AddError(
 							suffixCtx.GetStart().GetLine(),
 							suffixCtx.GetStart().GetColumn(),
