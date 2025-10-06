@@ -1,7 +1,6 @@
 let a = [1,1,1];
 let b = a[0];
 ---
-GLOBAL:
 ALLOC t1 12
 SWO t1 0 1
 SWO t1 4 1

@@ -152,6 +152,10 @@ func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
 	scopeName := ScopeName(l.GetCurrentScope().Name)
 	exprText := ctx.GetText()
 
+	if _, found := l.Program.GetVariableFor(exprText, scopeName); found {
+		return
+	}
+
 	if ctx.LeftHandSide() != nil {
 		lhs := ctx.LeftHandSide()
 
