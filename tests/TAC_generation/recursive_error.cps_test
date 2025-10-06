@@ -1,0 +1,9 @@
+function sumar(n: integer): integer {
+	// FIXME: This should be able to be done without IF...ELSE
+	if (n <= 0) {
+		 return 0;
+	 }
+	 return n + sumar(n-1);
+}
+---
+GEN TAC
