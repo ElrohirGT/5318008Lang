@@ -22,7 +22,7 @@ func stripANSI(s string) string {
 	return ansiRegex.ReplaceAllString(s, "")
 }
 
-const ENABLE_PANIC_RECOV = true
+const ENABLE_PANIC_RECOV = false
 
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
@@ -31,7 +31,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	"TAC_generation/class",
+	// "TAC_generation/class",
 }
 
 var IGNORE_SPECIFIC = []string{

@@ -84,8 +84,8 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		fieldOffset := classInfo.GetFieldOffset(l.TypeChecker, ctx.Identifier().GetText())
 
 		value := "**INVALID VALUE**"
-		if literalType, isLiteral := l.TypeChecker.GetLiteralType(exprText); isLiteral {
-			_, value = literalToTAC(exprText, literalType)
+		if isLiteral {
+			_, value = literalToTAC(variableValue, exprType)
 		} else if exprType == type_checker.BASE_TYPES.STRING && variableValue == "" {
 			varName := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
 			if !found {
@@ -96,7 +96,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			}
 			value = string(varName)
 		} else {
-			varName, found := l.Program.GetVariableFor(variableValue, scopeName)
+			varName, found := l.Program.GetVariableFor(exprText, scopeName)
 			if !found {
 				log.Panicf(
 					"Failed to find TAC variable for expression: `%s`",
