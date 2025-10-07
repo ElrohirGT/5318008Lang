@@ -238,7 +238,7 @@ func (l Listener) ExitForeachValue(ctx *p.ForeachValueContext) {
 // ===========================
 
 func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
-	forScope := NewScope(_buildUniqueName(l.ScopeManager, "SWITCH"), SCOPE_TYPES.BLOCK)
+	forScope := NewScope(_buildUniqueName(l.ScopeManager, "SWITCH_"), SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(forScope)
 	l.ScopeManager.ReplaceCurrent(forScope)
 }
@@ -265,15 +265,39 @@ func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
 	}
 }
 
+func (l Listener) EnterSwitchCase(ctx *p.SwitchCaseContext) {
+	scopeName := l.ScopeManager.CurrentScope.Name
+	caseScope := NewScope(
+		fmt.Sprintf("%s_CASE_%d", scopeName, l.ScopeManager.GetUniqueID()),
+		SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(caseScope)
+	l.ScopeManager.ReplaceCurrent(caseScope)
+}
+
+func (l Listener) ExitSwitchCase(ctx *p.SwitchCaseContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) EnterDefaultCase(ctx *p.DefaultCaseContext) {
+	scopeName := l.ScopeManager.CurrentScope.Name
+	caseScope := NewScope(scopeName+"_DEFAULT", SCOPE_TYPES.BLOCK)
+	l.ScopeManager.AddToCurrent(caseScope)
+	l.ScopeManager.ReplaceCurrent(caseScope)
+}
+
+func (l Listener) ExitDefaultCase(ctx *p.DefaultCaseContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
 func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
-	forScope := NewScope(_buildUniqueName(l.ScopeManager, "CASE"), SCOPE_TYPES.BLOCK)
-	l.ScopeManager.AddToCurrent(forScope)
-	l.ScopeManager.ReplaceCurrent(forScope)
+	// forScope := NewScope(_buildUniqueName(l.ScopeManager, "CASE"), SCOPE_TYPES.BLOCK)
+	// l.ScopeManager.AddToCurrent(forScope)
+	// l.ScopeManager.ReplaceCurrent(forScope)
 }
 
 func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 	// Exit of block scope
-	l.ScopeManager.ReplaceWithParent()
+	// l.ScopeManager.ReplaceWithParent()
 }
 
 // ===========================

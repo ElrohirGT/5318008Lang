@@ -1,0 +1,38 @@
+function sumar(a: integer, b: integer) {
+    return 10;
+}
+
+
+let b : integer = 5;
+let c = b+3;
+switch (c) {
+    case b: 
+        let a = 3;
+    case c: 
+        let a = 5;
+    case 3: 
+        let a = 3;
+    default: 
+        let a = 3 + 2 + b;
+}
+---
+= t1 i32 5
+GOTO GLOBAL_SWITCH_0
+SEC GLOBAL_SWITCH_0_RETURN:
+
+SEC GLOBAL_SWITCH_0:
+	ADD t2 t1 3
+	CP $switch t2
+	IF EQ $switch t1 GOTO GLOBAL_SWITCH_0_CASE_1
+	IF EQ $switch 2 GOTO GLOBAL_SWITCH_0_CASE_2
+	GOTO GLOBAL_SWITCH_0_DEFAULT
+SEC GLOBAL_SWITCH_0_CASE_1:
+	= t3 i32 3
+	GOTO GLOBAL_SWITCH_0_RETURN
+SEC GLOBAL_SWITCH_0_CASE_2:
+	= t4 i32 3
+	GOTO GLOBAL_SWITCH_0_RETURN
+SEC GLOBAL_SWITCH_0_DEFAULT:
+	ADD t5 3 2
+	= t6 i32 t5
+	GOTO GLOBAL_SWITCH_0_RETURN
