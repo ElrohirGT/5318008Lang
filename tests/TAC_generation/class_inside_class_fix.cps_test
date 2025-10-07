@@ -17,4 +17,24 @@ class Dog {
 
 let a = new Dog(8);
 ---
-GENERATE TAC
+ALLOC t10 10
+PARAM 8
+// (this)
+PARAM t10
+// (newDog(8))
+CALL Dog_constructor 2
+
+SEC Dog_constructor:
+	// (this)
+	LOAD t7
+	// (age)
+	LOAD t8
+	= t9 i32 4
+	SWO t7 t9 t8
+SEC Legs_constructor:
+	// (this)
+	LOAD t2
+	// (legCount)
+	LOAD t3
+	= t4 i32 0
+	SWO t2 t4 t3

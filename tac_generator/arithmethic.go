@@ -5,18 +5,23 @@ import (
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
-// x = 5 + 6
-// ADD x 5 6
+// Helper function to get the correct scope name for TAC generation
+func getTACScope(scope *type_checker.Scope) ScopeName {
+	scopeName := ScopeName(scope.Name)
 
-// Follow operation order
-// x = 5 + 2 * 9
-// MULT t1 2 9
-// ADD x 5 t1
+	// If we're in a class scope, use the constructor scope for TAC generation
+	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
+	}
+
+	return scopeName
+}
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scopeName := getTACScope(l.GetCurrentScope())
 
 	if len(ctx.AllMultiplicativeExpr()) == 1 {
 		childExpr := ctx.MultiplicativeExpr(0).GetText()
@@ -64,7 +69,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 }
 
 func (l Listener) ExitMultiplicativeExpr(ctx *p.MultiplicativeExprContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scopeName := getTACScope(l.GetCurrentScope())
 
 	if len(ctx.AllUnaryExpr()) == 1 {
 		childExpr := ctx.UnaryExpr(0).GetText()
@@ -118,7 +123,7 @@ func (l Listener) ExitMultiplicativeExpr(ctx *p.MultiplicativeExprContext) {
 }
 
 func (l Listener) ExitUnaryExpr(ctx *p.UnaryExprContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scopeName := getTACScope(l.GetCurrentScope())
 
 	if ctx.PrimaryExpr() != nil {
 		childText := ctx.PrimaryExpr().GetText()
@@ -149,7 +154,7 @@ func (l Listener) ExitUnaryExpr(ctx *p.UnaryExprContext) {
 }
 
 func (l Listener) ExitPrimaryExpr(ctx *p.PrimaryExprContext) {
-	scopeName := ScopeName(l.GetCurrentScope().Name)
+	scopeName := getTACScope(l.GetCurrentScope())
 	exprText := ctx.GetText()
 
 	if _, found := l.Program.GetVariableFor(exprText, scopeName); found {

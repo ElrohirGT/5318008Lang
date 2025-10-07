@@ -24,7 +24,7 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 
 func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpContext) {
 	scope := l.GetCurrentScope()
-	scopeName := ScopeName(scope.Name)
+	scopeName := getTACScope(scope)
 
 	primaryExpr := "**INVALID PRIMARY EXPR**"
 	switch innerCtx := primaryCtx.(type) {
@@ -110,8 +110,6 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 			returnNonNull := funcInfo.ReturnType != type_checker.BASE_TYPES.NULL && funcInfo.ReturnType != type_checker.BASE_TYPES.UNKNOWN
 			switch funcInfo.ReturnType {
-			// FIXME: Unknown should be a type to throw but we're going to accept Unknown too
-			// case type_checker.BASE_TYPES.UNKNOWN, type_checker.BASE_TYPES.INVALID:
 			case type_checker.BASE_TYPES.INVALID:
 				log.Panicf(
 					"Function `%s` should not be able to return `%s`!",
@@ -337,7 +335,7 @@ func handleConstructorCall(
 		Size:   typeInfo.Size,
 	}))
 
-	var argCount uint = 1 // The default argument is the class ref!
+	var argCount uint = 1
 	if args != nil {
 		argExprs := args.AllConditionalExpr()
 		argCount += uint(len(argExprs))
