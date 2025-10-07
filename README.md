@@ -148,7 +148,7 @@ this point:
 
 https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L479-L513
 
-#### TAC Documentation
+### TAC Documentation
 
 - Tipos de Datos:
   - En MIPS solamente hay 3 tipos de datos:
@@ -195,7 +195,7 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
   - // <contenido comentario>
     - Solamente abarcan una línea
 
-##### Operaciones
+#### Operaciones
 
 - ADD <destiny> <v1> <v2>
 - SUB <destiny> <minuendo> <sustraendo>
@@ -210,7 +210,7 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 - LTE <destiny> <a> <b>
 - EQ <destiny> <a> <b>
 
-##### TAC Example
+#### TAC Example
 
 The directory `./tests/TAC_generation/` contains a bunch of this examples that
 also serve as snapshots for testing, but here's a very basic one:
