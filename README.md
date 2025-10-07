@@ -37,6 +37,20 @@ this command in the root of the repo:
 antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscript.g4
 ```
 
+**Running the vscode extension**
+
+This projects offers a vscode extension developed for compiling the compiscript grammar. For runnning locally the extension just use the following commad:
+```bash
+cd vscode-extension/5318008-lang/
+```
+And the press ´F5´
+
+Also to see the changes of the Go code in the extension use the following command from the root directory:
+
+```bash
+go build -o vscode-extension/5318008-lang/bin/compiscript-analyzer main.go
+```
+
 ### Fuzzing
 
 Fuzzing has been implemented, checkout for fuzz tests under the
