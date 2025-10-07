@@ -117,3 +117,114 @@ https://github.com/ElrohirGT/5318008Lang/blob/2d8a431ba2d278083dc29979e8506ecb80
 ![image](./media/semantic4.png)
 
 https://github.com/ElrohirGT/5318008Lang/blob/0c25ba6a11598954a7c940915e75ad4d569bfbd9/listener/scopes.go#L45-L62
+
+### TAC Generation
+
+This phase attempts to generate an Intermediate Representation of the code. We
+need the type checker and semantic analysis to end successfully, if not this
+phase cannot be run. Therefore it contains a bunch of checks to see if the
+previous two phases completed with success.
+
+The following structure represents the final program in TAC format:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L410-L416
+
+Each scope saves the following information about itself:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L402-L408
+
+Only `Instructions` is used on the final TAC generation step. Each instruction
+contains its own field and struct, later combined into a single "enum":
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L316-L334
+
+#### Translate between scopes and variables
+
+Each scope has a translation dictionary with priority and inherits all other
+translations from it's father. When we want to check if a value needs to be
+loaded into a new register or if an existing variable already holds the value of
+this expression, we check this dictionary. The basic function below illustrates
+this point:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L479-L513
+
+### TAC Documentation
+
+- Tipos de Datos:
+  - En MIPS solamente hay 3 tipos de datos:
+    - BYTE
+    - HALFWORD
+    - WORD
+  - Por lo que en nuestro TAC tenemos:
+    - i8, i16, i32
+    - u8, u16, u32
+- Asignación (=)
+  - = t1 i32 5
+  - = t2 u1 1
+  - = <variable> <tipo> <valor>
+- Copiar (CP)
+  - CP t1 t2
+  - CP <variable> <variable>
+- Salto Incondicional (GOTO \<sección/tag>)
+- Salto Condicional:
+  - IF <variable> GOTO \<sección/tag>
+  - IF NOT <variable> GOTO \<sección/tag>
+  - IF <relop> \<variable 1> \<variable 2> GOTO \<sección/tag>
+- Llamadas a procedimientos y retornos:
+  - PARAM <variable>
+  - LOAD <variable>
+  - CALL <procedure> \<# params>
+  - CALLRET <variable> <procedure> \<#params>
+  - RETURN <variable>
+- Arrays/Objetos:
+  - Crear un array:
+    - ALLOC <variable> <size>
+  - Acceder a un elemento:
+    - LWO <variable> \<array/objeto> <offset>
+  - Asignar a un elemento:
+    - SWO \<array/objeto> <offset> <valor>
+  - Destruir:
+    - FREE <variable>
+- Asignaciones de Direcciones:
+  - Obtener dirección (&)
+  - Obtener valor de dirección (@)
+- Secciones/Tags:
+  - SEC <name of section>
+    - Padding of child instructions is required (for legibility)
+- Comentarios:
+  - // <contenido comentario>
+    - Solamente abarcan una línea
+
+#### Operaciones
+
+- ADD <destiny> <v1> <v2>
+- SUB <destiny> <minuendo> <sustraendo>
+- MULT<destiny> <v1> <v2>
+- DIV <destiny> <dividendo> <divisor>
+- AND <destiny> <a> <b>
+- OR <destiny> <a> <b>
+- NOT <destiny> <a> <b>
+- GT <destiny> <a> <b>
+- GTE <destiny> <a> <b>
+- LT <destiny> <a> <b>
+- LTE <destiny> <a> <b>
+- EQ <destiny> <a> <b>
+
+#### TAC Example
+
+The directory `./tests/TAC_generation/` contains a bunch of this examples that
+also serve as snapshots for testing, but here's a very basic one:
+
+```
+// Compiscript source code
+let a = [1,1,1];
+let b = a[0];
+---
+// Generated TAC
+ALLOC t1 12
+SWO t1 0 1
+SWO t1 4 1
+SWO t1 8 1
+LWO t2 t1 0
+= t3 i32 t2
+```
