@@ -28,7 +28,8 @@ func literalToTAC(literal string, literalType type_checker.TypeIdentifier) (Vari
 				type_checker.LITERAL_VALUES.True,
 			)
 		}
-
+	case type_checker.BASE_TYPES.STRING:
+		return VARIABLE_TYPES.I32, literal
 	case type_checker.BASE_TYPES.INTEGER:
 		literalValue = literal
 	case type_checker.BASE_TYPES.NULL, type_checker.BASE_TYPES.INVALID, type_checker.BASE_TYPES.UNKNOWN:

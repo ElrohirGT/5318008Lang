@@ -106,6 +106,19 @@ func NewLogicOpInstruction(instruction LogicOpInstruction) Instruction {
 	}
 }
 
+// Represents string concatenation
+type ConcatInstruction struct {
+	Target  VariableName
+	String1 LiteralOrVariable
+	String2 LiteralOrVariable
+}
+
+func NewConcatInstruction(instruction ConcatInstruction) Instruction {
+	return Instruction{
+		Concat: lib.NewOpValue(instruction),
+	}
+}
+
 // Represents a tag, used to mark sections where the program can jump to.
 type SECInstruction struct {
 	Name TagName
@@ -331,6 +344,7 @@ type Instruction struct {
 	Dereference    lib.Optional[DereferenceInstruction]
 	Arithmethic    lib.Optional[ArithmethicInstruction]
 	Logic          lib.Optional[LogicOpInstruction]
+	Concat         lib.Optional[ConcatInstruction]
 }
 
 func (i Instruction) AddComment(comment string) Instruction {
@@ -394,6 +408,9 @@ func (i Instruction) String() string {
 	case i.Load.HasValue():
 		ass := i.Load.GetValue()
 		return fmt.Sprintf("{LOAD %s}", ass.Variable)
+	case i.Concat.HasValue():
+		ass := i.Concat.GetValue()
+		return fmt.Sprintf("{%s = concat(%s, %s)}", ass.Target, ass.String1, ass.String2)
 	}
 
 	return "{**invalid instruction**}"

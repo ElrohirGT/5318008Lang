@@ -1,6 +1,7 @@
 package tac_generator
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -8,20 +9,9 @@ import (
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
-// Helper function to get the correct scope name for TAC generation
-func getTACScope(scope *type_checker.Scope) ScopeName {
-	scopeName := ScopeName(scope.Name)
-
-	// If we're in a class scope, use the constructor scope for TAC generation
-	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
-		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
-	}
-
-	return scopeName
-}
-
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	scopeName := getTACScope(l.GetCurrentScope())
+	scope := l.GetCurrentScope()
 
 	if len(ctx.AllMultiplicativeExpr()) == 1 {
 		childExpr := ctx.MultiplicativeExpr(0).GetText()
@@ -36,7 +26,14 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 	leftText := leftExpr.GetText()
 	leftVar := l.getOrCreateExpressionVariable(leftText, scopeName)
 
+	// Get the type of the left operand
+	leftType, foundLeftType := scope.GetExpressionType(leftText)
+	if !foundLeftType {
+		log.Panicf("Failed to find type for expression: %s", leftText)
+	}
+
 	currentResult := leftVar
+	currentResultType := leftType
 	currentPos := len(leftText)
 
 	for i := 1; i < len(ctx.AllMultiplicativeExpr()); i++ {
@@ -44,24 +41,70 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 		rightText := rightExpr.GetText()
 		rightVar := l.getOrCreateExpressionVariable(rightText, scopeName)
 
-		var opType ArithmethicOpType
-		if currentPos < len(fullText) && fullText[currentPos] == '+' {
-			opType = ARITHMETHIC_OPERATION_TYPES.Add
-		} else {
-			opType = ARITHMETHIC_OPERATION_TYPES.Subtract
+		// Get the type of the right operand
+		rightType, foundRightType := scope.GetExpressionType(rightText)
+		if !foundRightType {
+			log.Panicf("Failed to find type for expression: %s", rightText)
 		}
 
-		resultVar := l.Program.GetNextVariable()
+		if currentPos < len(fullText) && fullText[currentPos] == '+' {
+			resultVar := l.Program.GetNextVariable()
 
-		l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
-			Signed: true,
-			Type:   opType,
-			Target: resultVar,
-			P1:     LiteralOrVariable(currentResult),
-			P2:     LiteralOrVariable(rightVar),
-		}))
+			if currentResultType == type_checker.BASE_TYPES.STRING &&
+				rightType == type_checker.BASE_TYPES.STRING {
+				// CONCAT instruction for strings
+				l.AppendInstruction(scopeName, NewConcatInstruction(ConcatInstruction{
+					Target:  resultVar,
+					String1: LiteralOrVariable(currentResult),
+					String2: LiteralOrVariable(rightVar),
+				}))
+				currentResultType = type_checker.BASE_TYPES.STRING
+			} else if currentResultType == type_checker.BASE_TYPES.INTEGER &&
+				rightType == type_checker.BASE_TYPES.INTEGER {
+				// ADD instruction for integers
+				l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+					Signed: true,
+					Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+					Target: resultVar,
+					P1:     LiteralOrVariable(currentResult),
+					P2:     LiteralOrVariable(rightVar),
+				}))
+				currentResultType = type_checker.BASE_TYPES.INTEGER
+			} else {
+				l.AddError(
+					ctx.GetStart().GetLine(),
+					ctx.GetStart().GetColumn(),
+					ctx.GetStop().GetColumn(),
+					fmt.Sprintf("Cannot add %s and %s", currentResultType, rightType),
+				)
+				return
+			}
 
-		currentResult = resultVar
+			currentResult = resultVar
+		} else {
+			// Subtraction - only for numbers
+			if currentResultType != type_checker.BASE_TYPES.INTEGER ||
+				rightType != type_checker.BASE_TYPES.INTEGER {
+				l.AddError(
+					ctx.GetStart().GetLine(),
+					ctx.GetStart().GetColumn(),
+					ctx.GetStop().GetColumn(),
+					"Subtraction only works with integers",
+				)
+				return
+			}
+
+			resultVar := l.Program.GetNextVariable()
+			l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+				Signed: true,
+				Type:   ARITHMETHIC_OPERATION_TYPES.Subtract,
+				Target: resultVar,
+				P1:     LiteralOrVariable(currentResult),
+				P2:     LiteralOrVariable(rightVar),
+			}))
+			currentResult = resultVar
+		}
+
 		currentPos += 1 + len(rightText)
 	}
 
@@ -197,4 +240,14 @@ func (l Listener) getOrCreateExpressionVariable(exprText string, scopeName Scope
 	}
 
 	return l.Program.GetOrGenerateVariable(exprText, scopeName)
+}
+
+func getTACScope(scope *type_checker.Scope) ScopeName {
+	scopeName := ScopeName(scope.Name)
+
+	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
+	}
+
+	return scopeName
 }

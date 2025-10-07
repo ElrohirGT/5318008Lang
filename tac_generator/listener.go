@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strconv"
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -196,6 +197,11 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 		_, err = fmt.Fprintf(buff, "%sLOAD %s",
 			tab, def.Variable)
 
+	case inst.Concat.HasValue():
+		concat := inst.Concat.GetValue()
+		_, err = fmt.Fprintf(buff, "%sCONCAT %s %s %s",
+			tab, concat.Target, concat.String1, concat.String2)
+
 	default:
 		log.Panicf("Unrecognizable instruction type!\n%#v", *inst)
 	}
@@ -289,4 +295,47 @@ func (l Listener) AddWarning(content string, line string, details ...string) {
 
 func (l Listener) HasErrors() bool {
 	return len(*l.Errors) > 0
+}
+
+func (l Listener) processStringLiteral(literal string, scopeName ScopeName) VariableName {
+	// Remove quotes from the string literal
+	unquoted := strings.Trim(literal, "\"")
+
+	// Check if we already have a variable for this exact string
+	if existingVar, found := l.Program.GetVariableFor(literal, scopeName); found {
+		return existingVar
+	}
+
+	// Create a new variable to hold the string reference
+	stringVar := l.Program.GetNextVariable()
+
+	// Calculate the size needed (length + 1 for null terminator)
+	stringSize := uint(len(unquoted) + 1)
+
+	// Allocate memory for the string
+	l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+		Target: stringVar,
+		Size:   stringSize,
+	}).AddComment("Allocate string: "+literal))
+
+	// Store each character in the allocated memory
+	for i, char := range unquoted {
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			Target: stringVar,
+			Offset: LiteralOrVariable(strconv.Itoa(i)),
+			Value:  LiteralOrVariable(strconv.Itoa(int(char))),
+		}).AddComment("Set char: "+string(char)))
+	}
+
+	// Add null terminator
+	l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+		Target: stringVar,
+		Offset: LiteralOrVariable(strconv.Itoa(len(unquoted))),
+		Value:  "0",
+	}).AddComment("Null terminator"))
+
+	// Store the translation for future use
+	l.Program.UpsertTranslation(scopeName, literal, stringVar)
+
+	return stringVar
 }
