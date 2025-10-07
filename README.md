@@ -117,3 +117,33 @@ https://github.com/ElrohirGT/5318008Lang/blob/2d8a431ba2d278083dc29979e8506ecb80
 ![image](./media/semantic4.png)
 
 https://github.com/ElrohirGT/5318008Lang/blob/0c25ba6a11598954a7c940915e75ad4d569bfbd9/listener/scopes.go#L45-L62
+
+### TAC Generation
+
+This phase attempts to generate an Intermediate Representation of the code. We
+need the type checker and semantic analysis to end successfully, if not this
+phase cannot be run. Therefore it contains a bunch of checks to see if the
+previous two phases completed with success.
+
+The following structure represents the final program in TAC format:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L410-L416
+
+Each scope saves the following information about itself:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L402-L408
+
+Only `Instructions` is used on the final TAC generation step. Each instruction
+contains its own field and struct, later combined into a single "enum":
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L316-L334
+
+#### Translate between scopes and variables
+
+Each scope has a translation dictionary with priority and inherits all other
+translations from it's father. When we want to check if a value needs to be
+loaded into a new register or if an existing variable already holds the value of
+this expression, we check this dictionary. The basic function below illustrates
+this point:
+
+https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69eb713a2/tac_generator/instructions.go#L479-L513
