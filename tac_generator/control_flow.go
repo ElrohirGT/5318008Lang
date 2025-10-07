@@ -604,28 +604,23 @@ func (l Listener) ExitSwitchValue(ctx *p.SwitchValueContext) {
 }
 
 func (l Listener) EnterSwitchCase(ctx *p.SwitchCaseContext) {
-	parentScope := l.GetCurrentScope()
+	// parentScope := l.GetCurrentScope()
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	childScope := l.GetCurrentScope()
-
-	targetVar, _ := l.Program.GetVariableOrLiteral(
-		ctx.CaseValue().GetText(), ScopeName(parentScope.Name), l.TypeChecker.ScopeManager, l.TypeChecker)
-	l.AppendInstruction(ScopeName(parentScope.Name), NewJumpInstruction(JumpInstruction{
-		Condition: lib.NewOpValue(
-			JumpCondition{Relation: lib.NewOpValue(CondJumpOperation{
-				Signed: false,
-				Type:   BOOLEAN_OPERATION_TYPES.Equal,
-				P1:     "$switch",
-				P2:     targetVar,
-			})}),
-		Target: TagName(childScope.Name),
-	}))
 
 	parentName := l.GetParentScopeName()
 	l.Program.UpsertScope(ScopeName(childScope.Name), parentName)
 	if err != nil {
 		log.Println("Something when wrong during Scope management")
 	}
+}
+
+func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
+	scope := l.GetCurrentScope()
+	tagName := scope.Name + "_BODY"
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(tagName),
+	}))
 }
 
 func (l Listener) ExitSwitchCase(ctx *p.SwitchCaseContext) {
@@ -637,11 +632,16 @@ func (l Listener) ExitSwitchCase(ctx *p.SwitchCaseContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(tagName),
 	}))
+
+	tagName = scope.Name + "_END"
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+		Name: TagName(tagName),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
 func (l Listener) EnterDefaultCase(ctx *p.DefaultCaseContext) {
-	parentScope := l.GetCurrentScope()
+	// parentScope := l.GetCurrentScope()
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	childScope := l.GetCurrentScope()
 	parentName := l.GetParentScopeName()
@@ -651,10 +651,10 @@ func (l Listener) EnterDefaultCase(ctx *p.DefaultCaseContext) {
 		log.Println("Something when wrong during Scope management")
 	}
 
-	l.AppendInstruction(ScopeName(parentScope.Name), NewJumpInstruction(JumpInstruction{
-		Condition: lib.NewOpEmpty[JumpCondition](),
-		Target:    TagName(childScope.Name),
-	}))
+	// l.AppendInstruction(ScopeName(parentScope.Name), NewJumpInstruction(JumpInstruction{
+	// 	Condition: lib.NewOpEmpty[JumpCondition](),
+	// 	Target:    TagName(childScope.Name),
+	// }))
 }
 
 func (l Listener) ExitDefaultCase(ctx *p.DefaultCaseContext) {
@@ -665,6 +665,30 @@ func (l Listener) ExitDefaultCase(ctx *p.DefaultCaseContext) {
 		Target:    TagName(tagName),
 	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
+func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
+	scope := l.GetCurrentScope()
+	targetVar, _ := l.Program.GetVariableOrLiteral(
+		ctx.GetText(), ScopeName(scope.Name), l.TypeChecker.ScopeManager, l.TypeChecker)
+	tagName := l.GetCurrentScope().Name + "_BODY"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.NewOpValue(
+			JumpCondition{Relation: lib.NewOpValue(CondJumpOperation{
+				Signed: false,
+				Type:   BOOLEAN_OPERATION_TYPES.Equal,
+				P1:     "$switch",
+				P2:     targetVar,
+			})}),
+		Target: TagName(tagName),
+	}))
+	tagName = l.GetCurrentScope().Name + "_END"
+	// tagName := strings.TrimSuffix(scopeWithoutId, "_CASE_") + "_RETURN"
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(tagName),
+	}))
+
 }
 
 // ================
