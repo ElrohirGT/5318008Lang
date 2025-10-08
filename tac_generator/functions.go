@@ -15,7 +15,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
 	parentName := l.GetParentScopeName()
-	l.Program.UpsertScope(scopeName, parentName)
+	l.Program.InsertIfNotExists(scopeName, parentName)
 
 	log.Println("Adding parameters for function:", scopeName)
 	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()

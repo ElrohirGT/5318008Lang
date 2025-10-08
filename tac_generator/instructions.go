@@ -445,6 +445,18 @@ func NewProgram() *Program {
 	}
 }
 
+func (p *Program) InsertIfNotExists(scopeName, parentScope ScopeName) {
+	if _, found := p.Scopes[scopeName]; found {
+		return
+	}
+
+	p.Scopes[scopeName] = ScopeInformation{
+		Parent:       parentScope,
+		Instructions: []Instruction{},
+		translations: map[string]VariableName{},
+	}
+}
+
 func (p *Program) UpsertScope(scopeName, parentScope ScopeName) {
 	p.Scopes[scopeName] = ScopeInformation{
 		Parent:       parentScope,
