@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	assgenerator "github.com/ElrohirGT/5318008Lang/ass_generator"
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/tac_generator"
@@ -85,6 +86,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 	}
 	log.Println("✅ FASE CHECK: Type analysis")
 
+	tacListenerOp := lib.NewOpEmpty[tac_generator.Listener]()
 	if config.TACBuffer.HasValue() {
 		tacListener := tac_generator.NewListener(&typeListener)
 		walker.Walk(tacListener, tree)
@@ -97,8 +99,20 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 		if err != nil {
 			log.Panicf("Failed to generate TAC! Reason: %s", err)
 		}
+		tacListenerOp = lib.NewOpValue(tacListener)
 	}
 	log.Println("✅ FASE CHECK: TAC generation")
+
+	if config.ASMBuffer.HasValue() && tacListenerOp.HasValue() {
+		buff := config.ASMBuffer.GetValue()
+		listener := tacListenerOp.GetValue()
+
+		// NOTE: If I ever comeback to implement another generator,
+		// this'll make it simple to switch to it
+		generator := assgenerator.MipsGenerator{}
+		generator.GenerateTo(listener, buff)
+	}
+	log.Println("✅ FASE CHECK: MIPS generation")
 
 	return nil
 }
