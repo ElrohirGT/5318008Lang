@@ -339,3 +339,27 @@ func (l Listener) processStringLiteral(literal string, scopeName ScopeName) Vari
 
 	return stringVar
 }
+
+func (l Listener) getOrCreateExpressionVariable(exprText string, scopeName ScopeName) VariableName {
+	// Check if already computed
+	if result, found := l.Program.GetVariableFor(exprText, scopeName); found {
+		return result
+	}
+
+	// Check for literal
+	if _, isLiteral := l.TypeChecker.GetLiteralType(exprText); isLiteral {
+		return VariableName(exprText)
+	}
+
+	return l.Program.GetOrGenerateVariable(exprText, scopeName)
+}
+
+func getTACScope(scope *type_checker.Scope) ScopeName {
+	scopeName := ScopeName(scope.Name)
+
+	if scope.Type == type_checker.SCOPE_TYPES.CLASS {
+		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
+	}
+
+	return scopeName
+}
