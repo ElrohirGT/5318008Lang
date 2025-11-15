@@ -515,10 +515,10 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 		)
 	}
 
-	varName, found := scopeInfo.translations[name]
+	tacName, found := scopeInfo.translations[name]
 	if found {
 		// fmt.Println("FOUND FIRST TIME =" + varName)
-		return varName
+		return tacName
 	}
 	// Search on parents
 	for scopeInfo.Parent != "" {
@@ -534,11 +534,11 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 	if !found {
 		// fmt.Println("NOT FOUND :( CREATING")
 		p.variableCounter += 1
-		varName = VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
-		p.UpsertTranslation(scope, name, varName)
+		tacName = VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+		p.UpsertTranslation(scope, name, tacName)
 	}
 
-	return varName
+	return tacName
 }
 
 func (p *Program) GetNextVariable() VariableName {
@@ -549,13 +549,12 @@ func (p *Program) GetNextVariable() VariableName {
 // Given and expresion and scope, if the expresion is a literal it returns
 // its TAC representation, if not it attemps to find the variable TAC name.
 func (p *Program) GetVariableOrLiteral(expresion string,
-	scopeName ScopeName,
-	sc *type_checker.ScopeManager, l *type_checker.Listener) (VariableName, type_checker.TypeIdentifier) {
+	scopeName ScopeName, l *type_checker.Listener) (VariableName, type_checker.TypeIdentifier) {
 	if literalType, isLiteral := l.GetLiteralType(expresion); isLiteral {
 		literalType, value := literalToTAC(expresion, literalType)
 		return VariableName(value), type_checker.TypeIdentifier(literalType)
 	} else {
-		exprType, found := sc.CurrentScope.GetExpressionType(expresion)
+		exprType, found := l.ScopeManager.CurrentScope.GetExpressionType(expresion)
 		if !found {
 			log.Panicf("Failed to find a variable for the expression:\n`%s`",
 				expresion)

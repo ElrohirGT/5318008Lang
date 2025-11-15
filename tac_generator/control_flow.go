@@ -27,9 +27,9 @@ func (l Listener) ExitRelationalExpr(ctx *p.RelationalExprContext) {
 	destiny := l.getOrCreateExpressionVariable(ctx.GetText(), scopeName)
 
 	p1, _ := l.Program.GetVariableOrLiteral(
-		ctx.AdditiveExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.AdditiveExpr(0).GetText(), scopeName, l.TypeChecker)
 	p2, _ := l.Program.GetVariableOrLiteral(
-		ctx.AdditiveExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.AdditiveExpr(1).GetText(), scopeName, l.TypeChecker)
 
 	switch opToken.GetText() {
 	case "<":
@@ -62,9 +62,9 @@ func (l Listener) ExitEqualityExpr(ctx *p.EqualityExprContext) {
 	destiny := l.getOrCreateExpressionVariable(ctx.GetText(), scopeName)
 
 	p1, exprType := l.Program.GetVariableOrLiteral(
-		ctx.RelationalExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.RelationalExpr(0).GetText(), scopeName, l.TypeChecker)
 	p2, _ := l.Program.GetVariableOrLiteral(
-		ctx.RelationalExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.RelationalExpr(1).GetText(), scopeName, l.TypeChecker)
 
 	if exprType == type_checker.BASE_TYPES.STRING {
 		panic("Equality between strings not supported yet :p")
@@ -98,9 +98,9 @@ func (l Listener) ExitLogicalAndExpr(ctx *p.LogicalAndExprContext) {
 	scopeName := ScopeName(l.GetCurrentScope().Name)
 	destiny := l.getOrCreateExpressionVariable(firstExpr, scopeName)
 	p1, _ := l.Program.GetVariableOrLiteral(
-		ctx.EqualityExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.EqualityExpr(0).GetText(), scopeName, l.TypeChecker)
 	p2, _ := l.Program.GetVariableOrLiteral(
-		ctx.EqualityExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.EqualityExpr(1).GetText(), scopeName, l.TypeChecker)
 
 	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
 		Type:   BOOLEAN_OPERATION_TYPES.And,
@@ -116,7 +116,7 @@ func (l Listener) ExitLogicalAndExpr(ctx *p.LogicalAndExprContext) {
 		secondExpr = firstExpr + "&&" + ctx.EqualityExpr(i).GetText()
 		destiny = l.getOrCreateExpressionVariable(secondExpr, scopeName)
 		p2, _ = l.Program.GetVariableOrLiteral(
-			ctx.EqualityExpr(i).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+			ctx.EqualityExpr(i).GetText(), scopeName, l.TypeChecker)
 
 		l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
 			Type:   BOOLEAN_OPERATION_TYPES.And,
@@ -142,9 +142,9 @@ func (l Listener) ExitLogicalOrExpr(ctx *p.LogicalOrExprContext) {
 	scopeName := ScopeName(l.GetCurrentScope().Name)
 	destiny := l.getOrCreateExpressionVariable(firstExpr, scopeName)
 	p1, _ := l.Program.GetVariableOrLiteral(
-		ctx.LogicalAndExpr(0).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.LogicalAndExpr(0).GetText(), scopeName, l.TypeChecker)
 	p2, _ := l.Program.GetVariableOrLiteral(
-		ctx.LogicalAndExpr(1).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.LogicalAndExpr(1).GetText(), scopeName, l.TypeChecker)
 
 	l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
 		Type:   BOOLEAN_OPERATION_TYPES.Or,
@@ -160,7 +160,7 @@ func (l Listener) ExitLogicalOrExpr(ctx *p.LogicalOrExprContext) {
 		secondExpr = firstExpr + "||" + ctx.LogicalAndExpr(i).GetText()
 		destiny = l.getOrCreateExpressionVariable(secondExpr, scopeName)
 		p2, _ = l.Program.GetVariableOrLiteral(
-			ctx.LogicalAndExpr(i).GetText(), scopeName, l.TypeChecker.ScopeManager, l.TypeChecker)
+			ctx.LogicalAndExpr(i).GetText(), scopeName, l.TypeChecker)
 
 		l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
 			Type:   BOOLEAN_OPERATION_TYPES.Or,
@@ -220,9 +220,7 @@ func (l Listener) EnterIfStatement(ctx *p.IfStatementContext) {
 func (l Listener) ExitIfStatement(ctx *p.IfStatementContext) {
 	scope := l.GetCurrentScope()
 	condVar, _ := l.Program.GetVariableOrLiteral(
-		ctx.IfCondition().GetText(), ScopeName(scope.Name),
-		l.TypeChecker.ScopeManager,
-		l.TypeChecker)
+		ctx.IfCondition().GetText(), ScopeName(scope.Name), l.TypeChecker)
 	// if !found {
 	// 	panic("Unable to found condition expresion for if statement")
 	// }
@@ -335,9 +333,7 @@ func (l Listener) EnterWhileCondition(ctx *p.WhileConditionContext) {
 func (l Listener) ExitWhileCondition(ctx *p.WhileConditionContext) {
 	scope := l.GetCurrentScope()
 	condVar, _ := l.Program.GetVariableOrLiteral(
-		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name),
-		l.TypeChecker.ScopeManager,
-		l.TypeChecker)
+		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name), l.TypeChecker)
 	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
 		Condition: lib.NewOpValue(JumpCondition{
 			Simple: lib.NewOpValue(condVar),
@@ -467,9 +463,7 @@ func (l Listener) EnterForCondition(ctx *p.ForConditionContext) {
 func (l Listener) ExitForCondition(ctx *p.ForConditionContext) {
 	scope := l.GetCurrentScope()
 	condVar, _ := l.Program.GetVariableOrLiteral(
-		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name),
-		l.TypeChecker.ScopeManager,
-		l.TypeChecker)
+		ctx.MustBoolExpr().GetText(), ScopeName(scope.Name), l.TypeChecker)
 	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
 		Condition: lib.NewOpValue(JumpCondition{
 			Simple: lib.NewOpValue(condVar),
@@ -670,7 +664,7 @@ func (l Listener) ExitDefaultCase(ctx *p.DefaultCaseContext) {
 func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
 	scope := l.GetCurrentScope()
 	targetVar, _ := l.Program.GetVariableOrLiteral(
-		ctx.GetText(), ScopeName(scope.Name), l.TypeChecker.ScopeManager, l.TypeChecker)
+		ctx.GetText(), ScopeName(scope.Name), l.TypeChecker)
 	tagName := l.GetCurrentScope().Name + "_BODY"
 	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
 		Condition: lib.NewOpValue(
