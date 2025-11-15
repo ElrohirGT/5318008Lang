@@ -100,8 +100,8 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 			log.Panicf("Failed to generate TAC! Reason: %s", err)
 		}
 		tacListenerOp = lib.NewOpValue(tacListener)
+		log.Println("✅ FASE CHECK: TAC generation")
 	}
-	log.Println("✅ FASE CHECK: TAC generation")
 
 	if config.ASMBuffer.HasValue() && tacListenerOp.HasValue() {
 		buff := config.ASMBuffer.GetValue()
@@ -110,9 +110,12 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 		// NOTE: If I ever comeback to implement another generator,
 		// this'll make it simple to switch to it
 		generator := assgenerator.MipsGenerator{}
-		generator.GenerateTo(listener, buff)
+		err := generator.GenerateTo(listener, buff)
+		if err != nil {
+			log.Panicf("Failed to generate ASSEMBLY! Reason: %s", err)
+		}
+		log.Println("✅ FASE CHECK: MIPS generation")
 	}
-	log.Println("✅ FASE CHECK: MIPS generation")
 
 	return nil
 }
