@@ -17,29 +17,29 @@ type Mips32Generator struct {
 	listener         *tac_generator.Listener
 	source           *bytes.Buffer
 	program          *Mips32Program
-	lastUsedByte     uint
-	paramCount       uint
-	stackSizeByScope map[string]uint
+	lastUsedByte     *uint
+	paramCount       *uint
+	stackSizeByScope *map[string]uint
 }
 
 func (m *Mips32Generator) UpsertSizeByScope(scopeName string, stackSize uint) {
 	log.Printf("Setting scope `%s` size: %d", scopeName, stackSize)
-	m.stackSizeByScope[scopeName] = stackSize
+	(*m.stackSizeByScope)[scopeName] = stackSize
 }
 
 func (m *Mips32Generator) RegisterParamToCount() uint {
-	count := m.paramCount
-	m.paramCount++
+	count := *m.paramCount
+	*m.paramCount += 1
 	return count
 }
 
 func (m *Mips32Generator) ResetParamCount() {
-	m.paramCount = 0
+	*m.paramCount = 0
 }
 
 func (m *Mips32Generator) GetNextFreeByteIdx() uint {
-	m.lastUsedByte++
-	return m.lastUsedByte
+	*m.lastUsedByte++
+	return *m.lastUsedByte
 }
 
 func (m *Mips32Generator) StackAddress(idx uint) string {
@@ -163,17 +163,18 @@ func (p *Mips32Program) AppendInstruction(inst Mips32Instruction) {
 }
 
 func NewMips32Generator(listener *tac_generator.Listener, source *bytes.Buffer) Mips32Generator {
+	var lastUsedByte uint
 	return Mips32Generator{
 		listener:         listener,
 		source:           source,
 		program:          NewMips32Program(),
-		lastUsedByte:     0,
-		stackSizeByScope: map[string]uint{},
+		lastUsedByte:     &lastUsedByte,
+		stackSizeByScope: &map[string]uint{},
 	}
 }
 
 func (m Mips32Generator) GetStackSize(secName string) uint {
-	stackSize, found := m.stackSizeByScope[secName]
+	stackSize, found := (*m.stackSizeByScope)[secName]
 	if !found {
 		log.Panicf("Failed to find size of stack for section: %s", secName)
 	}
@@ -186,7 +187,13 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 	log.Printf("Global scope Name: %s\n", scopeName)
 	var stackSize uint = 0
 
-	scan := bufio.NewScanner(m.source)
+	var sourceCopy bytes.Buffer
+	_, err := sourceCopy.Write(m.source.Bytes())
+	if err != nil {
+		log.Panicf("Failed to copy TAC bytes: %s", err)
+	}
+
+	scan := bufio.NewScanner(&sourceCopy)
 	for scan.Scan() {
 		line := scan.Text()
 
@@ -212,7 +219,7 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 		}
 	}
 
-	if _, found := m.stackSizeByScope[scopeName]; !found {
+	if _, found := (*m.stackSizeByScope)[scopeName]; !found {
 		m.UpsertSizeByScope(scopeName, stackSize)
 	}
 }
@@ -233,6 +240,7 @@ func (m Mips32Generator) GenerateTo(buff *bytes.Buffer) error {
 		parts := strings.Split(strings.TrimSpace(line), " ")
 		opCode := parts[0]
 
+		log.Printf("Parsing line: %s", line)
 		err := m.translate(&scopeName, opCode, parts[1:])
 		if err != nil {
 			return err
@@ -276,8 +284,16 @@ main:
 		switch {
 		case inst.Comment.HasValue():
 			_, err = fmt.Fprintf(buff, "# %s", inst.Comment.GetValue())
+			if err != nil {
+				return err
+			}
+
 		case inst.Section.HasValue():
 			_, err = fmt.Fprintf(buff, "%s:", inst.Section.GetValue())
+			if err != nil {
+				return err
+			}
+
 		case inst.Operation.HasValue():
 			op := inst.Operation.GetValue()
 			_, err = fmt.Fprintf(buff, "\t%s", op.OpCode)
@@ -300,6 +316,7 @@ main:
 			}
 		}
 
+		_, err = buff.WriteRune('\n')
 		if err != nil {
 			return err
 		}
@@ -308,7 +325,7 @@ main:
 	return err
 }
 
-func (m Mips32Generator) translate(secName *string, opCode string, params []string) error {
+func (m *Mips32Generator) translate(secName *string, opCode string, params []string) error {
 	program := m.program
 	stackSize := m.GetStackSize(*secName)
 
@@ -367,8 +384,10 @@ func (m Mips32Generator) translate(secName *string, opCode string, params []stri
 
 	switch opCode {
 	case "ADD": // a+b
+		log.Println("Adding ADD operation")
 		manageAddSubOp("add")
 	case "SUB": // a-b
+		log.Println("Adding SUB operation")
 		manageAddSubOp("sub")
 
 	case "MULT": // a*b

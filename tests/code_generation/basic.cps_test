@@ -12,6 +12,16 @@ _start:
 	li $v0, 10
 	syscall		# Use syscall 10 to stop simulation
 
-# FIXME: Missing instructions!
 main:
 	addiu $sp, $sp, -8
+	li $t0, 9
+	li $t1, 2
+	div $t0, $t1
+	mflo $t2
+	li $t0, 5
+	add $t1, $t0, $t2
+	sw $t1, 1($sp)
+	li $t1, 2
+	lw $t0, 1($sp)
+	add $t2, $t1, $t0
+	sw $t2, 2($sp)
