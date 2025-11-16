@@ -560,6 +560,14 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 			Params: NewMips32OperationParams("$sp", "$sp", fmt.Sprintf("-%d", stackSize)),
 		}))
 
+	case "GOTO":
+		target := params[0]
+		log.Printf("GOTO -> b %s", target)
+		m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "b",
+			Params: NewMips32OperationParams(target),
+		}))
+
 	case "RETURN":
 		if len(params) > 0 {
 			varName := params[0]
