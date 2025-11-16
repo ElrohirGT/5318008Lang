@@ -109,7 +109,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 
 		// NOTE: If I ever comeback to implement another generator,
 		// this'll make it simple to switch to it
-		generator := assgenerator.NewMipsGenerator(&listener, config.TACBuffer.GetValue())
+		generator := assgenerator.NewMips32Generator(&listener, config.TACBuffer.GetValue())
 		err := generator.GenerateTo(buff)
 		if err != nil {
 			log.Panicf("Failed to generate ASSEMBLY! Reason: %s", err)

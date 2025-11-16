@@ -22,7 +22,7 @@ func stripANSI(s string) string {
 	return ansiRegex.ReplaceAllString(s, "")
 }
 
-const ENABLE_PANIC_RECOV = true
+const ENABLE_PANIC_RECOV = false
 
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
@@ -31,7 +31,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	"TAC_generation/class_inside",
+	// "TAC_generation/class_inside",
 }
 
 var IGNORE_SPECIFIC = []string{
@@ -178,6 +178,109 @@ func Test_TACGeneration(t *testing.T) {
 		}
 
 		actualOutput := strings.TrimSpace(outBuffer.String())
+		if err != nil {
+			actualOutput = strings.TrimSpace(stripANSI(err.Error()))
+		}
+
+		if expectedOutput != actualOutput {
+			b := strings.Builder{}
+			b.WriteString("\nProgram ")
+			b.WriteString(path)
+			b.WriteString(" failed with:\n")
+
+			lastI := 0
+			for i, expectedByte := range []byte(expectedOutput) {
+				if i < len(actualOutput) {
+					actualByte := actualOutput[i]
+					if actualByte != expectedByte {
+						b.WriteString(applib.Red)
+					}
+					b.WriteByte(actualByte)
+					b.WriteString(applib.Reset)
+				} else {
+					b.WriteString(applib.Grey)
+					b.WriteByte(expectedByte)
+					b.WriteString(applib.Reset)
+				}
+				lastI = i
+			}
+
+			if lastI+1 < len(actualOutput)-1 {
+				b.WriteString(applib.Red)
+				b.WriteString(actualOutput[lastI+1:])
+				b.WriteString(applib.Reset)
+			}
+
+			b.WriteString("\nBut expected:\n")
+			b.WriteString(expectedOutput)
+
+			t.Error(b.String())
+			continue
+		}
+	}
+}
+
+func Test_ASMGeneration(t *testing.T) {
+	filePaths := []string{}
+	err := filepath.WalkDir("./tests/code_generation/", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		for _, str := range RUN_ONLY_THAT_MATCH {
+			if !strings.Contains(path, str) {
+				return nil
+			}
+		}
+
+		if slices.Contains(IGNORE_SPECIFIC, path) {
+			return nil
+		}
+
+		filePaths = append(filePaths, path)
+		return nil
+	})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, path := range filePaths {
+		fileBytes, err := os.ReadFile(path)
+		if err != nil {
+			t.Errorf("\nFAILED %s:\n %s", path, err)
+			continue
+		}
+		t.Log("Reading file:", path)
+
+		parts := strings.Split(string(fileBytes), OUTPUT_SEPARATOR)
+		cpsContents := strings.TrimSpace(parts[0])
+		expectedOutput := strings.TrimSpace(parts[1])
+
+		tacBuffer := bytes.Buffer{}
+		asmBuffer := bytes.Buffer{}
+		reader := bytes.NewReader([]byte(cpsContents))
+
+		if ENABLE_PANIC_RECOV {
+			err = func() error {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Errorf("THE CODE CONTAINS A SKILL ISSUE!\nPanic: %s", r)
+					}
+				}()
+				return applib.TestableMain(reader, applib.CompilerConfig{
+					TACBuffer: lib.NewOpValue(&tacBuffer),
+					ASMBuffer: lib.NewOpValue(&asmBuffer),
+				})
+			}()
+		} else {
+			err = applib.TestableMain(reader, applib.CompilerConfig{
+				TACBuffer: lib.NewOpValue(&tacBuffer),
+				ASMBuffer: lib.NewOpValue(&asmBuffer),
+			})
+		}
+
+		actualOutput := strings.TrimSpace(asmBuffer.String())
 		if err != nil {
 			actualOutput = strings.TrimSpace(stripANSI(err.Error()))
 		}

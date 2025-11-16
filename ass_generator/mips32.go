@@ -23,6 +23,7 @@ type Mips32Generator struct {
 }
 
 func (m *Mips32Generator) UpsertSizeByScope(scopeName string, stackSize uint) {
+	log.Printf("Setting scope `%s` size: %d", scopeName, stackSize)
 	m.stackSizeByScope[scopeName] = stackSize
 }
 
@@ -161,12 +162,13 @@ func (p *Mips32Program) AppendInstruction(inst Mips32Instruction) {
 	p.Text = append(p.Text, inst)
 }
 
-func NewMipsGenerator(listener *tac_generator.Listener, source *bytes.Buffer) Mips32Generator {
+func NewMips32Generator(listener *tac_generator.Listener, source *bytes.Buffer) Mips32Generator {
 	return Mips32Generator{
-		listener:     listener,
-		source:       source,
-		program:      NewMips32Program(),
-		lastUsedByte: 0,
+		listener:         listener,
+		source:           source,
+		program:          NewMips32Program(),
+		lastUsedByte:     0,
+		stackSizeByScope: map[string]uint{},
 	}
 }
 
@@ -181,6 +183,7 @@ func (m Mips32Generator) GetStackSize(secName string) uint {
 
 func (m Mips32Generator) ComputeScopeStackSizes() {
 	scopeName := m.listener.TypeChecker.ScopeManager.GlobaScope.Name
+	log.Printf("Global scope Name: %s\n", scopeName)
 	var stackSize uint = 0
 
 	scan := bufio.NewScanner(m.source)
@@ -207,6 +210,10 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 		default:
 			continue
 		}
+	}
+
+	if _, found := m.stackSizeByScope[scopeName]; !found {
+		m.UpsertSizeByScope(scopeName, stackSize)
 	}
 }
 
