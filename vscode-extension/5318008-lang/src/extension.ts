@@ -9,14 +9,55 @@ let timeout : NodeJS.Timeout | undefined;
 export function activate(context: vscode.ExtensionContext) {
     console.log("¡Compiscript extension activated!");
 
-    const disposable = vscode.commands.registerCommand("extension.runAnalyzer", () => {
+    const runMIPS = vscode.commands.registerCommand("extension.runMIPS", (asmPath?: string) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor!");
+            return;
+        }
+    
+        let asmFile = asmPath;
+    
+        if (!asmFile) {
+            const editor = vscode.window.activeTextEditor;
+            
+            if (!editor) {
+                vscode.window.showErrorMessage("No active editor!");
+                return;
+            }
+
+            asmFile = editor.document.fileName;
+        }
+
+        if (!asmFile.endsWith(".asm")) {
+            vscode.window.showErrorMessage("The file must be .asm for executing in MARS");
+            return;
+        }
+    
+        const marsPath = path.join(context.extensionPath, "lib", "Mars4_5.jar");
+        const cmd = `java -jar "${marsPath}" nc "${asmFile}"`;
+    
+        let terminal = vscode.window.terminals.find(t => t.name === "MIPS Runner");
+        if (!terminal) {
+            terminal = vscode.window.createTerminal("MIPS Runner");
+        }
+    
+        terminal.show(true);
+        terminal.sendText(cmd);
+    })
+
+    context.subscriptions.push(runMIPS);
+
+    const disposable = vscode.commands.registerCommand("extension.runAnalyzer", async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor!");
             return;
         }
 
-        const file = editor.document.fileName;
+        const cpsFile = editor.document.fileName;
+        const cpsDir = path.dirname(cpsFile);
+        const baseName = path.basename(cpsFile, path.extname(cpsFile));
 
         const analyzePath = path.join(__dirname, "..", "bin", "compiscript-analyzer");
 
@@ -26,7 +67,18 @@ export function activate(context: vscode.ExtensionContext) {
         }
         terminal.show();
 
-        terminal.sendText(`"${analyzePath}" "${file}"`);
+        terminal.sendText(`"${analyzePath}" "${cpsFile}"`);
+
+        await new Promise(res => setTimeout(res, 500));
+
+        const asmFile = path.join(cpsDir, "out.asm")
+
+        if (!fs.existsSync(asmFile)) {
+            vscode.window.showErrorMessage("The analyzer did not generate the .asm file.");
+            return;
+        }
+
+        await vscode.commands.executeCommand("extension.runMIPS", asmFile);
     })
 
     context.subscriptions.push(disposable);

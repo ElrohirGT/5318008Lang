@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
@@ -11,21 +20,59 @@ let timeout;
 function activate(context) {
     var _a;
     console.log("¡Compiscript extension activated!");
-    const disposable = vscode.commands.registerCommand("extension.runAnalyzer", () => {
+    const runMIPS = vscode.commands.registerCommand("extension.runMIPS", (asmPath) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active editor!");
             return;
         }
-        const file = editor.document.fileName;
+        let asmFile = asmPath;
+        if (!asmFile) {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showErrorMessage("No active editor!");
+                return;
+            }
+            asmFile = editor.document.fileName;
+        }
+        if (!asmFile.endsWith(".asm")) {
+            vscode.window.showErrorMessage("The file must be .asm for executing in MARS");
+            return;
+        }
+        const marsPath = path.join(context.extensionPath, "lib", "Mars4_5.jar");
+        const cmd = `java -jar "${marsPath}" nc "${asmFile}"`;
+        let terminal = vscode.window.terminals.find(t => t.name === "MIPS Runner");
+        if (!terminal) {
+            terminal = vscode.window.createTerminal("MIPS Runner");
+        }
+        terminal.show(true);
+        terminal.sendText(cmd);
+    });
+    context.subscriptions.push(runMIPS);
+    const disposable = vscode.commands.registerCommand("extension.runAnalyzer", () => __awaiter(this, void 0, void 0, function* () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("No active editor!");
+            return;
+        }
+        const cpsFile = editor.document.fileName;
+        const cpsDir = path.dirname(cpsFile);
+        const baseName = path.basename(cpsFile, path.extname(cpsFile));
         const analyzePath = path.join(__dirname, "..", "bin", "compiscript-analyzer");
         let terminal = vscode.window.terminals.find(t => t.name === "Compiscript Analyzer");
         if (!terminal) {
             terminal = vscode.window.createTerminal("Compiscript Analyzer");
         }
         terminal.show();
-        terminal.sendText(`"${analyzePath}" "${file}"`);
-    });
+        terminal.sendText(`"${analyzePath}" "${cpsFile}"`);
+        yield new Promise(res => setTimeout(res, 500));
+        const asmFile = path.join(cpsDir, "out.asm");
+        if (!fs.existsSync(asmFile)) {
+            vscode.window.showErrorMessage("The analyzer did not generate the .asm file.");
+            return;
+        }
+        yield vscode.commands.executeCommand("extension.runMIPS", asmFile);
+    }));
     context.subscriptions.push(disposable);
     const diagnostic = vscode.languages.createDiagnosticCollection("compiscript");
     context.subscriptions.push(diagnostic);

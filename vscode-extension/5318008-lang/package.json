@@ -25,6 +25,11 @@
           "command": "extension.runAnalyzer",
           "group": "navigation",
           "when": "resourceLangId == compiscript"
+        },
+        {
+          "command": "extension.runMIPS",
+          "group": "navigation",
+          "when": "resourceExtname == .asm"
         }
       ]
     },
@@ -57,6 +62,11 @@
         "command": "extension.runAnalyzer",
         "title": "Run Compiscript File",
         "icon": "$(play)"
+      },
+      {
+        "command": "extension.runMIPS",
+        "title": "Run MIPS (MARS)",
+        "icon": "$(rocket)"
       }
     ]
   },
