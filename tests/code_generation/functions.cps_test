@@ -18,29 +18,30 @@ _start:
 	syscall		# Use syscall 10 to stop simulation
 
 main:
-	addiu $sp, $sp, -8
+	addiu $sp, $sp, -16
 	li $t0, 200
 	sw $s0, 0($sp)
 	move $s0, $t0
 	li $t0, 8
 	sw $s1, 4($sp)
 	move $s1, $t0
-	sw $ra, 4($sp)
+	sw $ra, 12($sp)
 	jal addNumbers
 	move $t0, $v0
-	lw $ra, 4($sp)
+	lw $ra, 12($sp)
 	lw $s0, 0($sp)
+	lw $s1, 4($sp)
 	sw $t0, 8($sp)
-	addiu $sp, $sp, 8
+	addiu $sp, $sp, 16
 	jr $ra
 addNumbers:
 	addiu $sp, $sp, -12
 	li $t0, 10
-	mult $s3, $t0
+	mult $s4, $t0
 	mflo $t1
 	sw $t1, 0($sp)
 	lw $t1, 0($sp)
-	add $s3, $t1, $s4
-	move $v0, $s3
+	add $s4, $t1, $s5
+	move $v0, $s4
 	addiu $sp, $sp, 12
 	jr $ra

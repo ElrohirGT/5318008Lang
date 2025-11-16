@@ -240,7 +240,8 @@ func (m Mips32Generator) GetStackSize(secName string) uint {
 func (m Mips32Generator) ComputeScopeStackSizes() {
 	scopeName := m.listener.TypeChecker.ScopeManager.GlobaScope.Name
 	log.Printf("Global scope Name: %s\n", scopeName)
-	var stackSize uint = 0
+	var stackSize uint
+	var maxParamCount uint64
 	var callsAnotherProcedure bool
 
 	var sourceCopy bytes.Buffer
@@ -265,14 +266,22 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 			}
 			stackSize += uint(customSize)
 		case "CALL", "CALLRET":
+			paramCount, err := strconv.ParseUint(parts[3], 10, 0)
+			if err != nil {
+				log.Panicf("Failed to parse CALL/CALLRET param quantity `%s`", parts[3])
+			}
+			maxParamCount = max(maxParamCount, paramCount)
+
 			if !callsAnotherProcedure {
 				stackSize += MIPS32_WORD_BYTE_SIZE
 				callsAnotherProcedure = true
 			}
 		case "SEC":
+			stackSize += uint(maxParamCount) * MIPS32_WORD_BYTE_SIZE
 			if stackSize%4 != 0 {
 				stackSize += stackSize % 4
 			}
+
 			m.UpsertSizeByScope(scopeName, stackSize)
 
 			scopeName = parts[1]
@@ -293,6 +302,7 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 func (m Mips32Generator) GenerateTo(buff *bytes.Buffer) error {
 	m.ComputeScopeStackSizes()
 	scopeName := type_checker.GLOBAL_SCOPE_NAME
+	// Main should have a minimum stack size of 7 param registers
 	stackSize := m.GetStackSize(scopeName)
 
 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
@@ -583,7 +593,10 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 	case "CALL":
 		m.ResetNextScopeParamCount()
 		newSecName := params[1]
-		argCount := params[2]
+		argCount, err := strconv.ParseUint(params[2], 10, 0)
+		if err != nil {
+			log.Panicf("Failed to parse arg count `%s` as integer", params[2])
+		}
 
 		// Save $ra in the stack
 		stackAddress := m.StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
@@ -608,6 +621,7 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		for i := range argCount {
 			paramReg := fmt.Sprintf("$s%d", i)
 			stackAddress := (*m.currentParams)[i]
+			log.Printf("Restoring param `%s` from `%s`", paramReg, stackAddress)
 			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 				OpCode: "lw",
 				Params: NewMips32OperationParams(paramReg, stackAddress),
@@ -618,7 +632,10 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		m.ResetNextScopeParamCount()
 		varName := params[0]
 		newSecName := params[1]
-		argCount := params[2]
+		argCount, err := strconv.ParseUint(params[2], 10, 0)
+		if err != nil {
+			log.Panicf("Failed to parse arg count `%s` as integer", params[2])
+		}
 
 		// Save $ra in the stack
 		stackAddress := m.StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
@@ -651,6 +668,7 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		for i := range argCount {
 			paramReg := fmt.Sprintf("$s%d", i)
 			stackAddress := (*m.currentParams)[i]
+			log.Printf("Restoring param `%s` from `%s`", paramReg, stackAddress)
 			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 				OpCode: "lw",
 				Params: NewMips32OperationParams(paramReg, stackAddress),
