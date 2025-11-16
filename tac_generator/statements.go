@@ -28,6 +28,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 	scopeName := getTACScope(scope)
 
 	isFunctionCall := false
+	isStandalone := false
 
 	primaryExpr := "**INVALID PRIMARY EXPR**"
 	switch innerCtx := primaryCtx.(type) {
@@ -41,6 +42,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			isFunctionCall = true
 		}
 	case *p.StandaloneIdentifierExprContext:
+		isStandalone = true
 		primaryExpr = innerCtx.GetText()
 		if len(*suffixes) == 0 {
 			return
@@ -52,17 +54,20 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 	case *p.ThisExprContext:
 		primaryExpr = innerCtx.GetText()
 	case *p.StandaloneThisExprContext:
+		isStandalone = true
 		primaryExpr = innerCtx.GetText()
 
 	case *p.NewExprContext:
 		primaryExpr = innerCtx.GetText()
 		handleConstructorCall(l, primaryExpr, scopeName, innerCtx.Identifier(), innerCtx.Arguments())
 	case *p.StandaloneNewExprContext:
+		isStandalone = true
 		primaryExpr = innerCtx.GetText()
 		handleConstructorCall(l, primaryExpr, scopeName, innerCtx.Identifier(), innerCtx.Arguments())
 	}
 
 	previousExpr := primaryExpr
+
 	var previousType type_checker.TypeIdentifier
 	// if it is a function call search its type in the functions dictionary
 	if isFunctionCall {
@@ -91,6 +96,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 	)
 
 	for i, suffix := range *suffixes {
+		isLastSufix := i == len(*suffixes)-1
 		varName := primaryExpr + getUntil(suffixes, i)
 		tempName := l.Program.GetOrGenerateVariable(
 			varName,
@@ -201,24 +207,24 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				)
 			}
 
-			// FIXME: Function returning Unkown
-			returnNull := funcInfo.ReturnType == type_checker.BASE_TYPES.NULL ||
-				funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN // FIXME: Funtion with no return type should return NULL
-
 			switch funcInfo.ReturnType {
 			case
-				// type_checker.BASE_TYPES.UNKNOWN, // FIXME: Funtion with no return type should return NULL
+				type_checker.BASE_TYPES.UNKNOWN, // FIXME: Funtion with no return type should return NULL
 				type_checker.BASE_TYPES.INVALID:
-				log.Panicf(
-					"Function `%s` should not be able to return `%s`!",
-					previousExpr,
-					funcInfo.ReturnType,
-				)
+				if !isLastSufix { // NOTE: returning null/unkown value is only allowed for the last suffix
+					log.Panicf(
+						"Function `%s` should not be able to return `%s`!",
+						previousExpr,
+						funcInfo.ReturnType,
+					)
+				}
 			}
 
-			saveOnReturn := lib.NewOpEmpty[VariableName]()
-			if !returnNull {
-				saveOnReturn = lib.NewOpValue(tempName)
+			// NOTE: if this is the last function call in the chain,
+			// and is not an standalone expresion, then no return value is needed.
+			saveOnReturn := lib.NewOpValue(tempName)
+			if isLastSufix && isStandalone {
+				saveOnReturn = lib.NewOpEmpty[VariableName]()
 			}
 
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
@@ -226,6 +232,9 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				ProcedureName:  ScopeName(previousExpr),
 				NumberOfParams: uint(paramCount),
 			}).AddComment("("+varName+")"))
+
+			returnNull := funcInfo.ReturnType == type_checker.BASE_TYPES.NULL ||
+				funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN // FIXME: Funtion with no return type should return NULL
 
 			previousInChain = tempName
 			if returnNull {
