@@ -317,6 +317,9 @@ func Test_ASMGeneration(t *testing.T) {
 			b.WriteString("\nBut expected:\n")
 			b.WriteString(expectedOutput)
 
+			b.WriteString("\nTAC:\n")
+			b.WriteString(tacBuffer.String())
+
 			t.Error(b.String())
 			continue
 		}
