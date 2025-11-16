@@ -439,6 +439,7 @@ type ScopeInformation struct {
 	// We need to translate between `localName` of a variable to a `t1` or `t2`.
 	// This map aids on that.
 	translations map[string]VariableName
+	arraySize    map[VariableName]uint
 }
 
 // A program represents a complete set of scopes and instructions to execute.
@@ -454,6 +455,7 @@ func NewProgram() *Program {
 	scopes[type_checker.GLOBAL_SCOPE_NAME] = ScopeInformation{
 		Instructions: []Instruction{},
 		translations: map[string]VariableName{},
+		arraySize:    map[VariableName]uint{},
 	}
 
 	return &Program{
@@ -471,6 +473,7 @@ func (p *Program) InsertIfNotExists(scopeName, parentScope ScopeName) {
 		Parent:       parentScope,
 		Instructions: []Instruction{},
 		translations: map[string]VariableName{},
+		arraySize:    map[VariableName]uint{},
 	}
 }
 
@@ -479,6 +482,7 @@ func (p *Program) UpsertScope(scopeName, parentScope ScopeName) {
 		Parent:       parentScope,
 		Instructions: []Instruction{},
 		translations: map[string]VariableName{},
+		arraySize:    map[VariableName]uint{},
 	}
 }
 
@@ -561,6 +565,42 @@ func (p *Program) GetOrGenerateVariable(name string, scope ScopeName) VariableNa
 func (p *Program) GetNextVariable() VariableName {
 	p.variableCounter += 1
 	return VariableName("t" + strconv.FormatUint(uint64(p.variableCounter), 10))
+}
+
+func (p *Program) InsertArraySize(name VariableName, size uint, scope ScopeName) {
+	scopeInfo, found := p.Scopes[scope]
+	if !found {
+		log.Panicf(
+			"Failed to find scope `%s` when inserting arrays size for %s",
+			scope,
+			name,
+		)
+	}
+	scopeInfo.arraySize[name] = size
+}
+
+func (p *Program) GetArraySize(name VariableName, scope ScopeName) (uint, bool) {
+	scopeInfo, found := p.Scopes[scope]
+	if !found {
+		log.Panicf(
+			"Failed to find size of array %s",
+			name,
+		)
+	}
+
+	arraySize, found := scopeInfo.arraySize[name]
+	if found {
+		return arraySize, found
+	}
+	for scopeInfo.Parent != "" {
+		scopeInfo = p.Scopes[scopeInfo.Parent]
+		tacName, found := scopeInfo.arraySize[name]
+		if found {
+			return tacName, found
+		}
+	}
+
+	return 0, false
 }
 
 // Given and expresion and scope, if the expresion is a literal it returns

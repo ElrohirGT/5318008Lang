@@ -10,6 +10,8 @@ import (
 )
 
 func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
+
+	// runtime.Breakpoint()
 	scopeName := getTACScope(l.GetCurrentScope())
 	scope := l.GetCurrentScope()
 
@@ -52,6 +54,21 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 
 			if currentResultType == type_checker.BASE_TYPES.STRING &&
 				rightType == type_checker.BASE_TYPES.STRING {
+
+				s1, found := l.Program.GetArraySize(currentResult, scopeName)
+				if !found {
+					log.Panicf("Could not find array size for %s \n", currentResult)
+				}
+				s2, found := l.Program.GetArraySize(currentResult, scopeName)
+				if !found {
+					log.Panicf("Could not find array size for %s \n", rightVar)
+				}
+
+				l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+					Target: resultVar,
+					Size:   s1 + s2 - 1, // minus one null terminator
+				}))
+
 				// CONCAT instruction for strings
 				l.AppendInstruction(scopeName, NewConcatInstruction(ConcatInstruction{
 					Target:  resultVar,

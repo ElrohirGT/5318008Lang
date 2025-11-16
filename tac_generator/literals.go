@@ -30,6 +30,7 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 		Size:   uint(strLength),
 		Target: strTacVar,
 	}))
+	l.Program.InsertArraySize(strTacVar, uint(strLength), scopeName)
 
 	literalWithoutEnds := strings.Trim(literal, `"`)
 	for i, b := range []byte(literalWithoutEnds) {
