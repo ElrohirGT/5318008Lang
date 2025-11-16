@@ -23,8 +23,11 @@ func (l Listener) ExitStandaloneExpresion(ctx *p.StandaloneExpresionContext) {
 }
 
 func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpContext) {
+
 	scope := l.GetCurrentScope()
 	scopeName := getTACScope(scope)
+
+	isFunctionCall := false
 
 	primaryExpr := "**INVALID PRIMARY EXPR**"
 	switch innerCtx := primaryCtx.(type) {
@@ -33,10 +36,18 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 		if len(*suffixes) == 0 {
 			return
 		}
+		// expresion is an identifier with suffix type CallExpr then is a plain function call
+		if _, ok := (*suffixes)[0].(*p.CallExprContext); ok {
+			isFunctionCall = true
+		}
 	case *p.StandaloneIdentifierExprContext:
 		primaryExpr = innerCtx.GetText()
 		if len(*suffixes) == 0 {
 			return
+		}
+		// expresion is an identifier with suffix type CallExpr then is a plain function call
+		if _, ok := (*suffixes)[0].(*p.CallExprContext); ok {
+			isFunctionCall = true
 		}
 	case *p.ThisExprContext:
 		primaryExpr = innerCtx.GetText()
@@ -52,10 +63,23 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 	}
 
 	previousExpr := primaryExpr
-	previousType, found := l.TypeChecker.ScopeManager.CurrentScope.GetExpressionType(previousExpr)
-	if !found {
-		log.Panicf("Can't find type of expression: `%s`", previousExpr)
+	var previousType type_checker.TypeIdentifier
+	// if it is a function call search its type in the functions dictionary
+	if isFunctionCall {
+		functionInfo, found := l.TypeChecker.ScopeManager.CurrentScope.GetFunctionDef(previousExpr)
+		if !found {
+			log.Panicf("Can't find type of expression: `%s`", previousExpr)
+		}
+		previousType = functionInfo.ReturnType
+	} else {
+		// else search it on the expresions dictionary
+		found := false
+		previousType, found = l.TypeChecker.ScopeManager.CurrentScope.GetExpressionType(previousExpr)
+		if !found {
+			log.Panicf("Can't find type of expression: `%s`", previousExpr)
+		}
 	}
+
 	previousTypeInfo, found := l.TypeChecker.GetTypeInfo(previousType)
 	if !found {
 		log.Panicf("Can't find the type information of: `%s`", previousType)
@@ -176,9 +200,15 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 					previousExpr,
 				)
 			}
-			returnNonNull := funcInfo.ReturnType != type_checker.BASE_TYPES.NULL
+
+			// FIXME: Function returning Unkown
+			returnNull := funcInfo.ReturnType == type_checker.BASE_TYPES.NULL ||
+				funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN // FIXME: Funtion with no return type should return NULL
+
 			switch funcInfo.ReturnType {
-			case type_checker.BASE_TYPES.UNKNOWN, type_checker.BASE_TYPES.INVALID:
+			case
+				// type_checker.BASE_TYPES.UNKNOWN, // FIXME: Funtion with no return type should return NULL
+				type_checker.BASE_TYPES.INVALID:
 				log.Panicf(
 					"Function `%s` should not be able to return `%s`!",
 					previousExpr,
@@ -187,7 +217,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			}
 
 			saveOnReturn := lib.NewOpEmpty[VariableName]()
-			if returnNonNull {
+			if !returnNull {
 				saveOnReturn = lib.NewOpValue(tempName)
 			}
 
@@ -198,7 +228,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			}).AddComment("("+varName+")"))
 
 			previousInChain = tempName
-			if returnNonNull {
+			if returnNull {
 				returnTypeInfo, found := l.TypeChecker.GetTypeInfo(funcInfo.ReturnType)
 				if !found {
 					log.Panicf(
