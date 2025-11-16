@@ -67,7 +67,19 @@ func (l Listener) ExitEqualityExpr(ctx *p.EqualityExprContext) {
 		ctx.RelationalExpr(1).GetText(), scopeName, l.TypeChecker)
 
 	if exprType == type_checker.BASE_TYPES.STRING {
-		panic("Equality between strings not supported yet :p")
+		// For strings call assembler builtint method strcmp.
+		l.AppendInstruction(scopeName, NewLoadInstruction(LoadInstruction{
+			Variable: p1,
+		}))
+		l.AppendInstruction(scopeName, NewLoadInstruction(LoadInstruction{
+			Variable: p2,
+		}))
+		l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
+			SaveReturnOn:   lib.NewOpValue(destiny),
+			ProcedureName:  "strcmp",
+			NumberOfParams: 2,
+		}))
+		return
 	}
 
 	switch opToken.GetText() {
