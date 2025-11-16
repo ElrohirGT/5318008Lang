@@ -90,7 +90,11 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 	defer buff.WriteString("\n")
 
 	if inst.Comment != "" {
-		fmt.Fprintf(buff, "%s// %s\n", tab, inst.Comment)
+		if inst.Func.HasValue() {
+			fmt.Fprintf(buff, "// %s\n", inst.Comment)
+		} else {
+			fmt.Fprintf(buff, "%s// %s\n", tab, inst.Comment)
+		}
 	}
 
 	// FIXME: Keep implementing branches

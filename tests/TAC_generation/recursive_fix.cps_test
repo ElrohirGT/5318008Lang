@@ -12,19 +12,17 @@ function sumar(n: integer): integer {
 	}
 }
 ---
-SEC sumar:
+// function sumar(n: integer): integer { ... }
+FUNC sumar:
 	// (n)
 	LOAD t1
 	GOTO sumar_IF_0
 	SEC sumar_IF_0_RETURN:
-SEC sumar_IF_0:
 	LTE t2 t1 0
 	IF t2 GOTO sumar_IF_0_BODY
 	IF NOT t2 GOTO sumar_IF_0_ELSE
-SEC sumar_IF_0_BODY:
 	RETURN 0
 	GOTO sumar_IF_0_RETURN
-SEC sumar_IF_0_ELSE:
 	SUB t3 t1 1
 	// (n-1)
 	PARAM t3

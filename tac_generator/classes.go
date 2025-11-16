@@ -19,6 +19,10 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	constructorScopeName := ScopeName(scope.Name + "_" + tc.CONSTRUCTOR_NAME)
 	l.Program.UpsertScope(constructorScopeName, parentName)
 
+	l.AppendInstruction(constructorScopeName, NewFuncInstruction(FuncInstruction{TagName(constructorScopeName)}).AddComment(
+		"Constructor for class: "+scope.Name,
+	))
+
 	thisTacName := l.Program.GetNextVariable()
 	l.AppendInstruction(constructorScopeName, NewLoadInstruction(LoadInstruction{thisTacName}).AddComment("(this)"))
 	l.Program.UpsertTranslation(constructorScopeName, "this", thisTacName)

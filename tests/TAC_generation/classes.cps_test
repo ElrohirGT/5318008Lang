@@ -35,11 +35,13 @@ PARAM t6
 // (an.setName("Default Name"))
 CALL Animal_setName 1
 
-SEC Animal_constructor:
+// Constructor for class: Animal
+FUNC Animal_constructor:
 	// (this)
 	LOAD t1
 	SWO t1 0 t2
-SEC Animal_setName:
+// function setName(newName: string) { ... }
+FUNC Animal_setName:
 	// (this)
 	LOAD t3
 	// (newName)

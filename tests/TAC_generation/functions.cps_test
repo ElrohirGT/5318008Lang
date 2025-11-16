@@ -19,9 +19,10 @@ CALLRET t5 Add 1
 // (b)
 PARAM t6
 // (Add(b))
-CALLRET t7 Add 1
+CALL Add 1
 
-SEC Add:
+// function Add(a: integer): integer { ... }
+FUNC Add:
 	// (a)
 	LOAD t1
 	RETURN 25

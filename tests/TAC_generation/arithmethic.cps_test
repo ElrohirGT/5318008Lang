@@ -27,10 +27,12 @@ CALLRET t9 Number_getNumber 0
 ADD t10 t9 t5
 = t11 i32 t10
 
-SEC Number_constructor:
+// Constructor for class: Number
+FUNC Number_constructor:
 	// (this)
 	LOAD t6
-SEC Number_getNumber:
+// function getNumber() { ... }
+FUNC Number_getNumber:
 	// (this)
 	LOAD t7
 	RETURN 5
