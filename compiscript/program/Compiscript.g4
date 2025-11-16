@@ -15,7 +15,7 @@ statement
 												// DONE: Flavio: Arrays
 												// DONE: Flavio: Duplicate variable/constant declarations
   | classDeclaration    // DONE: Flavio
-  | printStatement      // DONE: Rayo, Primera (y talvez única) builtin del compilador
+  //| printStatement      // DONE: Rayo, Primera (y talvez única) builtin del compilador
   | blockStatement      // DONE: Rayo, tiene que crear un nuevo scope.
   | ifStatement         // DONE: Rayo
   | whileStatement      // DONE: Rayo
@@ -59,7 +59,7 @@ assignmentPart
 // indexAssignmentPart: '[' conditionalExpr ']' ;
 
 // expressionStatement: expression ';'; // Standalone expresions are not allowed
-printStatement: 'print' '(' conditionalExpr ')' ';';
+// printStatement: 'print' '(' conditionalExpr ')' ';';
 
 mustBoolExpr : conditionalExpr ;
 

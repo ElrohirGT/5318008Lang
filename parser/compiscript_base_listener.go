@@ -93,12 +93,6 @@ func (s *BaseCompiscriptListener) EnterIndexAssignmentPartExpr(ctx *IndexAssignm
 // ExitIndexAssignmentPartExpr is called when production IndexAssignmentPartExpr is exited.
 func (s *BaseCompiscriptListener) ExitIndexAssignmentPartExpr(ctx *IndexAssignmentPartExprContext) {}
 
-// EnterPrintStatement is called when production printStatement is entered.
-func (s *BaseCompiscriptListener) EnterPrintStatement(ctx *PrintStatementContext) {}
-
-// ExitPrintStatement is called when production printStatement is exited.
-func (s *BaseCompiscriptListener) ExitPrintStatement(ctx *PrintStatementContext) {}
-
 // EnterMustBoolExpr is called when production mustBoolExpr is entered.
 func (s *BaseCompiscriptListener) EnterMustBoolExpr(ctx *MustBoolExprContext) {}
 

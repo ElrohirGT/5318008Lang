@@ -44,9 +44,6 @@ type CompiscriptListener interface {
 	// EnterIndexAssignmentPartExpr is called when entering the IndexAssignmentPartExpr production.
 	EnterIndexAssignmentPartExpr(c *IndexAssignmentPartExprContext)
 
-	// EnterPrintStatement is called when entering the printStatement production.
-	EnterPrintStatement(c *PrintStatementContext)
-
 	// EnterMustBoolExpr is called when entering the mustBoolExpr production.
 	EnterMustBoolExpr(c *MustBoolExprContext)
 
@@ -262,9 +259,6 @@ type CompiscriptListener interface {
 
 	// ExitIndexAssignmentPartExpr is called when exiting the IndexAssignmentPartExpr production.
 	ExitIndexAssignmentPartExpr(c *IndexAssignmentPartExprContext)
-
-	// ExitPrintStatement is called when exiting the printStatement production.
-	ExitPrintStatement(c *PrintStatementContext)
 
 	// ExitMustBoolExpr is called when exiting the mustBoolExpr production.
 	ExitMustBoolExpr(c *MustBoolExprContext)
