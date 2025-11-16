@@ -26,3 +26,5 @@ main:
 	lw $t0, 0($sp)
 	add $t2, $t1, $t0
 	sw $t2, 4($sp)
+	addiu $sp, $sp, 8
+	jr $ra
