@@ -32,7 +32,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "typechecking",
 	// "class_constructor",
 	// "TAC_generation/class_inside",
-	"code_generation/bool",
+	"code_generation/control",
 }
 
 var IGNORE_SPECIFIC = []string{

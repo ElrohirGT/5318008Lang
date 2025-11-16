@@ -39,13 +39,17 @@ antlr4 -Dlanguage=Go -Xexact-output-dir -o ./parser compiscript/program/Compiscr
 
 **Running the vscode extension**
 
-This projects offers a vscode extension developed for compiling the compiscript grammar. For runnning locally the extension just use the following commad:
+This projects offers a vscode extension developed for compiling the compiscript
+grammar. For runnning locally the extension just use the following commad:
+
 ```bash
 cd vscode-extension/5318008-lang/
 ```
+
 And the press ´F5´
 
-Also to see the changes of the Go code in the extension use the following command from the root directory:
+Also to see the changes of the Go code in the extension use the following
+command from the root directory:
 
 ```bash
 go build -o vscode-extension/5318008-lang/bin/compiscript-analyzer main.go
@@ -205,6 +209,8 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 - Secciones/Tags:
   - SEC <name of section>
     - Padding of child instructions is required (for legibility)
+  - FUNC <name of section>
+    - Padding of child instructions is required (for legibility)
 - Comentarios:
   - // <contenido comentario>
     - Solamente abarcan una línea
@@ -223,6 +229,11 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 - LT <destiny> <a> <b>
 - LTE <destiny> <a> <b>
 - EQ <destiny> <a> <b>
+
+### Booleans
+
+- True: 0xFFFFFFFF
+- False: 0x0
 
 #### TAC Example
 

@@ -88,7 +88,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 
 	tacListenerOp := lib.NewOpEmpty[tac_generator.Listener]()
 	if config.TACBuffer.HasValue() {
-		tacListener := tac_generator.NewListener(&typeListener)
+		tacListener := tac_generator.NewListener(&typeListener, stream)
 		walker.Walk(tacListener, tree)
 
 		if tacListener.HasErrors() {

@@ -120,13 +120,24 @@ func NewConcatInstruction(instruction ConcatInstruction) Instruction {
 }
 
 // Represents a tag, used to mark sections where the program can jump to.
-type SECInstruction struct {
+type SecInstruction struct {
 	Name TagName
 }
 
-func NewSecInstruction(instruction SECInstruction) Instruction {
+func NewSecInstruction(instruction SecInstruction) Instruction {
 	return Instruction{
 		Sec: lib.NewOpValue(instruction),
+	}
+}
+
+// Represents a tag that marks the start of a function!
+type FuncInstruction struct {
+	Name TagName
+}
+
+func NewFuncInstruction(instruction FuncInstruction) Instruction {
+	return Instruction{
+		Func: lib.NewOpValue(instruction),
 	}
 }
 
@@ -315,7 +326,6 @@ var ARITHMETHIC_OPERATION_TYPES = struct {
 	Subtract       ArithmethicOpType
 	Multiplication ArithmethicOpType
 	Divide         ArithmethicOpType
-	// TODO: Are there any others?
 }{
 	Add:            "ADD",
 	Subtract:       "SUB",
@@ -330,7 +340,7 @@ type Instruction struct {
 	Comment        string
 	Assignment     lib.Optional[AssignmentInstruction]
 	Copy           lib.Optional[CopyInstruction]
-	Sec            lib.Optional[SECInstruction]
+	Sec            lib.Optional[SecInstruction]
 	Jump           lib.Optional[JumpInstruction]
 	Param          lib.Optional[ParamInstruction]
 	Load           lib.Optional[LoadInstruction]
@@ -345,6 +355,7 @@ type Instruction struct {
 	Arithmethic    lib.Optional[ArithmethicInstruction]
 	Logic          lib.Optional[LogicOpInstruction]
 	Concat         lib.Optional[ConcatInstruction]
+	Func           lib.Optional[FuncInstruction]
 }
 
 func (i Instruction) AddComment(comment string) Instruction {
@@ -411,6 +422,12 @@ func (i Instruction) String() string {
 	case i.Concat.HasValue():
 		ass := i.Concat.GetValue()
 		return fmt.Sprintf("{%s = concat(%s, %s)}", ass.Target, ass.String1, ass.String2)
+	case i.Func.HasValue():
+		ass := i.Func.GetValue()
+		return fmt.Sprintf("{FUNC %s}", ass.Name)
+	case i.Sec.HasValue():
+		ass := i.Sec.GetValue()
+		return fmt.Sprintf("{SEC %s}", ass.Name)
 	}
 
 	return "{**invalid instruction**}"

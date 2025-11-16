@@ -10,6 +10,7 @@ import (
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
+	"github.com/antlr4-go/antlr/v4"
 )
 
 const (
@@ -21,17 +22,19 @@ const (
 // Handles the notion of types, definitions and scope management.
 type Listener struct {
 	*p.BaseCompiscriptListener
+	Source      *antlr.CommonTokenStream
 	TypeChecker *type_checker.Listener
 	Program     *Program
 	Errors      *[]string
 }
 
-func NewListener(typeChecker *type_checker.Listener) Listener {
+func NewListener(typeChecker *type_checker.Listener, source *antlr.CommonTokenStream) Listener {
 	typeChecker.ScopeManager.ReplaceCurrent(typeChecker.ScopeManager.GlobaScope)
 	return Listener{
 		Program:     NewProgram(),
 		TypeChecker: typeChecker,
 		Errors:      &[]string{},
+		Source:      source,
 	}
 }
 
@@ -65,10 +68,12 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 			continue
 		}
 
-		_, err := fmt.Fprintf(buff, "SEC %s:\n", scopeName)
-		if err != nil {
-			return err
-		}
+		// _, err := fmt.Fprintf(buff, "SEC %s:\n", scopeName)
+		// if err != nil {
+		// 	return err
+		// }
+
+		log.Printf("Entering scope with name: %s\n", scopeName)
 
 		for _, inst := range scope.Instructions {
 			err := instructionToBuffer(&inst, buff, "\t")
@@ -98,13 +103,15 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 
 	case inst.Copy.HasValue():
 		copy := inst.Copy.GetValue()
-		_, err = fmt.Fprintf(buff, "%sCP %s %s",
-			tab, copy.Target, copy.Source)
+		_, err = fmt.Fprintf(buff, "%sCP %s %s", tab, copy.Target, copy.Source)
 
 	case inst.Sec.HasValue():
 		tag := inst.Sec.GetValue()
-		_, err = fmt.Fprintf(buff, "%sSEC %s:",
-			tab, tag.Name)
+		_, err = fmt.Fprintf(buff, "%sSEC %s:", tab, tag.Name)
+
+	case inst.Func.HasValue():
+		tag := inst.Func.GetValue()
+		_, err = fmt.Fprintf(buff, "FUNC %s:", tag.Name)
 
 	case inst.Jump.HasValue():
 		jump := inst.Jump.GetValue()

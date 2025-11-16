@@ -206,7 +206,7 @@ func (l Listener) EnterIfStatement(ctx *p.IfStatementContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(ifScope.Name),
 	}))
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(ifScope.Name + "_RETURN"),
 	}))
 
@@ -301,7 +301,7 @@ func (l Listener) EnterWhileStatement(ctx *p.WhileStatementContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(loopScope.Name),
 	}))
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(loopScope.Name + "_RETURN"),
 	}))
 
@@ -313,7 +313,7 @@ func (l Listener) EnterWhileStatement(ctx *p.WhileStatementContext) {
 }
 func (l Listener) ExitWhileStatement(ctx *p.WhileStatementContext) {
 	scope := l.GetCurrentScope()
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(scope.Name + "_UPDATE"),
 	}))
 	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
@@ -325,7 +325,7 @@ func (l Listener) ExitWhileStatement(ctx *p.WhileStatementContext) {
 
 func (l Listener) EnterWhileCondition(ctx *p.WhileConditionContext) {
 	scope := l.GetCurrentScope()
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(scope.Name + "_CONDITION"),
 	}))
 }
@@ -380,7 +380,7 @@ func (l Listener) EnterDoWhileStatement(ctx *p.DoWhileStatementContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(loopScope.Name),
 	}))
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(loopScope.Name + "_RETURN"),
 	}))
 	parentName := l.GetParentScopeName()
@@ -391,7 +391,7 @@ func (l Listener) EnterDoWhileStatement(ctx *p.DoWhileStatementContext) {
 }
 func (l Listener) ExitDoWhileStatement(ctx *p.DoWhileStatementContext) {
 	scope := l.GetCurrentScope()
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(scope.Name + "_UPDATE"),
 	}))
 	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
@@ -438,7 +438,7 @@ func (l Listener) EnterForStatement(ctx *p.ForStatementContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(loopScope.Name),
 	}))
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(loopScope.Name + "_RETURN"),
 	}))
 
@@ -455,7 +455,7 @@ func (l Listener) ExitForStatement(ctx *p.ForStatementContext) {
 
 func (l Listener) EnterForCondition(ctx *p.ForConditionContext) {
 	scope := l.GetCurrentScope()
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(scope.Name + "_CONDITION"),
 	}))
 }
@@ -480,7 +480,7 @@ func (l Listener) ExitForCondition(ctx *p.ForConditionContext) {
 
 func (l Listener) EnterForUpdate(ctx *p.ForUpdateContext) {
 	scope := l.GetCurrentScope()
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(scope.Name + "_UPDATE"),
 	}))
 }
@@ -572,7 +572,7 @@ func (l Listener) EnterSwitchStatement(ctx *p.SwitchStatementContext) {
 		Condition: lib.Optional[JumpCondition]{},
 		Target:    TagName(switchScope.Name),
 	}))
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(switchScope.Name + "_RETURN"),
 	}))
 
@@ -612,7 +612,7 @@ func (l Listener) EnterSwitchCase(ctx *p.SwitchCaseContext) {
 func (l Listener) EnterCaseBody(ctx *p.CaseBodyContext) {
 	scope := l.GetCurrentScope()
 	tagName := scope.Name + "_BODY"
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(tagName),
 	}))
 }
@@ -628,7 +628,7 @@ func (l Listener) ExitSwitchCase(ctx *p.SwitchCaseContext) {
 	}))
 
 	tagName = scope.Name + "_END"
-	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SECInstruction{
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
 		Name: TagName(tagName),
 	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
