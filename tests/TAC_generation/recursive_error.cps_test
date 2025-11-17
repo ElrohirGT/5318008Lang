@@ -6,7 +6,6 @@ function sumar(n: integer): integer {
 	 return n + sumar(n-1);
 }
 ---
-// function sumar(n: integer): integer { ... }
 FUNC sumar:
 	// (n)
 	LOAD t1
@@ -19,8 +18,10 @@ FUNC sumar:
 	CALLRET t5 sumar 1
 	ADD t6 t1 t5
 	RETURN t6
+SEC sumar_IF_0:
 	LTE t2 t1 0
 	IF t2 GOTO sumar_IF_0_BODY
 	GOTO sumar_IF_0_RETURN
+SEC sumar_IF_0_BODY:
 	RETURN 0
 	GOTO sumar_IF_0_RETURN

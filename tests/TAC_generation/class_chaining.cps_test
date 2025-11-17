@@ -64,7 +64,6 @@ PARAM t23
 // (color.WithR(100).WithG(100).WithB(100).ToArray(buffer))
 CALL Color_ToArray 1
 
-// function ToArray(buffer: integer[]) { ... }
 FUNC Color_ToArray:
 	// (this)
 	LOAD t11
@@ -79,7 +78,6 @@ FUNC Color_ToArray:
 	LWO t17 t11 8
 	LWO t18 t12 8
 	= t18 i32 t17
-// function WithB(b: integer): Color { ... }
 FUNC Color_WithB:
 	// (this)
 	LOAD t8
@@ -88,7 +86,6 @@ FUNC Color_WithB:
 	= t10 i32 8
 	SWO t8 t10 t9
 	RETURN t8
-// function WithG(g: integer): Color { ... }
 FUNC Color_WithG:
 	// (this)
 	LOAD t5
@@ -97,7 +94,6 @@ FUNC Color_WithG:
 	= t7 i32 4
 	SWO t5 t7 t6
 	RETURN t5
-// function WithR(r: integer): Color { ... }
 FUNC Color_WithR:
 	// (this)
 	LOAD t2
@@ -106,7 +102,6 @@ FUNC Color_WithR:
 	= t4 i32 0
 	SWO t2 t4 t3
 	RETURN t2
-// Constructor for class: Color
 FUNC Color_constructor:
 	// (this)
 	LOAD t1

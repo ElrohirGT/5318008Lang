@@ -5,7 +5,6 @@ function Add(a: integer): integer {
 let a = Add(150);
 let b = Add(a);
 Add(b);
-
 ---
 PARAM 150
 // (Add(150))
@@ -21,7 +20,6 @@ PARAM t6
 // (Add(b))
 CALL Add 1
 
-// function Add(a: integer): integer { ... }
 FUNC Add:
 	// (a)
 	LOAD t1

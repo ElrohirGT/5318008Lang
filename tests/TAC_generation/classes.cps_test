@@ -35,12 +35,10 @@ PARAM t6
 // (an.setName("Default Name"))
 CALL Animal_setName 1
 
-// Constructor for class: Animal
 FUNC Animal_constructor:
 	// (this)
 	LOAD t1
 	SWO t1 0 t2
-// function setName(newName: string) { ... }
 FUNC Animal_setName:
 	// (this)
 	LOAD t3

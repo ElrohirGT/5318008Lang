@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -24,6 +26,10 @@ func stripANSI(s string) string {
 
 const ENABLE_PANIC_RECOV = true
 
+// NOTE: Only change this flag when you're ABSOLUTELY CERTAIN all tests are correct
+// but changing each test manually would take a bunch of time.
+const REGENERATE_TESTS = true
+
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
 	// "class",
@@ -31,7 +37,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "TAC_generation/class_inside",
+	"TAC_generation/",
 	// "code_generation/control",
 }
 
@@ -188,6 +194,20 @@ func Test_TACGeneration(t *testing.T) {
 			actualOutput = strings.TrimSpace(stripANSI(err.Error()))
 		}
 
+		if REGENERATE_TESTS {
+			// fileBytes, err := os.ReadFile(path)
+			var b bytes.Buffer
+			_, err := fmt.Fprintf(&b, "%s\n%s\n%s", cpsContents, OUTPUT_SEPARATOR, actualOutput)
+			if err != nil {
+				log.Panicf("Failed to generate file contents for: %s", path)
+			}
+
+			err = os.WriteFile(path, b.Bytes(), 0644)
+			if err != nil {
+				log.Panicf("Failed to regenerate test: %s", path)
+			}
+		}
+
 		if expectedOutput != actualOutput {
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
@@ -292,6 +312,19 @@ func Test_ASMGeneration(t *testing.T) {
 		}
 
 		if expectedOutput != actualOutput {
+			if REGENERATE_TESTS {
+				// fileBytes, err := os.ReadFile(path)
+				b := strings.Builder{}
+				b.WriteString(cpsContents)
+				b.WriteString(OUTPUT_SEPARATOR)
+				b.WriteString(actualOutput)
+
+				err := os.WriteFile(path, []byte(b.String()), 0644)
+				if err != nil {
+					log.Panicf("Failed to regenerate test: %s", path)
+				}
+			}
+
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
 			b.WriteString(path)

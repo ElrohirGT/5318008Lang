@@ -24,7 +24,6 @@ PARAM t8
 // (newDog(8))
 CALL Dog_constructor 2
 
-// Constructor for class: Dog
 FUNC Dog_constructor:
 	// (this)
 	LOAD t4
@@ -36,21 +35,16 @@ FUNC Dog_constructor:
 	CALL Legs_constructor 2
 	SWO t4 0 newLegs(4)
 	SWO t4 4 0
-// function constructor(age: integer) { ... }
-FUNC Dog_constructor:
 	// (this)
 	LOAD t4
 	// (age)
 	LOAD t6
 	= t7 i32 4
 	SWO t4 t7 t6
-// Constructor for class: Legs
 FUNC Legs_constructor:
 	// (this)
 	LOAD t1
 	SWO t1 0 0
-// function constructor(legCount: integer) { ... }
-FUNC Legs_constructor:
 	// (this)
 	LOAD t1
 	// (legCount)

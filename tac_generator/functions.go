@@ -4,7 +4,6 @@ import (
 	"log"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
-	"github.com/antlr4-go/antlr/v4"
 )
 
 func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
@@ -18,13 +17,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	parentName := l.GetParentScopeName()
 	l.Program.InsertIfNotExists(scopeName, parentName)
 
-	interval := antlr.NewInterval(
-		ctx.GetStart().GetStart(),
-		ctx.Block().GetStart().GetStart(),
-	)
-	l.AppendInstruction(scopeName, NewFuncInstruction(FuncInstruction{TagName(scopeName)}).AddComment(
-		ctx.GetStart().GetInputStream().GetTextFromInterval(interval)+" ... }",
-	))
+	l.Program.FunctionScopes.Add(scopeName)
 
 	log.Println("Adding parameters for function:", scopeName)
 	_, isMethod := l.TypeChecker.ScopeManager.SearchClassScope()

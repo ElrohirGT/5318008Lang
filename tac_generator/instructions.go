@@ -446,6 +446,7 @@ type ScopeInformation struct {
 type Program struct {
 	variableCounter uint
 	Scopes          map[ScopeName]ScopeInformation
+	FunctionScopes  lib.Set[ScopeName]
 	ScopesNames     []ScopeName
 	MainScope       ScopeName
 }
@@ -459,8 +460,9 @@ func NewProgram() *Program {
 	}
 
 	return &Program{
-		Scopes:    scopes,
-		MainScope: type_checker.GLOBAL_SCOPE_NAME,
+		Scopes:         scopes,
+		MainScope:      type_checker.GLOBAL_SCOPE_NAME,
+		FunctionScopes: lib.NewSet[ScopeName](),
 	}
 }
 

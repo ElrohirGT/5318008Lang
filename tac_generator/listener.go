@@ -68,10 +68,16 @@ func (l *Listener) Generate(buff *bytes.Buffer) error {
 			continue
 		}
 
-		// _, err := fmt.Fprintf(buff, "SEC %s:\n", scopeName)
-		// if err != nil {
-		// 	return err
-		// }
+		var err error
+		if l.Program.FunctionScopes.Exists(ScopeName(scopeName)) {
+			_, err = fmt.Fprintf(buff, "FUNC %s:\n", scopeName)
+		} else {
+			_, err = fmt.Fprintf(buff, "SEC %s:\n", scopeName)
+		}
+
+		if err != nil {
+			return err
+		}
 
 		log.Printf("Entering scope with name: %s\n", scopeName)
 
@@ -115,7 +121,7 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 
 	case inst.Func.HasValue():
 		tag := inst.Func.GetValue()
-		_, err = fmt.Fprintf(buff, "FUNC %s:", tag.Name)
+		_, err = fmt.Fprintf(buff, "%sFUNC %s:", tab, tag.Name)
 
 	case inst.Jump.HasValue():
 		jump := inst.Jump.GetValue()
