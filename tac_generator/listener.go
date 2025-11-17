@@ -26,6 +26,7 @@ type Listener struct {
 	TypeChecker *type_checker.Listener
 	Program     *Program
 	Errors      *[]string
+	TACScope    map[*type_checker.Scope]ScopeName
 }
 
 func NewListener(typeChecker *type_checker.Listener, source *antlr.CommonTokenStream) Listener {
@@ -35,6 +36,7 @@ func NewListener(typeChecker *type_checker.Listener, source *antlr.CommonTokenSt
 		TypeChecker: typeChecker,
 		Errors:      &[]string{},
 		Source:      source,
+		TACScope:    make(map[*type_checker.Scope]ScopeName),
 	}
 }
 
@@ -248,6 +250,11 @@ func (l *Listener) GetCurrentScope() *type_checker.Scope {
 	if currentScope == nil {
 		log.Panic("Failed to obtain current scope!")
 	}
+
+	if tacScope, found := l.TACScope[currentScope]; found {
+		currentScope.Name = string(tacScope)
+	}
+
 	return currentScope
 }
 

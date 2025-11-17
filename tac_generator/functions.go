@@ -1,6 +1,7 @@
 package tac_generator
 
 import (
+	"fmt"
 	"log"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
@@ -13,7 +14,17 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	scope := l.GetCurrentScope()
-	scopeName := ScopeName(scope.Name)
+	baseScopeName := ScopeName(scope.Name)
+	scopeName := baseScopeName
+
+	counter := 0
+	for l.Program.FunctionScopes.Exists(scopeName) {
+		counter++
+		scopeName = ScopeName(fmt.Sprintf("%s_%d", baseScopeName, counter))
+	}
+
+	l.TACScope[scope] = scopeName
+
 	parentName := l.GetParentScopeName()
 	l.Program.InsertIfNotExists(scopeName, parentName)
 
@@ -43,7 +54,6 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 			)
 		}
 	}
-
 }
 
 func (l Listener) ExitProgram(ctx *p.ProgramContext) {
@@ -55,7 +65,12 @@ func (l Listener) ExitProgram(ctx *p.ProgramContext) {
 
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	scope := l.GetCurrentScope()
-	scopeName := ScopeName(scope.Name)
+	var scopeName ScopeName
+	scopeName, found := l.TACScope[scope]
+
+	if !found {
+		scopeName = ScopeName(scope.Name)
+	}
 
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 	l.AppendInstruction(scopeName, NewEndInstruction())
