@@ -38,8 +38,8 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "TAC_generation/",
-	// "code_generation/basic_classes",
+	"TAC_generation/a.cps",
+	// "code_generation/print",
 }
 
 var IGNORE_SPECIFIC = []string{
