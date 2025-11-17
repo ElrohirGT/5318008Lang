@@ -37,11 +37,13 @@ main:
 addNumbers:
 	addiu $sp, $sp, -12
 	li $t0, 10
-	mult $s4, $t0
+	mult $s0, $t0
 	mflo $t1
 	sw $t1, 0($sp)
 	lw $t1, 0($sp)
-	add $s4, $t1, $s5
-	move $v0, $s4
+	add $t0, $t1, $s1
+	move $v0, $t0
+	addiu $sp, $sp, 12
+	jr $ra
 	addiu $sp, $sp, 12
 	jr $ra
