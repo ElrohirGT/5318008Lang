@@ -504,16 +504,23 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		freeReg := program.PopFreeTemporary()
 		defer program.PushFreeTemporary(freeReg)
-		stackAddress, found := program.StackVars[varName]
-		if !found {
-			log.Panicf("Failed to find `%s` on stack!", varName)
+
+		if stackAddress, found := program.StackVars[varName]; found {
+			// Load reference to object from stack
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "lw",
+				Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
+			}))
+		} else if reg, found := program.ParamMap[varName]; found {
+			// Load reference to object from params
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "move",
+				Params: NewMips32OperationParams(string(freeReg), string(reg)),
+			}))
+		} else {
+			log.Panicf("Failed to find `%s` on stack or params!", varName)
 		}
 
-		// Load reference to object from stack
-		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "lw",
-			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
-		}))
 		// Add to reference
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "addu",
@@ -528,7 +535,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 	manageLoadWithOffset := func(opCode string) {
 		varName := TACVariableOrValue(params[0])
-		objName := TACVariableOrValue(params[1])
+		objVarName := TACVariableOrValue(params[1])
 		offset := TACVariableOrValue(params[2])
 
 		offsetReg, shouldFreeRegister := m.program.LoadOrDefault(offset)
@@ -541,15 +548,23 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		freeReg := program.PopFreeTemporary()
 		defer program.PushFreeTemporary(freeReg)
-		stackAddress, found := program.StackVars[objName]
-		if !found {
-			log.Panicf("Failed to find `%s` on stack!", varName)
+
+		if stackAddress, found := program.StackVars[objVarName]; found {
+			// Load reference to object from stack
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "lw",
+				Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
+			}))
+		} else if reg, found := program.ParamMap[objVarName]; found {
+			// Load reference to object from params
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "move",
+				Params: NewMips32OperationParams(string(freeReg), string(reg)),
+			}))
+		} else {
+			log.Panicf("Failed to find `%s` on stack or params!", varName)
 		}
 
-		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "lw",
-			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
-		}))
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "addu",
 			Params: NewMips32OperationParams(string(freeReg), string(freeReg), string(offsetReg)),
