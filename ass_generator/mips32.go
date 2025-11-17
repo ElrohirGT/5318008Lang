@@ -660,8 +660,19 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 			OpCode: "jr",
 			Params: NewMips32OperationParams("$ra"),
 		}))
-	case "FUNC":
 
+	case "ALLOC":
+		varName := TACVariableOrValue(params[0])
+		size, err := strconv.ParseUint(params[1], 10, 0)
+		if err != nil {
+			log.Panicf("Failed to parse `%s` as an uint for ALLOC instruction", params[1])
+		}
+
+		idx := m.AllocateOnStack(uint(size))
+		stackAddress := m.StackAddress(int(idx))
+		program.UpsertRAM(varName, stackAddress)
+
+	case "FUNC":
 		*functionName = params[0]
 		program.AppendInstruction(NewMips32SectionInstruction(*functionName))
 		stackSize = m.GetStackSize(*functionName)
