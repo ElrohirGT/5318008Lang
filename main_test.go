@@ -39,7 +39,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "typechecking",
 	// "class_constructor",
 	// "TAC_generation/",
-	// "code_generation/strings",
+	// "code_generation/arrays",
 }
 
 var IGNORE_SPECIFIC = []string{

@@ -529,6 +529,40 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}))
 	}
 
+	manageLoadWithOffset := func(opCode string) {
+		varName := TACVariableOrValue(params[0])
+		objName := TACVariableOrValue(params[1])
+		offset := TACVariableOrValue(params[2])
+
+		offsetReg, shouldFreeRegister := m.program.LoadOrDefault(offset)
+		if shouldFreeRegister {
+			defer program.PushFreeTemporary(offsetReg)
+		}
+
+		nameParam := program.PopFreeTemporary()
+		program.UpsertTemporary(varName, nameParam)
+
+		freeReg := program.PopFreeTemporary()
+		defer program.PushFreeTemporary(freeReg)
+		stackAddress, found := program.StackVars[objName]
+		if !found {
+			log.Panicf("Failed to find `%s` on stack!", varName)
+		}
+
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "la",
+			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
+		}))
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "addu",
+			Params: NewMips32OperationParams(string(freeReg), string(freeReg), string(offsetReg)),
+		}))
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: opCode,
+			Params: NewMips32OperationParams(string(nameParam), "0("+string(freeReg)+")"),
+		}))
+	}
+
 	switch opCode {
 	case "ADD": // a+b
 		log.Println("Adding ADD operation")
@@ -715,6 +749,11 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		manageSetWithOffset("sb")
 	case "SWO":
 		manageSetWithOffset("sw")
+
+	case "LBO":
+		manageLoadWithOffset("lb")
+	case "LWO":
+		manageLoadWithOffset("lw")
 
 	case "FUNC":
 		*functionName = params[0]
