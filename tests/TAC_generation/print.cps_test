@@ -1,0 +1,10 @@
+print("a");
+---
+ALLOC t1 2
+SBO t1 0 97
+SBO t1 1 0
+// ("a")
+PARAM t1
+// (print("a"))
+CALL print 1
+END

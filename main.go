@@ -30,8 +30,9 @@ func main() {
 	asmBuffer := bytes.Buffer{}
 
 	err = innerLib.TestableMain(reader, innerLib.CompilerConfig{
-		TACBuffer: lib.NewOpValue(&tacBuffer),
-		ASMBuffer: lib.NewOpValue(&asmBuffer),
+		TACBuffer:      lib.NewOpValue(&tacBuffer),
+		ASMBuffer:      lib.NewOpValue(&asmBuffer),
+		AddASMBuiltins: true,
 	})
 	if err != nil {
 		panic("\n" + err.Error())

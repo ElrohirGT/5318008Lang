@@ -68,11 +68,11 @@ func (l Listener) ExitEqualityExpr(ctx *p.EqualityExprContext) {
 
 	if exprType == type_checker.BASE_TYPES.STRING {
 		// For strings call assembler builtint method strcmp.
-		l.AppendInstruction(scopeName, NewLoadInstruction(LoadInstruction{
-			Variable: p1,
+		l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+			Parameter: LiteralOrVariable(p1),
 		}))
-		l.AppendInstruction(scopeName, NewLoadInstruction(LoadInstruction{
-			Variable: p2,
+		l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+			Parameter: LiteralOrVariable(p2),
 		}))
 		l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 			SaveReturnOn:   lib.NewOpValue(destiny),

@@ -310,7 +310,8 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 	}
 }
 
-func (m Mips32Generator) GenerateTo(buff *bytes.Buffer) error {
+// Buffer to fill, addBuiltins = flag to add builin functions at the end.
+func (m Mips32Generator) GenerateTo(buff *bytes.Buffer, addBuiltins bool) error {
 	m.ComputeScopeStackSizes()
 	functionName := type_checker.GLOBAL_SCOPE_NAME
 	// Main should have a minimum stack size of 7 param registers
@@ -425,6 +426,11 @@ main:
 		if err != nil {
 			return err
 		}
+	}
+
+	// Add builtins
+	if addBuiltins {
+		m.footer(buff)
 	}
 
 	return err
@@ -943,4 +949,257 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 	}
 
 	return nil
+}
+
+func (m *Mips32Generator) footer(buff *bytes.Buffer) {
+
+	buff.WriteString("\n\n\n\n")
+	buff.WriteString(`
+# Print String
+# ========================================
+#   $a0 - pointer to null-terminated string
+# ========================================
+print:
+    move $t0, $s0           # $t0 = pointer to string
+print_loop:
+    lb   $t1, 0($t0)        # Load byte from string
+    beq  $t1, $zero, print_end  # If null terminator, exit
+    # Print character using syscall 11
+    move $a0, $t1           # $a0 = character to print
+    li   $v0, 11            # syscall 11 = print character
+    syscall
+    addiu $t0, $t0, 1        # Move to next character
+    j    print_loop
+print_end:
+	li $a0, 10
+	li $v0, 11
+    syscall
+    jr	$ra
+
+# String Comparison Function
+# ========================================
+#   $a0 - pointer to first string
+#   $a1 - pointer to second string
+# Returns:
+#   $v0 - 1 if strings are equal, 0 if different
+# ========================================
+strcmp:
+    li      $t0, 0              # index = 0
+strcmp_loop:
+    add     $t1, $s0, $t0       # address of str1[i]
+    add     $t2, $s1, $t0       # address of str2[i]
+    
+    lb      $t3, 0($t1)         # load byte from str1[i]
+    lb      $t4, 0($t2)         # load byte from str2[i]
+    
+    bne     $t3, $t4, strcmp_not_equal  # if str1[i] != str2[i], not equal
+    
+    beq     $t3, $zero, strcmp_equal    # if str1[i] == '\0', both ended -> equal
+    
+    addi    $t0, $t0, 1         # i++
+    j       strcmp_loop
+strcmp_equal:
+    li      $v0, 1              # return true (1)
+    jr      $ra
+strcmp_not_equal:
+    li      $v0, 0              # return false (0)
+    jr      $ra
+
+# String Concatenation
+# ========================================
+# Arguments:
+#   $s0 - pointer to first string (str1)
+#   $s1 - pointer to second string (str2)
+#   $s2 - pointer to destination buffer
+# Returns:
+#   $v0 - pointer to destination buffer (same as $s2)
+# ========================================
+concat_str:
+    move $t0, $s0               # $t0 = str1 pointer
+    move $t1, $s1               # $t1 = str2 pointer
+    move $t2, $s2               # $t2 = dest buffer pointer
+    
+    # Step 1: Copy first string to buffer
+concat_str_copy_first:
+    lb   $t3, 0($t0)            # Load byte from str1
+    beq  $t3, $zero, concat_str_copy_second  # If null, done with first string
+    sb   $t3, 0($t2)            # Store byte to dest
+    addiu $t0, $t0, 1           # Move str1 pointer
+    addiu $t2, $t2, 1           # Move dest pointer
+    j    concat_str_copy_first
+    
+    # Step 2: Copy second string to buffer
+concat_str_copy_second:
+    lb   $t3, 0($t1)            # Load byte from str2
+    beq  $t3, $zero, concat_str_done  # If null, done
+    sb   $t3, 0($t2)            # Store byte to dest
+    addiu $t1, $t1, 1           # Move str2 pointer
+    addiu $t2, $t2, 1           # Move dest pointer
+    j    concat_str_copy_second
+    
+    # Step 3: Add null terminator
+concat_str_done:
+    sb   $zero, 0($t2)          # Add '\0' at end
+    move $v0, $s2               # Return pointer to dest buffer
+    jr   $ra
+
+# Boolean to String Conversion
+# ========================================
+#   $s0 - boolean value (word: 0 = false, non-zero = true)
+#   $s1 - pointer to destination buffer (min 6 bytes)
+# Returns:
+#   $v0 - pointer to destination buffer (same as $s1)
+# Note: Result is null-terminated
+#       Buffer must have at least 6 bytes for "false\0"
+# ========================================
+bool_to_str:
+    move $t0, $s1               # $t0 = buffer pointer
+    
+    # Check if zero (false) or non-zero (true)
+    beqz $s0, bool_to_str_false
+    
+    # Build "true" in buffer
+    li   $t1, 116               # 't'
+    sb   $t1, 0($t0)
+    li   $t1, 114               # 'r'
+    sb   $t1, 1($t0)
+    li   $t1, 117               # 'u'
+    sb   $t1, 2($t0)
+    li   $t1, 101               # 'e'
+    sb   $t1, 3($t0)
+    sb   $zero, 4($t0)          # '\0'
+    move $v0, $s1               # Return buffer pointer
+    jr   $ra
+    
+bool_to_str_false:
+    # Build "false" in buffer
+    li   $t1, 102               # 'f'
+    sb   $t1, 0($t0)
+    li   $t1, 97                # 'a'
+    sb   $t1, 1($t0)
+    li   $t1, 108               # 'l'
+    sb   $t1, 2($t0)
+    li   $t1, 115               # 's'
+    sb   $t1, 3($t0)
+    li   $t1, 101               # 'e'
+    sb   $t1, 4($t0)
+    sb   $zero, 5($t0)          # '\0'
+    move $v0, $s1               # Return buffer pointer
+    jr   $ra
+	
+# ========================================
+# Integer to String Conversion
+# ========================================
+# Arguments:
+#   $s0 - integer value to convert (word)
+#   $s1 - pointer to destination buffer (min 12 bytes)
+# Returns:
+#   $v0 - pointer to destination buffer (same as $s1)
+# Note: Result is null-terminated
+#       Buffer must have at least 12 bytes
+# ========================================
+int_to_str:
+    move $t0, $s1           # $t0 = buffer pointer
+    move $t1, $s0           # $t1 = number to convert
+    li   $t2, 0             # $t2 = is_negative flag
+    
+    # Special case: handle 0
+    bnez $t1, int_to_str_check_negative
+    li   $t3, 48            # ASCII '0'
+    sb   $t3, 0($t0)
+    sb   $zero, 1($t0)      # Null terminator
+    move $v0, $s1
+    jr   $ra
+    
+int_to_str_check_negative:
+    # Check if negative
+    bgez $t1, int_to_str_positive
+    
+    # Handle negative number
+    li   $t2, 1             # Set negative flag
+    
+    # Special case: -2147483648 can't be negated in 32-bit
+    li   $t3, -2147483648
+    bne  $t1, $t3, int_to_str_regular_negative
+    
+    # Hardcode the most negative value
+    li   $t3, 45            # '-'
+    sb   $t3, 0($t0)
+    li   $t3, 50            # '2'
+    sb   $t3, 1($t0)
+    li   $t3, 49            # '1'
+    sb   $t3, 2($t0)
+    li   $t3, 52            # '4'
+    sb   $t3, 3($t0)
+    li   $t3, 55            # '7'
+    sb   $t3, 4($t0)
+    li   $t3, 52            # '4'
+    sb   $t3, 5($t0)
+    li   $t3, 56            # '8'
+    sb   $t3, 6($t0)
+    li   $t3, 51            # '3'
+    sb   $t3, 7($t0)
+    li   $t3, 54            # '6'
+    sb   $t3, 8($t0)
+    li   $t3, 52            # '4'
+    sb   $t3, 9($t0)
+    li   $t3, 56            # '8'
+    sb   $t3, 10($t0)
+    sb   $zero, 11($t0)     # Null terminator
+    move $v0, $s1
+    jr   $ra
+    
+int_to_str_regular_negative:
+    neg  $t1, $t1           # Make positive (t1 = -t1)
+    
+int_to_str_positive:
+    # Convert digits (in reverse order)
+    move $t3, $t0           # $t3 = current position in buffer
+    
+int_to_str_convert_loop:
+    # Get last digit: digit = num % 10
+    li   $t4, 10
+    divu $t1, $t4           # Divide by 10
+    mfhi $t5                # $t5 = remainder (digit)
+    mflo $t1                # $t1 = quotient
+    
+    # Convert digit to ASCII: '0' + digit
+    addiu $t5, $t5, 48      # 48 = ASCII '0'
+    sb   $t5, 0($t3)        # Store digit
+    addiu $t3, $t3, 1       # Move buffer pointer
+    
+    # Continue if quotient != 0
+    bnez $t1, int_to_str_convert_loop
+    
+    # Add minus sign if negative
+    beqz $t2, int_to_str_no_minus
+    li   $t5, 45            # ASCII '-'
+    sb   $t5, 0($t3)
+    addiu $t3, $t3, 1
+    
+int_to_str_no_minus:
+    # Add null terminator
+    sb   $zero, 0($t3)
+    
+    # String is reversed, need to reverse it
+    addiu $t3, $t3, -1      # Point to last character (before null)
+    move $t4, $t0           # $t4 = start pointer
+    
+int_to_str_reverse_loop:
+    bge  $t4, $t3, int_to_str_reverse_done
+    
+    # Swap characters at $t4 and $t3
+    lb   $t5, 0($t4)        # Load char from start
+    lb   $t6, 0($t3)        # Load char from end
+    sb   $t6, 0($t4)        # Store end char at start
+    sb   $t5, 0($t3)        # Store start char at end
+    
+    addiu $t4, $t4, 1       # Move start forward
+    addiu $t3, $t3, -1      # Move end backward
+    j    int_to_str_reverse_loop
+    
+int_to_str_reverse_done:
+    move $v0, $s1           # Return pointer to buffer
+    jr   $ra
+	`)
 }

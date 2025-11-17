@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/antlr4-go/antlr/v4"
 )
 
 // ================
@@ -464,13 +465,16 @@ func (l Listener) ExitUnaryExpr(ctx *p.UnaryExprContext) {
 		return
 	}
 
+	sign := ctx.GetChild(0).(antlr.TerminalNode).GetSymbol().GetText()
 	referenceType, _ := l.ScopeManager.CurrentScope.GetExpressionType(unary.GetText())
 
-	if referenceType != BASE_TYPES.BOOLEAN {
+	if sign == "!" && referenceType == BASE_TYPES.BOOLEAN {
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.BOOLEAN)
+	} else if sign == "-" && referenceType == BASE_TYPES.INTEGER {
+		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INTEGER)
+	} else {
 		l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.INVALID)
 	}
-
-	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.GetText(), BASE_TYPES.BOOLEAN)
 }
 
 func (l Listener) ExitStatement(ctx *p.StatementContext) {

@@ -53,8 +53,9 @@ func (l *ErrorListener) SyntaxError(recognizer antlr.Recognizer,
 }
 
 type CompilerConfig struct {
-	TACBuffer lib.Optional[*bytes.Buffer]
-	ASMBuffer lib.Optional[*bytes.Buffer]
+	TACBuffer      lib.Optional[*bytes.Buffer]
+	ASMBuffer      lib.Optional[*bytes.Buffer]
+	AddASMBuiltins bool
 }
 
 func TestableMain(reader io.Reader, config CompilerConfig) error {
@@ -112,7 +113,7 @@ func TestableMain(reader io.Reader, config CompilerConfig) error {
 		var tacCopy bytes.Buffer
 		tacCopy.Write(config.TACBuffer.GetValue().Bytes())
 		generator := assgenerator.NewMips32Generator(&listener, &tacCopy)
-		err := generator.GenerateTo(buff)
+		err := generator.GenerateTo(buff, config.AddASMBuiltins)
 		if err != nil {
 			log.Panicf("Failed to generate ASSEMBLY! Reason: %s", err)
 		}

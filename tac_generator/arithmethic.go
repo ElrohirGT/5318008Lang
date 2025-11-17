@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
@@ -69,12 +70,28 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 					Size:   s1 + s2 - 1, // minus one null terminator
 				}))
 
-				// CONCAT instruction for strings
-				l.AppendInstruction(scopeName, NewConcatInstruction(ConcatInstruction{
-					Target:  resultVar,
-					String1: LiteralOrVariable(currentResult),
-					String2: LiteralOrVariable(rightVar),
+				l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+					Parameter: LiteralOrVariable(currentResult),
 				}))
+				l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+					Parameter: LiteralOrVariable(rightVar),
+				}))
+				l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+					Parameter: LiteralOrVariable(resultVar),
+				}))
+				l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
+					SaveReturnOn:   lib.NewOpValue(resultVar),
+					ProcedureName:  "concat_str",
+					NumberOfParams: 3,
+				}))
+
+				// CONCAT instruction for strings
+				// l.AppendInstruction(scopeName, NewConcatInstruction(ConcatInstruction{
+				// 	Target:  resultVar,
+				// 	String1: LiteralOrVariable(currentResult),
+				// 	String2: LiteralOrVariable(rightVar),
+				// }))
+
 				currentResultType = type_checker.BASE_TYPES.STRING
 			} else if currentResultType == type_checker.BASE_TYPES.INTEGER &&
 				rightType == type_checker.BASE_TYPES.INTEGER {
