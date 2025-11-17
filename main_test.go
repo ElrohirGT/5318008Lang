@@ -24,7 +24,7 @@ func stripANSI(s string) string {
 	return ansiRegex.ReplaceAllString(s, "")
 }
 
-const ENABLE_PANIC_RECOV = true
+const ENABLE_PANIC_RECOV = false
 
 // NOTE: Only change this flag when you're ABSOLUTELY CERTAIN all tests are correct
 // but changing each test manually would take a bunch of time.
@@ -46,10 +46,10 @@ var IGNORE_SPECIFIC = []string{
 	// "tests/semantic_analysis/typechecking/method_calling.cps_test",
 	// "tests/semantic_analysis/typechecking/class_chaining.cps_test",
 	// "tests/code_generation/booleans.cps_test",
-	"tests/code_generation/control_flow_with_functions.cps_test",
+	// "tests/code_generation/control_flow_with_functions.cps_test",
 	"tests/code_generation/recursive.cps_test",
 	"tests/code_generation/functions.cps_test",
-	// "tests/code_generation/basic_control_flow.cps_test",
+	"tests/code_generation/basic_control_flow.cps_test",
 }
 
 func Test_SemanticAnalysis(t *testing.T) {

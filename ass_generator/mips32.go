@@ -266,9 +266,13 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 			}
 			stackSize += uint(customSize)
 		case "CALL", "CALLRET":
-			paramCount, err := strconv.ParseUint(parts[3], 10, 0)
+			idx := 3
+			if opCode == "CALL" {
+				idx = 2
+			}
+			paramCount, err := strconv.ParseUint(parts[idx], 10, 0)
 			if err != nil {
-				log.Panicf("Failed to parse CALL/CALLRET param quantity `%s`", parts[3])
+				log.Panicf("Failed to parse CALL/CALLRET param quantity `%s`", parts[idx])
 			}
 			maxParamCount = max(maxParamCount, paramCount)
 
@@ -301,9 +305,9 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 
 func (m Mips32Generator) GenerateTo(buff *bytes.Buffer) error {
 	m.ComputeScopeStackSizes()
-	scopeName := type_checker.GLOBAL_SCOPE_NAME
+	functionName := type_checker.GLOBAL_SCOPE_NAME
 	// Main should have a minimum stack size of 7 param registers
-	stackSize := m.GetStackSize(scopeName)
+	stackSize := m.GetStackSize(functionName)
 
 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 		OpCode: "addiu",
@@ -317,7 +321,7 @@ func (m Mips32Generator) GenerateTo(buff *bytes.Buffer) error {
 		opCode := parts[0]
 
 		log.Printf("Parsing line: %s", line)
-		err := m.translate(&scopeName, opCode, parts[1:])
+		err := m.translate(&functionName, opCode, parts[1:])
 		if err != nil {
 			return err
 		}
@@ -419,9 +423,9 @@ main:
 	return err
 }
 
-func (m *Mips32Generator) translate(secName *string, opCode string, params []string) error {
+func (m *Mips32Generator) translate(functionName *string, opCode string, params []string) error {
 	program := m.program
-	stackSize := m.GetStackSize(*secName)
+	stackSize := m.GetStackSize(*functionName)
 
 	manageAddSubOp := func(opCode string) {
 		varName := params[0]
@@ -626,11 +630,14 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		program.UpsertParam(varName, paramReg)
 		log.Printf("Variable `%s` retrieved from register: %s", varName, paramReg)
 
+	case "SEC":
+		sectionName := params[0]
+		program.AppendInstruction(NewMips32SectionInstruction(sectionName))
 	case "FUNC":
 		// Add:
 		// jr $ra
 		// at the end of main (if programs contains more sections)
-		if *secName == type_checker.GLOBAL_SCOPE_NAME {
+		if *functionName == type_checker.GLOBAL_SCOPE_NAME {
 			// Return $sp to normal
 			m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 				OpCode: "addiu",
@@ -643,9 +650,9 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 			}))
 		}
 
-		*secName = params[0]
-		program.AppendInstruction(NewMips32SectionInstruction(*secName))
-		stackSize = m.GetStackSize(*secName)
+		*functionName = params[0]
+		program.AppendInstruction(NewMips32SectionInstruction(*functionName))
+		stackSize = m.GetStackSize(*functionName)
 		m.ResetStackIdx()
 		m.ResetNextScopeParamCount()
 
@@ -694,10 +701,10 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 
 	case "CALL":
 		m.ResetNextScopeParamCount()
-		newSecName := params[1]
-		argCount, err := strconv.ParseUint(params[2], 10, 0)
+		newSecName := params[0]
+		argCount, err := strconv.ParseUint(params[1], 10, 0)
 		if err != nil {
-			log.Panicf("Failed to parse arg count `%s` as integer", params[2])
+			log.Panicf("Failed to parse arg count `%s` as integer", params[1])
 		}
 
 		// Save $ra in the stack
