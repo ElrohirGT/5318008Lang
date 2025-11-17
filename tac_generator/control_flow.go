@@ -722,6 +722,11 @@ func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
 }
 
 func (l Listener) ExitTryStatement(ctx *p.TryStatementContext) {
+	scope := l.GetCurrentScope()
+	tryScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
+		Name: TagName(tryScope.Name + "_END"),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
