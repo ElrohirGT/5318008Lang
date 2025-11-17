@@ -38,7 +38,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	"TAC_generation/",
+	// "TAC_generation/",
 	// "code_generation/control",
 }
 
@@ -312,19 +312,21 @@ func Test_ASMGeneration(t *testing.T) {
 			actualOutput = strings.TrimSpace(stripANSI(err.Error()))
 		}
 
-		if expectedOutput != actualOutput {
-			if REGENERATE_TESTS {
-				// fileBytes, err := os.ReadFile(path)
-				b := strings.Builder{}
-				b.WriteString(cpsContents)
-				b.WriteString(OUTPUT_SEPARATOR)
-				b.WriteString(actualOutput)
-
-				err := os.WriteFile(path, []byte(b.String()), 0644)
-				if err != nil {
-					log.Panicf("Failed to regenerate test: %s", path)
-				}
+		if REGENERATE_TESTS {
+			// fileBytes, err := os.ReadFile(path)
+			var b bytes.Buffer
+			_, err := fmt.Fprintf(&b, "%s\n%s\n%s", cpsContents, OUTPUT_SEPARATOR, actualOutput)
+			if err != nil {
+				log.Panicf("Failed to generate file contents for: %s", path)
 			}
+
+			err = os.WriteFile(path, b.Bytes(), 0644)
+			if err != nil {
+				log.Panicf("Failed to regenerate test: %s", path)
+			}
+		}
+
+		if expectedOutput != actualOutput {
 
 			b := strings.Builder{}
 			b.WriteString("\nProgram ")
