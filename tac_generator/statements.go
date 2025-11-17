@@ -159,7 +159,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
-				ProcedureName:  l.ResolveFunctionName(string(previousType) + "_" + methodName),
+				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
 				NumberOfParams: uint(paramCount),
 			}).AddComment("("+varName+")"))
 
