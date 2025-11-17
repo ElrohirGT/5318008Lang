@@ -1,10 +1,10 @@
 let a = "Hola!";
 ---
 ALLOC t1 6
-SWO t1 0 72
-SWO t1 1 111
-SWO t1 2 108
-SWO t1 3 97
-SWO t1 4 33
-SWO t1 5 0
+SBO t1 0 72
+SBO t1 1 111
+SBO t1 2 108
+SBO t1 3 97
+SBO t1 4 33
+SBO t1 5 0
 END

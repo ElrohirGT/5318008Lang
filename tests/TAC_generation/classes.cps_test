@@ -15,19 +15,19 @@ PARAM t6
 // (newAnimal())
 CALL Animal_constructor 1
 ALLOC t7 13
-SWO t7 0 68
-SWO t7 1 101
-SWO t7 2 102
-SWO t7 3 97
-SWO t7 4 117
-SWO t7 5 108
-SWO t7 6 116
-SWO t7 7 32
-SWO t7 8 78
-SWO t7 9 97
-SWO t7 10 109
-SWO t7 11 101
-SWO t7 12 0
+SBO t7 0 68
+SBO t7 1 101
+SBO t7 2 102
+SBO t7 3 97
+SBO t7 4 117
+SBO t7 5 108
+SBO t7 6 116
+SBO t7 7 32
+SBO t7 8 78
+SBO t7 9 97
+SBO t7 10 109
+SBO t7 11 101
+SBO t7 12 0
 // ("Default Name")
 PARAM t7
 // (previousInChain := an)
