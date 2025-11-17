@@ -176,7 +176,22 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			}
 
 		case *p.CallExprContext:
+			procedureName := previousExpr
 			paramCount := 0
+
+			switch procedureName {
+			case "bool_to_str":
+				l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+					Target: tempName,
+					Size:   6,
+				}))
+			case "int_to_str":
+				l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+					Target: tempName,
+					Size:   12,
+				}))
+			}
+
 			if args := suffixCtx.Arguments(); args != nil {
 				paramCount = len(args.AllConditionalExpr())
 
@@ -227,10 +242,18 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				saveOnReturn = lib.NewOpEmpty[VariableName]()
 			}
 
+			numberOfParams := uint(paramCount)
+			if procedureName == "bool_to_str" || procedureName == "int_to_str" {
+				l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+					Parameter: LiteralOrVariable(tempName),
+				}))
+				numberOfParams = 2
+			}
+
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
-				ProcedureName:  ScopeName(previousExpr),
-				NumberOfParams: uint(paramCount),
+				ProcedureName:  ScopeName(procedureName),
+				NumberOfParams: numberOfParams,
 			}).AddComment("("+varName+")"))
 
 			returnNull := funcInfo.ReturnType == type_checker.BASE_TYPES.NULL ||
