@@ -494,6 +494,41 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		program.UpsertTemporary(TACVariableOrValue(varName), freeRegister)
 	}
 
+	manageSetWithOffset := func(opCode string) {
+		varName := TACVariableOrValue(params[0])
+		offset := TACVariableOrValue(params[1])
+		value := TACVariableOrValue(params[2])
+
+		offsetReg, shouldFreeRegister := m.program.LoadOrDefault(offset)
+		if shouldFreeRegister {
+			defer program.PushFreeTemporary(offsetReg)
+		}
+
+		vParam, shouldFreeRegister := m.program.LoadOrDefault(value)
+		if shouldFreeRegister {
+			defer program.PushFreeTemporary(vParam)
+		}
+
+		freeReg := program.PopFreeTemporary()
+		defer program.PushFreeTemporary(freeReg)
+		stackAddress, found := program.StackVars[varName]
+		if !found {
+			log.Panicf("Failed to find `%s` on stack!", varName)
+		}
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "la",
+			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
+		}))
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "addu",
+			Params: NewMips32OperationParams(string(freeReg), string(freeReg), string(offsetReg)),
+		}))
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: opCode,
+			Params: NewMips32OperationParams(string(vParam), "0("+string(freeReg)+")"),
+		}))
+	}
+
 	switch opCode {
 	case "ADD": // a+b
 		log.Println("Adding ADD operation")
@@ -676,30 +711,10 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		stackAddress := StackAddress(int(idx))
 		program.UpsertRAM(varName, stackAddress)
 
+	case "SBO":
+		manageSetWithOffset("sb")
 	case "SWO":
-		varName := TACVariableOrValue(params[0])
-		offset, err := strconv.ParseUint(params[1], 10, 0)
-		if err != nil {
-			log.Panicf("Failed to parse `%s` as an uint for SWO instruction", params[1])
-		}
-		value := TACVariableOrValue(params[2])
-
-		vParam, shouldFreeRegister := m.program.LoadOrDefault(value)
-		if shouldFreeRegister {
-			defer program.PushFreeTemporary(vParam)
-		}
-
-		stackAddress, found := program.StackVars[varName]
-		if !found {
-			log.Panicf("Failed to find `%s` on stack!", varName)
-		}
-
-		stackAddress = stackAddress.Add(int(offset))
-
-		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "sb",
-			Params: NewMips32OperationParams(string(vParam), stackAddress.String()),
-		}))
+		manageSetWithOffset("sw")
 
 	case "FUNC":
 		*functionName = params[0]

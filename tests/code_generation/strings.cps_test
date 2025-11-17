@@ -14,17 +14,35 @@ _start:
 
 main:
 	addiu $sp, $sp, -8
-	li $t0, 72
-	sb $t0, 0($sp)
-	li $t0, 111
-	sb $t0, 1($sp)
-	li $t0, 108
-	sb $t0, 2($sp)
-	li $t0, 97
-	sb $t0, 3($sp)
-	li $t0, 33
-	sb $t0, 4($sp)
 	li $t0, 0
-	sb $t0, 5($sp)
+	li $t1, 72
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
+	li $t0, 1
+	li $t1, 111
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
+	li $t0, 2
+	li $t1, 108
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
+	li $t0, 3
+	li $t1, 97
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
+	li $t0, 4
+	li $t1, 33
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
+	li $t0, 5
+	li $t1, 0
+	la $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 	addiu $sp, $sp, 8
 	jr $ra
