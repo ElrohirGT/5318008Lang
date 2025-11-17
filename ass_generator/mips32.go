@@ -361,22 +361,22 @@ main:
 		return err
 	}
 
-	onlyGlobalScope := len(*m.stackSizeByScope) == 1
-	if onlyGlobalScope { //
-		// Return $sp to normal
-		m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "addiu",
-			Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
-		}))
-
-		// Add:
-		// jr $ra
-		// at the end of main
-		m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "jr",
-			Params: NewMips32OperationParams("$ra"),
-		}))
-	}
+	// onlyGlobalScope := len(*m.stackSizeByScope) == 1
+	// if onlyGlobalScope { //
+	// 	// Return $sp to normal
+	// 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+	// 		OpCode: "addiu",
+	// 		Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
+	// 	}))
+	//
+	// 	// Add:
+	// 	// jr $ra
+	// 	// at the end of main
+	// 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+	// 		OpCode: "jr",
+	// 		Params: NewMips32OperationParams("$ra"),
+	// 	}))
+	// }
 
 	for _, inst := range m.program.Text {
 		switch {
@@ -633,22 +633,36 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 	case "SEC":
 		sectionName := params[0]
 		program.AppendInstruction(NewMips32SectionInstruction(sectionName))
+
+	case "END": // Marks the end of a function
+		m.ResetStackIdx()
+		m.ResetNextScopeParamCount()
+		// Return $sp to normal
+		m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "addiu",
+			Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
+		}))
+
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "jr",
+			Params: NewMips32OperationParams("$ra"),
+		}))
 	case "FUNC":
 		// Add:
 		// jr $ra
 		// at the end of main (if programs contains more sections)
-		if *functionName == type_checker.GLOBAL_SCOPE_NAME {
-			// Return $sp to normal
-			m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-				OpCode: "addiu",
-				Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
-			}))
-
-			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-				OpCode: "jr",
-				Params: NewMips32OperationParams("$ra"),
-			}))
-		}
+		// if *functionName == type_checker.GLOBAL_SCOPE_NAME {
+		// 	// Return $sp to normal
+		// 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+		// 		OpCode: "addiu",
+		// 		Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
+		// 	}))
+		//
+		// 	program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+		// 		OpCode: "jr",
+		// 		Params: NewMips32OperationParams("$ra"),
+		// 	}))
+		// }
 
 		*functionName = params[0]
 		program.AppendInstruction(NewMips32SectionInstruction(*functionName))

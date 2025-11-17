@@ -7,6 +7,7 @@ for (let i = 0 ; i < 3 ; i = i + 1;){
 ---
 GOTO GLOBAL_LOOP_0
 SEC GLOBAL_LOOP_0_RETURN:
+END
 
 SEC GLOBAL_LOOP_0:
 	= t1 i32 0

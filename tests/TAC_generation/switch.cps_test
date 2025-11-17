@@ -21,6 +21,7 @@ ADD t4 t3 3
 = t5 i32 t4
 GOTO GLOBAL_SWITCH_0
 SEC GLOBAL_SWITCH_0_RETURN:
+END
 
 SEC GLOBAL_SWITCH_0:
 	CP $switch t5
@@ -62,3 +63,4 @@ FUNC sumar:
 	// (b)
 	LOAD t2
 	RETURN 10
+	END

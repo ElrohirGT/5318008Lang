@@ -123,6 +123,9 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 		tag := inst.Func.GetValue()
 		_, err = fmt.Fprintf(buff, "%sFUNC %s:", tab, tag.Name)
 
+	case inst.End:
+		_, err = fmt.Fprintf(buff, "%sEND", tab)
+
 	case inst.Jump.HasValue():
 		jump := inst.Jump.GetValue()
 		if jump.Condition.HasValue() {

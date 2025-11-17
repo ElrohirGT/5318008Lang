@@ -141,6 +141,12 @@ func NewFuncInstruction(instruction FuncInstruction) Instruction {
 	}
 }
 
+func NewEndInstruction() Instruction {
+	return Instruction{
+		End: true,
+	}
+}
+
 // Represents a jump instruction, it can be conditional or unconditional.
 //
 // Valid formats are:
@@ -356,6 +362,7 @@ type Instruction struct {
 	Logic          lib.Optional[LogicOpInstruction]
 	Concat         lib.Optional[ConcatInstruction]
 	Func           lib.Optional[FuncInstruction]
+	End            bool
 }
 
 func (i Instruction) AddComment(comment string) Instruction {

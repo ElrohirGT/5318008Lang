@@ -23,6 +23,7 @@ PARAM 8
 PARAM t8
 // (newDog(8))
 CALL Dog_constructor 2
+END
 
 FUNC Dog_constructor:
 	// (this)
@@ -41,6 +42,8 @@ FUNC Dog_constructor:
 	LOAD t6
 	= t7 i32 4
 	SWO t4 t7 t6
+	END
+	END
 FUNC Legs_constructor:
 	// (this)
 	LOAD t1
@@ -51,3 +54,5 @@ FUNC Legs_constructor:
 	LOAD t2
 	= t3 i32 0
 	SWO t1 t3 t2
+	END
+	END

@@ -46,8 +46,19 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 
 }
 
+func (l Listener) ExitProgram(ctx *p.ProgramContext) {
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
+
+	l.AppendInstruction(scopeName, NewEndInstruction())
+}
+
 func (l Listener) ExitFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
+	scope := l.GetCurrentScope()
+	scopeName := ScopeName(scope.Name)
+
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
+	l.AppendInstruction(scopeName, NewEndInstruction())
 }
 
 func (l Listener) ExitReturnStatement(ctx *p.ReturnStatementContext) {

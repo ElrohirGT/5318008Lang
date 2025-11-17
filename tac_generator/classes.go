@@ -30,6 +30,10 @@ func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 		panic("Trying to exit a class declaration but the scope is not of type class!")
 	}
 
+	scope := l.GetCurrentScope()
+	constructorScopeName := ScopeName(scope.Name + "_" + tc.CONSTRUCTOR_NAME)
+	l.AppendInstruction(constructorScopeName, NewEndInstruction())
+
 	log.Printf("Escaping class declaration: %s", ctx.AllIdentifier()[0].GetText())
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }

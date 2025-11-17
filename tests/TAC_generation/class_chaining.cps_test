@@ -63,6 +63,7 @@ PARAM t20
 PARAM t23
 // (color.WithR(100).WithG(100).WithB(100).ToArray(buffer))
 CALL Color_ToArray 1
+END
 
 FUNC Color_ToArray:
 	// (this)
@@ -78,6 +79,7 @@ FUNC Color_ToArray:
 	LWO t17 t11 8
 	LWO t18 t12 8
 	= t18 i32 t17
+	END
 FUNC Color_WithB:
 	// (this)
 	LOAD t8
@@ -86,6 +88,7 @@ FUNC Color_WithB:
 	= t10 i32 8
 	SWO t8 t10 t9
 	RETURN t8
+	END
 FUNC Color_WithG:
 	// (this)
 	LOAD t5
@@ -94,6 +97,7 @@ FUNC Color_WithG:
 	= t7 i32 4
 	SWO t5 t7 t6
 	RETURN t5
+	END
 FUNC Color_WithR:
 	// (this)
 	LOAD t2
@@ -102,9 +106,11 @@ FUNC Color_WithR:
 	= t4 i32 0
 	SWO t2 t4 t3
 	RETURN t2
+	END
 FUNC Color_constructor:
 	// (this)
 	LOAD t1
 	SWO t1 0 0
 	SWO t1 4 0
 	SWO t1 8 0
+	END

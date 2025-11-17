@@ -38,7 +38,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "TAC_generation/",
+	"TAC_generation/",
 	// "code_generation/control",
 }
 

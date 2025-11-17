@@ -34,11 +34,13 @@ PARAM t7
 PARAM t6
 // (an.setName("Default Name"))
 CALL Animal_setName 1
+END
 
 FUNC Animal_constructor:
 	// (this)
 	LOAD t1
 	SWO t1 0 t2
+	END
 FUNC Animal_setName:
 	// (this)
 	LOAD t3
@@ -46,3 +48,4 @@ FUNC Animal_setName:
 	LOAD t4
 	= t5 i32 0
 	SWO t3 t5 t4
+	END

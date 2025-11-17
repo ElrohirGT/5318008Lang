@@ -210,6 +210,9 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
     - Padding of child instructions is required (for legibility)
   - FUNC <name of section>
     - Padding of child instructions is required (for legibility)
+  - END
+    - Ends the current function, cleans up the stack and returns to previous
+      function.
 - Comentarios:
   - // <contenido comentario>
     - Solamente abarcan una línea

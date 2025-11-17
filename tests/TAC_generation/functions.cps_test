@@ -19,8 +19,10 @@ CALLRET t5 Add 1
 PARAM t6
 // (Add(b))
 CALL Add 1
+END
 
 FUNC Add:
 	// (a)
 	LOAD t1
 	RETURN 25
+	END

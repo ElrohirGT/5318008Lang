@@ -7,3 +7,4 @@ OR t3 0 t2
 AND t4 0 -1
 AND t5 t4 t3
 = t6 i8 t5
+END

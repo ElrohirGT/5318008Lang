@@ -7,3 +7,4 @@ SWO t1 4 1
 SWO t1 8 1
 LWO t2 t1 0
 = t3 i32 t2
+END
