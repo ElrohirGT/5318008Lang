@@ -180,13 +180,23 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 
 	case inst.LoadWithOffset.HasValue():
 		lwo := inst.LoadWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "%sLWO %s %s %s",
-			tab, lwo.Target, lwo.Source, lwo.Offset)
+		if lwo.IsWord {
+			_, err = fmt.Fprintf(buff, "%sLWO %s %s %s",
+				tab, lwo.Target, lwo.Source, lwo.Offset)
+		} else {
+			_, err = fmt.Fprintf(buff, "%sLBO %s %s %s",
+				tab, lwo.Target, lwo.Source, lwo.Offset)
+		}
 
 	case inst.SetWithOffset.HasValue():
 		swo := inst.SetWithOffset.GetValue()
-		_, err = fmt.Fprintf(buff, "%sSWO %s %s %s",
-			tab, swo.Target, swo.Offset, swo.Value)
+		if swo.IsWord {
+			_, err = fmt.Fprintf(buff, "%sSWO %s %s %s",
+				tab, swo.Target, swo.Offset, swo.Value)
+		} else {
+			_, err = fmt.Fprintf(buff, "%sSBO %s %s %s",
+				tab, swo.Target, swo.Offset, swo.Value)
+		}
 
 	case inst.Free.HasValue():
 		free := inst.Free.GetValue()

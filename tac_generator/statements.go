@@ -304,6 +304,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			}
 
 			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				IsWord: true,
 				Target: tempName,
 				Source: previousInChain,
 				Offset: LiteralOrVariable(offset),
@@ -320,6 +321,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			offset := strconv.FormatUint(uint64(computedOffset), 10)
 
 			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				IsWord: true,
 				Target: tempName,
 				Source: previousInChain,
 				Offset: LiteralOrVariable(offset),

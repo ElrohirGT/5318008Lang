@@ -118,6 +118,7 @@ func (l Listener) ExitArrayLiteral(ctx *p.ArrayLiteralContext) {
 		l.AppendInstruction(
 			scopeName,
 			NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+				IsWord: true,
 				Target: varName,
 				Offset: LiteralOrVariable(strconv.FormatInt(int64(i*int(elemTypeInfo.Size)), 10)),
 				Value:  LiteralOrVariable(instValue),

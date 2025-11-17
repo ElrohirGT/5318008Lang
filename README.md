@@ -198,8 +198,14 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
     - ALLOC <variable> <size>
   - Acceder a un elemento:
     - LWO <variable> \<array/objeto> <offset>
+      - Load Word with Offset
+    - LBO <variable> \<array/objeto> <offset>
+      - Load Byte with Offset
   - Asignar a un elemento:
     - SWO \<array/objeto> <offset> <valor>
+      - Store Word with Offset
+    - SBO \<array/objeto> <offset> <valor>
+      - Store Byte with Offset
   - Destruir:
     - FREE <variable>
 - Asignaciones de Direcciones:

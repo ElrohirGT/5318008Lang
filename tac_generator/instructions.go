@@ -251,6 +251,7 @@ func NewAllocInstruction(instruction AllocInstruction) Instruction {
 //
 // And objects!
 type LoadWithOffsetInstruction struct {
+	IsWord bool
 	Target VariableName
 	Source VariableName
 	Offset LiteralOrVariable
@@ -274,6 +275,7 @@ func NewLoadWithOffsetInstruction(instruction LoadWithOffsetInstruction) Instruc
 //
 // And objects!
 type SetWithOffsetInstruction struct {
+	IsWord bool
 	Target VariableName
 	Offset LiteralOrVariable
 	Value  LiteralOrVariable

@@ -96,6 +96,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 		fieldOffset := classInfo.GetFieldOffset(l.TypeChecker, ctx.Identifier().GetText())
 
 		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			IsWord: true,
 			Target: thisTacName,
 			Offset: LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
 			Value:  LiteralOrVariable(variableValue),
@@ -282,6 +283,7 @@ func (l Listener) ExitThisAssignment(ctx *p.ThisAssignmentContext) {
 	}
 
 	l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+		IsWord: true,
 		Target: thisTacName,
 		Offset: LiteralOrVariable(offsetTacName),
 		Value:  LiteralOrVariable(exprTac),
@@ -335,6 +337,7 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 			varNameUntilNow += partCtx.GetText()
 			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
 			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				IsWord: true,
 				Target: target,
 				Source: previousTacName,
 				Offset: LiteralOrVariable(offset),
@@ -416,6 +419,7 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 			varNameUntilNow += partCtx.GetText()
 			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
 			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				IsWord: true,
 				Target: target,
 				Source: previousTacName,
 				Offset: LiteralOrVariable(offset),
