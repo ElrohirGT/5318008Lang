@@ -14,26 +14,28 @@ _start:
 	syscall		# Use syscall 10 to stop simulation
 
 main:
-	addiu $sp, $sp, -16
-	li $t0, 0
-	li $t1, 1
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
-	li $t0, 4
-	li $t1, 2
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
-	li $t0, 8
-	li $t1, 3
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
-	li $t0, 8
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	lw $t1, 0($t2)
-	sw $t1, 12($sp)
-	addiu $sp, $sp, 16
+	addiu $sp, $sp, -20
+	la $t0, 4($sp)
+	sw $t0, 0($sp)
+	li $t1, 0
+	li $t2, 1
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sw $t2, 0($t3)
+	li $t1, 4
+	li $t2, 2
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sw $t2, 0($t3)
+	li $t1, 8
+	li $t2, 3
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sw $t2, 0($t3)
+	li $t1, 8
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	lw $t2, 0($t3)
+	sw $t2, 16($sp)
+	addiu $sp, $sp, 20
 	jr $ra

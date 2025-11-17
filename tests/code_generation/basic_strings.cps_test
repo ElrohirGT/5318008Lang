@@ -13,36 +13,38 @@ _start:
 	syscall		# Use syscall 10 to stop simulation
 
 main:
-	addiu $sp, $sp, -8
-	li $t0, 0
-	li $t1, 72
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	li $t0, 1
-	li $t1, 111
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	li $t0, 2
-	li $t1, 108
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	li $t0, 3
-	li $t1, 97
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	li $t0, 4
-	li $t1, 33
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	li $t0, 5
+	addiu $sp, $sp, -12
+	la $t0, 4($sp)
+	sw $t0, 0($sp)
 	li $t1, 0
-	la $t2, 0($sp)
-	addu $t2, $t2, $t0
-	sb $t1, 0($t2)
-	addiu $sp, $sp, 8
+	li $t2, 72
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	li $t1, 1
+	li $t2, 111
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	li $t1, 2
+	li $t2, 108
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	li $t1, 3
+	li $t2, 97
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	li $t1, 4
+	li $t2, 33
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	li $t1, 5
+	li $t2, 0
+	lw $t3, 0($sp)
+	addu $t3, $t3, $t1
+	sb $t2, 0($t3)
+	addiu $sp, $sp, 12
 	jr $ra

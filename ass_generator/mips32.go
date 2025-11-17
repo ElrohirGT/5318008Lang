@@ -279,6 +279,7 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 				log.Panicf("Failed to parse `%s` as an integer on ALLOC!", parts[2])
 			}
 			stackSize += uint(customSize)
+			stackSize += MIPS32_WORD_BYTE_SIZE // Space reserved for saving the ref to this memory.
 		case "CALL", "CALLRET":
 			idx := 3
 			if opCode == "CALL" {
@@ -515,14 +516,18 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		if !found {
 			log.Panicf("Failed to find `%s` on stack!", varName)
 		}
+
+		// Load reference to object from stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "la",
+			OpCode: "lw",
 			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
 		}))
+		// Add to reference
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "addu",
 			Params: NewMips32OperationParams(string(freeReg), string(freeReg), string(offsetReg)),
 		}))
+		// Load value from reference
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: opCode,
 			Params: NewMips32OperationParams(string(vParam), "0("+string(freeReg)+")"),
@@ -550,7 +555,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-			OpCode: "la",
+			OpCode: "lw",
 			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
 		}))
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
@@ -741,9 +746,22 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 			log.Panicf("Failed to parse `%s` as an uint for ALLOC instruction", params[1])
 		}
 
-		idx := m.AllocateOnStack(uint(size))
-		stackAddress := StackAddress(int(idx))
-		program.UpsertRAM(varName, stackAddress)
+		idx := m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)
+		refStackAddress := StackAddress(int(idx))
+		program.UpsertRAM(varName, refStackAddress)
+
+		idx = m.AllocateOnStack(uint(size))
+		contentStackAddress := StackAddress(int(idx))
+
+		freeReg := program.PopFreeTemporary()
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "la",
+			Params: NewMips32OperationParams(string(freeReg), contentStackAddress.String()),
+		}))
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "sw",
+			Params: NewMips32OperationParams(string(freeReg), refStackAddress.String()),
+		}))
 
 	case "SBO":
 		manageSetWithOffset("sb")
