@@ -28,7 +28,8 @@ const ENABLE_PANIC_RECOV = true
 
 // NOTE: Only change this flag when you're ABSOLUTELY CERTAIN all tests are correct
 // but changing each test manually would take a bunch of time.
-const REGENERATE_TESTS = true
+// MOST OF THE TIME THIS SHOULD BE FALSE!!!
+const REGENERATE_TESTS = false
 
 var RUN_ONLY_THAT_MATCH = []string{
 	// "basic_expre",
