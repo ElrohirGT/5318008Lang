@@ -50,10 +50,6 @@ func (m *Mips32Generator) ResetStackIdx() {
 	*m.freeStackIdx = 0
 }
 
-func (m *Mips32Generator) StackAddress(idx int) StackAddress {
-	return StackAddress(fmt.Sprintf("%d%s", idx, "($sp)"))
-}
-
 type Mips32DataDeclaration struct {
 	Name  string
 	Type  string
@@ -101,7 +97,15 @@ func NewMips32OperationParams(params ...string) []string {
 
 type TACVariableOrValue string
 type Mips32Register string
-type StackAddress string
+type StackAddress int
+
+func (s StackAddress) String() string {
+	return fmt.Sprintf("%d($sp)", s)
+}
+
+func (s StackAddress) Add(i int) StackAddress {
+	return StackAddress(int(s) + i)
+}
 
 type Mips32Program struct {
 	Data              []Mips32DataDeclaration
@@ -205,7 +209,7 @@ func (p *Mips32Program) LoadOrDefault(param TACVariableOrValue) (Mips32Register,
 		log.Printf("RAM var `%s` found! Address: `%s`! Saving on `%s`...\n", param, address, freeRegister)
 		p.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "lw",
-			Params: NewMips32OperationParams(string(freeRegister), string(address)),
+			Params: NewMips32OperationParams(string(freeRegister), address.String()),
 		}))
 		return freeRegister, false
 	} else {
@@ -575,12 +579,12 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		stackAddress, found := program.StackVars[varName]
 		if !found {
-			stackAddress = m.StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+			stackAddress = StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
 		}
 
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
-			Params: NewMips32OperationParams(string(valueParam), string(stackAddress)),
+			Params: NewMips32OperationParams(string(valueParam), stackAddress.String()),
 		}))
 		program.UpsertRAM(varName, stackAddress)
 
@@ -626,12 +630,12 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		// Back up previous value on stack and modify to actual param
 		paramReg := program.PopParam()
-		stackBackupAddr := m.StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+		stackBackupAddr := StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
-			Params: NewMips32OperationParams(string(paramReg), string(stackBackupAddr)),
+			Params: NewMips32OperationParams(string(paramReg), stackBackupAddr.String()),
 		}))
-		*m.currentParams = append(*m.currentParams, string(stackBackupAddr))
+		*m.currentParams = append(*m.currentParams, stackBackupAddr.String())
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "move",
 			Params: NewMips32OperationParams(string(paramReg), string(valueParam)),
@@ -669,8 +673,33 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		idx := m.AllocateOnStack(uint(size))
-		stackAddress := m.StackAddress(int(idx))
+		stackAddress := StackAddress(int(idx))
 		program.UpsertRAM(varName, stackAddress)
+
+	case "SWO":
+		varName := TACVariableOrValue(params[0])
+		offset, err := strconv.ParseUint(params[1], 10, 0)
+		if err != nil {
+			log.Panicf("Failed to parse `%s` as an uint for SWO instruction", params[1])
+		}
+		value := TACVariableOrValue(params[2])
+
+		vParam, shouldFreeRegister := m.program.LoadOrDefault(value)
+		if shouldFreeRegister {
+			defer program.PushFreeTemporary(vParam)
+		}
+
+		stackAddress, found := program.StackVars[varName]
+		if !found {
+			log.Panicf("Failed to find `%s` on stack!", varName)
+		}
+
+		stackAddress = stackAddress.Add(int(offset))
+
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "sb",
+			Params: NewMips32OperationParams(string(vParam), stackAddress.String()),
+		}))
 
 	case "FUNC":
 		*functionName = params[0]
@@ -732,10 +761,10 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		// Save $ra in the stack
-		stackAddress := m.StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
+		stackAddress := StackAddress(stackSize - MIPS32_WORD_BYTE_SIZE) // Last reserved space from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
-			Params: NewMips32OperationParams("$ra", string(stackAddress)),
+			Params: NewMips32OperationParams("$ra", stackAddress.String()),
 		}))
 
 		// Call method
@@ -747,7 +776,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		// Restore $ra from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "lw",
-			Params: NewMips32OperationParams("$ra", string(stackAddress)),
+			Params: NewMips32OperationParams("$ra", stackAddress.String()),
 		}))
 
 		// Restore current scope params
@@ -771,10 +800,10 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		// Save $ra in the stack
-		stackAddress := m.StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
+		stackAddress := StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
-			Params: NewMips32OperationParams("$ra", string(stackAddress)),
+			Params: NewMips32OperationParams("$ra", stackAddress.String()),
 		}))
 
 		// Call method
@@ -794,7 +823,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		// Restore $ra from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "lw",
-			Params: NewMips32OperationParams("$ra", string(stackAddress)),
+			Params: NewMips32OperationParams("$ra", stackAddress.String()),
 		}))
 
 		// Restore current scope params
