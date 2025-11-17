@@ -35,7 +35,7 @@ main:
 	addiu $sp, $sp, 16
 	jr $ra
 addNumbers:
-	addiu $sp, $sp, -12
+	addiu $sp, $sp, -20
 	li $t0, 10
 	mult $s0, $t0
 	mflo $t1
@@ -43,7 +43,7 @@ addNumbers:
 	lw $t1, 0($sp)
 	add $t0, $t1, $s1
 	move $v0, $t0
-	addiu $sp, $sp, 12
+	addiu $sp, $sp, 20
 	jr $ra
-	addiu $sp, $sp, 12
+	addiu $sp, $sp, 20
 	jr $ra

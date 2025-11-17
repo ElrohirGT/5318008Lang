@@ -34,10 +34,10 @@ main:
 	addiu $sp, $sp, 12
 	jr $ra
 addNumbers:
-	addiu $sp, $sp, -12
+	addiu $sp, $sp, -20
 	b addNumbers_IF_0
 addNumbers_IF_0_RETURN:
-	addiu $sp, $sp, 12
+	addiu $sp, $sp, 20
 	jr $ra
 addNumbers_IF_0:
 	li $t0, -1

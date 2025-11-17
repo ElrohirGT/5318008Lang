@@ -47,7 +47,7 @@ var IGNORE_SPECIFIC = []string{
 	// "tests/semantic_analysis/typechecking/class_chaining.cps_test",
 	// "tests/code_generation/booleans.cps_test",
 	// "tests/code_generation/control_flow_with_functions.cps_test",
-	"tests/code_generation/recursive.cps_test",
+	// "tests/code_generation/recursive.cps_test",
 	"tests/code_generation/basic_classes.cps_test",
 	// "tests/code_generation/functions.cps_test",
 	// "tests/code_generation/basic_control_flow.cps_test",

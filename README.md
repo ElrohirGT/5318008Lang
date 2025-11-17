@@ -231,7 +231,6 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 - DIV <destiny> <dividendo> <divisor>
 - AND <destiny> <a> <b>
 - OR <destiny> <a> <b>
-- NOT <destiny> <a> <b>
 - GT <destiny> <a> <b>
 - GTE <destiny> <a> <b>
 - LT <destiny> <a> <b>
