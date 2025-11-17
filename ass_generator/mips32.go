@@ -276,7 +276,7 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 				stackSize += MIPS32_WORD_BYTE_SIZE
 				callsAnotherProcedure = true
 			}
-		case "SEC":
+		case "FUNC":
 			stackSize += uint(maxParamCount) * MIPS32_WORD_BYTE_SIZE
 			if stackSize%4 != 0 {
 				stackSize += stackSize % 4
@@ -489,6 +489,67 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 	case "DIV": // a/b
 		manageDivMultOp("div")
 
+	case "OR":
+		varName := params[0]
+		a := params[1]
+		b := params[2]
+
+		aParam, shouldFreeRegister := program.LoadOrDefault(a)
+		if shouldFreeRegister {
+			defer program.PushFreeRegister(aParam)
+		}
+
+		bParam, shouldFreeRegister := program.LoadOrDefault(b)
+		if shouldFreeRegister {
+			defer program.PushFreeRegister(bParam)
+		}
+
+		freeRegister := program.PopFreeRegister()
+		// OR
+		// -1 + -1 	= -2
+		// 0 + -1 	= -1
+		// -1 + 0 	= -1
+		// 0 + 0 		= 0
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "add",
+			Params: NewMips32OperationParams(freeRegister, aParam, bParam),
+		}))
+		program.UpsertTemporary(varName, freeRegister)
+
+	case "AND": // a && b
+		varName := params[0]
+		a := params[1]
+		b := params[2]
+
+		aParam, shouldFreeRegister := program.LoadOrDefault(a)
+		if shouldFreeRegister {
+			defer program.PushFreeRegister(aParam)
+		}
+
+		bParam, shouldFreeRegister := program.LoadOrDefault(b)
+		if shouldFreeRegister {
+			defer program.PushFreeRegister(bParam)
+		}
+
+		freeRegister := program.PopFreeRegister()
+		// AND
+		// -1 * -1 	= 1
+		// 0 * -1 	= 0
+		// -1 * 0 	= 0
+		// 0 * 0 		= 0
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "mult",
+			Params: NewMips32OperationParams(aParam, bParam),
+		}))
+		// Extract result:
+		// * 1: Both were true!
+		// * 0: Both were false!
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "mflo",
+			Params: NewMips32OperationParams(freeRegister),
+		}))
+		program.UpsertTemporary(varName, freeRegister)
+
 	case "=":
 		varName := params[0]
 		value := params[2]
@@ -532,7 +593,7 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		program.UpsertParam(varName, paramReg)
 		log.Printf("Variable `%s` retrieved from register: %s", varName, paramReg)
 
-	case "SEC":
+	case "FUNC":
 		// Add:
 		// jr $ra
 		// at the end of main (if programs contains more sections)
