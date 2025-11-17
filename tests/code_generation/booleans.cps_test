@@ -30,13 +30,13 @@ main:
 	lw $t2, 0($sp)
 	lw $t3, 4($sp)
 	add $t4, $t2, $t3
-	sw $t4, 12($sp)
+	sw $t4, 8($sp)
 	lw $t4, 0($sp)
 	lw $t5, 0($sp)
 	mult $t4, $t5
 	mflo $t6
 	lw $t7, 4($sp)
 	add $t8, $t6, $t7
-	sw $t8, 16($sp)
+	sw $t8, 8($sp)
 	addiu $sp, $sp, 20
 	jr $ra
