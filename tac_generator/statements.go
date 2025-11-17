@@ -159,7 +159,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
-				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
+				ProcedureName:  l.ResolveFunctionName(string(previousType) + "_" + methodName),
 				NumberOfParams: uint(paramCount),
 			}).AddComment("("+varName+")"))
 
@@ -252,7 +252,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
-				ProcedureName:  ScopeName(procedureName),
+				ProcedureName:  l.ResolveFunctionName(procedureName),
 				NumberOfParams: numberOfParams,
 			}).AddComment("("+varName+")"))
 
@@ -431,7 +431,7 @@ func handleConstructorCall(
 	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}).AddComment("(this)"))
 	l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 		SaveReturnOn:   lib.NewOpEmpty[VariableName](),
-		ProcedureName:  ScopeName(className + "_" + type_checker.CONSTRUCTOR_NAME),
+		ProcedureName:  l.ResolveFunctionName(className + "_" + type_checker.CONSTRUCTOR_NAME),
 		NumberOfParams: argCount,
 	}).AddComment("("+completeExpr+")"))
 }

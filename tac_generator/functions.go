@@ -24,6 +24,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	}
 
 	l.TACScope[scope] = scopeName
+	l.FunctionNameMap[scope.Name] = scopeName
 
 	parentName := l.GetParentScopeName()
 	l.Program.InsertIfNotExists(scopeName, parentName)

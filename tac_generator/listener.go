@@ -22,21 +22,23 @@ const (
 // Handles the notion of types, definitions and scope management.
 type Listener struct {
 	*p.BaseCompiscriptListener
-	Source      *antlr.CommonTokenStream
-	TypeChecker *type_checker.Listener
-	Program     *Program
-	Errors      *[]string
-	TACScope    map[*type_checker.Scope]ScopeName
+	Source          *antlr.CommonTokenStream
+	TypeChecker     *type_checker.Listener
+	Program         *Program
+	Errors          *[]string
+	TACScope        map[*type_checker.Scope]ScopeName
+	FunctionNameMap map[string]ScopeName
 }
 
 func NewListener(typeChecker *type_checker.Listener, source *antlr.CommonTokenStream) Listener {
 	typeChecker.ScopeManager.ReplaceCurrent(typeChecker.ScopeManager.GlobaScope)
 	return Listener{
-		Program:     NewProgram(),
-		TypeChecker: typeChecker,
-		Errors:      &[]string{},
-		Source:      source,
-		TACScope:    make(map[*type_checker.Scope]ScopeName),
+		Program:         NewProgram(),
+		TypeChecker:     typeChecker,
+		Errors:          &[]string{},
+		Source:          source,
+		TACScope:        make(map[*type_checker.Scope]ScopeName),
+		FunctionNameMap: make(map[string]ScopeName),
 	}
 }
 
@@ -399,4 +401,14 @@ func getTACScope(scope *type_checker.Scope) ScopeName {
 	}
 
 	return scopeName
+}
+
+func (l *Listener) ResolveFunctionName(functionName string) ScopeName {
+	if tacScope, found := l.FunctionNameMap[functionName]; found {
+		log.Printf("Resolved function '%s' to TAC scope '%s'", functionName, tacScope)
+		return tacScope
+	}
+
+	log.Printf("Function '%s' not found in mapping, using original name", functionName)
+	return ScopeName(functionName)
 }
