@@ -42,7 +42,7 @@ var IGNORE_SPECIFIC = []string{
 	"tests/code_generation/control_flow_with_functions.cps_test",
 	"tests/code_generation/recursive.cps_test",
 	"tests/code_generation/functions.cps_test",
-	"tests/code_generation/basic_control_flow.cps_test",
+	// "tests/code_generation/basic_control_flow.cps_test",
 }
 
 func Test_SemanticAnalysis(t *testing.T) {

@@ -567,6 +567,39 @@ func (m *Mips32Generator) translate(secName *string, opCode string, params []str
 		}))
 		program.UpsertRAM(varName, stackAddress)
 
+	case "IF":
+		condition := params[0]
+		target := params[2]
+
+		negates := params[0] == "NOT"
+		if negates {
+			condition = params[1]
+			target = params[3]
+		}
+
+		conditionParam, shouldFreeRegister := program.LoadOrDefault(condition)
+		if shouldFreeRegister {
+			defer program.PushFreeRegister(conditionParam)
+		}
+
+		if negates {
+			// Since 0 is false.
+			// IF NOT <condition> GOTO <target>, only goes to target if condition is false.
+			// So we check if condition is 0.
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "beq",
+				Params: NewMips32OperationParams(conditionParam, "$zero", target),
+			}))
+		} else {
+			// By the same token.
+			// IF <condition> GOTO <target>, only goes to target if condition is true.
+			// So we check if condition is not 0.
+			program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+				OpCode: "bne",
+				Params: NewMips32OperationParams(conditionParam, "$zero", target),
+			}))
+		}
+
 	case "PARAM":
 		value := params[0]
 		valueParam, shouldFreeRegister := program.LoadOrDefault(value)

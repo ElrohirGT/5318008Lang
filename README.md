@@ -187,7 +187,6 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 - Salto Condicional:
   - IF <variable> GOTO \<sección/tag>
   - IF NOT <variable> GOTO \<sección/tag>
-  - IF <relop> \<variable 1> \<variable 2> GOTO \<sección/tag>
 - Llamadas a procedimientos y retornos:
   - PARAM <variable>
   - LOAD <variable>
@@ -232,7 +231,7 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
 
 ### Booleans
 
-- True: 0xFFFFFFFF
+- True: Cualquier cosa que no sea 0.
 - False: 0x0
 
 #### TAC Example
