@@ -11,7 +11,7 @@ function makeAdder(x: integer): integer {
 }
 
 let addFive: integer = (makeAdder(5));
-print("5 + 1 = " + parseInt(addFive));
+print("5 + 1 = " + int_to_str(addFive));
 
 // Control structures
 if (addFive > 5) {
@@ -25,12 +25,12 @@ while (addFive < 10) {
 }
 
 do {
-  print("Result is now " + parseInt(addFive));
+  print("Result is now " + int_to_str(addFive));
   addFive = addFive - 1;
 } while (addFive > 7);
 
 for (let i: integer = 0; i < 3; i = i + 1) {
-  print("Loop index: " + parseInt(i));
+  print("Loop index: " + int_to_str(i));
 }
 
 foreach (n in numbers) {
@@ -38,7 +38,7 @@ foreach (n in numbers) {
     continue;
   }
 
-  print("Number: " + parseInt(n));
+  print("Number: " + int_to_str(n));
   if (n > 4) {
     break;
   }
@@ -60,7 +60,7 @@ switch (VARIABLE) {
 // Try-catch structure
 try {
   let risky: integer = numbers[10];
-  print("Risky access: " + parseInt(risky));
+  print("Risky access: " + int_to_str(risky));
 } catch (err) {
   print("Caught an error: " + err);
 }
@@ -88,7 +88,7 @@ print(dog.speak());
 
 // Object property access and array indexing
 let first: integer = numbers[0];
-print("First number: " + parseInt(first));
+print("First number: " + int_to_str(first));
 
 // Function returning an array
 function getMultiples(n: integer): integer[] {
@@ -106,7 +106,7 @@ class Colorize {
 }
 
 let multiples: integer[] = getMultiples(2);
-print("Multiples of 2: " + parseInt(multiples[0]) + ", " + parseInt(multiples[1]));
+print("Multiples of 2: " + int_to_str(multiples[0]) + ", " + int_to_str(multiples[1]));
 
 // Recursion
 function factorial(n: integer): integer {

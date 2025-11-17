@@ -49,17 +49,17 @@ func NewListener() Listener {
 	scopeManager.CurrentScope.UpsertFunctionDef("print",
 		MethodInfo{ParameterList: []ParameterInfo{{"s", BASE_TYPES.STRING}}, ReturnType: BASE_TYPES.NULL})
 	// FIXME: Rename this builtins, confusing AF!!!
-	scopeManager.CurrentScope.UpsertFunctionDef("parseInt",
+	scopeManager.CurrentScope.UpsertFunctionDef("int_to_str",
 		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.INTEGER}}, ReturnType: BASE_TYPES.STRING})
-	scopeManager.CurrentScope.UpsertFunctionDef("parseBool",
+	scopeManager.CurrentScope.UpsertFunctionDef("bool_to_str",
 		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.BOOLEAN}}, ReturnType: BASE_TYPES.STRING})
 	scopeManager.CurrentScope.UpsertFunctionDef("strcmp",
 		MethodInfo{ParameterList: []ParameterInfo{{"v", BASE_TYPES.STRING}, {"v2", BASE_TYPES.STRING}}, ReturnType: BASE_TYPES.BOOLEAN})
 
 	// FIXME: A function should not be registered in tye typesExpresion register
 	// scopeManager.CurrentScope.UpsertExpressionType("print", BASE_TYPES.NULL)
-	// scopeManager.CurrentScope.UpsertExpressionType("parseInt", BASE_TYPES.STRING)
-	// scopeManager.CurrentScope.UpsertExpressionType("parseBool", BASE_TYPES.STRING)
+	// scopeManager.CurrentScope.UpsertExpressionType("int_to_str", BASE_TYPES.STRING)
+	// scopeManager.CurrentScope.UpsertExpressionType("bool_to_str", BASE_TYPES.STRING)
 
 	return Listener{
 		KnownTypes:   &baseTypes,

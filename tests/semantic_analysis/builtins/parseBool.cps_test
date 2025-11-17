@@ -1,2 +1,2 @@
-parseBool(true);
+bool_to_str(true);
 ---

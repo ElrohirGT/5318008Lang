@@ -1,2 +1,2 @@
-parseInt(32);
+int_to_str(32);
 ---

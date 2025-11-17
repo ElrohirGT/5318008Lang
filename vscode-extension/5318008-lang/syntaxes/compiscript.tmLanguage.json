@@ -28,7 +28,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.compiscript",
-				"match": "\\b(let|var|const|function|class|if|else|while|do|for|foreach|in|break|continue|return|try|catch|switch|case|default|new|this|print|parseInt|parseBool)\\b"
+				"match": "\\b(let|var|const|function|class|if|else|while|do|for|foreach|in|break|continue|return|try|catch|switch|case|default|new|this|print|int_to_str|bool_to_str)\\b"
 			}]
 		},
 		"types": {

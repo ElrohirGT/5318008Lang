@@ -112,9 +112,9 @@ function runSemanticAnalyzer(document, diagnostics) {
             const semanticMatch = cleanLine.match(/^\s*\*?\s*Error: \(line: (\d+), column: (\d+)-(\d+)\)\s+(.+)/);
             const syntaxMatch = line.match(/^\s*line (\d+):(\d+)\s+(.+)$/);
             if (semanticMatch) {
-                const lineNum = parseInt(semanticMatch[1], 10) - 1;
-                const colStart = parseInt(semanticMatch[2], 10);
-                const colEnd = parseInt(semanticMatch[3], 10);
+                const lineNum = int_to_str(semanticMatch[1], 10) - 1;
+                const colStart = int_to_str(semanticMatch[2], 10);
+                const colEnd = int_to_str(semanticMatch[3], 10);
                 const message = semanticMatch[4];
                 if (lineNum >= 0 && lineNum < document.lineCount) {
                     const textLine = document.lineAt(lineNum);
@@ -123,8 +123,8 @@ function runSemanticAnalyzer(document, diagnostics) {
                 }
             }
             else if (syntaxMatch) {
-                const lineNum = parseInt(syntaxMatch[1], 10) - 1;
-                const colNum = parseInt(syntaxMatch[2], 10) - 1;
+                const lineNum = int_to_str(syntaxMatch[1], 10) - 1;
+                const colNum = int_to_str(syntaxMatch[2], 10) - 1;
                 const message = syntaxMatch[3];
                 if (lineNum >= 0 && lineNum < document.lineCount) {
                     const textLine = document.lineAt(lineNum);
