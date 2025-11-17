@@ -563,7 +563,10 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 			defer program.PushFreeRegister(valueParam)
 		}
 
-		stackAddress := m.StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+		stackAddress, found := program.StackVars[varName]
+		if !found {
+			stackAddress = m.StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+		}
 
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
