@@ -71,14 +71,17 @@ FUNC Color_ToArray:
 	// buffer
 	LOAD t12
 	LWO t13 t11 0
-	LWO t14 t12 0
-	= t14 i32 t13
+	= t14 u32 0
+	ADD t14 t14 0
+	SWO t12 t14 t13
 	LWO t15 t11 4
-	LWO t16 t12 4
-	= t16 i32 t15
+	= t16 u32 0
+	ADD t16 t16 4
+	SWO t12 t16 t15
 	LWO t17 t11 8
-	LWO t18 t12 8
-	= t18 i32 t17
+	= t18 u32 0
+	ADD t18 t18 8
+	SWO t12 t18 t17
 	END
 FUNC Color_WithB:
 	// this

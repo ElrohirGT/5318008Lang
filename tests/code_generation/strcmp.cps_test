@@ -49,18 +49,18 @@ main:
 	sw $s0, 16($sp)
 	move $s0, $t0
 # PARAM t2
-	lw $t1, 8($sp)
+	lw $t0, 8($sp)
 	sw $s1, 20($sp)
-	move $s1, $t1
+	move $s1, $t0
 # CALLRET t3 strcmp 2
 	sw $ra, 28($sp)
 	jal strcmp
-	move $t2, $v0
+	move $t0, $v0
 	lw $ra, 28($sp)
 	lw $s0, 16($sp)
 	lw $s1, 20($sp)
 # = t4 i8 t3
-	sw $t2, 16($sp)
+	sw $t0, 16($sp)
 # END
 	addiu $sp, $sp, 32
 	jr $ra
