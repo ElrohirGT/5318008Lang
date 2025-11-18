@@ -343,11 +343,30 @@ func (m Mips32Generator) GenerateTo(buff *bytes.Buffer, addBuiltins bool) error 
 # The following code is designed to run on the compiler: https://cpulator.01xz.net/?sys=mipsr5-spim
 `)
 
-	_, err := buff.WriteString(".data")
+	_, err := buff.WriteString(".data\n")
 	if err != nil {
 		return err
 	}
-
+	m.program.AppendDataDeclaration(Mips32DataDeclaration{
+		Name:  "panic_prefix",
+		Type:  ".asciiz",
+		Value: "\"panic: \"",
+	})
+	m.program.AppendDataDeclaration(Mips32DataDeclaration{
+		Name:  "zero_division_exception",
+		Type:  ".asciiz",
+		Value: "\"division by zero\"",
+	})
+	m.program.AppendDataDeclaration(Mips32DataDeclaration{
+		Name:  "idx_out_of_range_exception",
+		Type:  ".asciiz",
+		Value: "\"idx out of range\"",
+	})
+	m.program.AppendDataDeclaration(Mips32DataDeclaration{
+		Name:  "err_pointer",
+		Type:  ".word",
+		Value: "0",
+	})
 	for _, decl := range m.program.Data {
 		_, err = fmt.Fprintf(buff,
 			"%s:\t\t%s\t\t%s\n", decl.Name, decl.Type, decl.Value)
@@ -412,6 +431,24 @@ main:
 			return err
 		}
 	}
+
+	buff.WriteString(`
+_EXCEPTION_HANDLER:
+	la   $a0, panic_prefix
+	li   $v0, 4
+	syscall
+
+	lw   $a0, err_pointer
+	li   $v0, 4
+	syscall
+
+	li   $a0, 10
+	li   $v0, 11
+	syscall
+
+	li   $v0, 10
+	syscall
+	`)
 
 	// Add builtins
 	if addBuiltins {

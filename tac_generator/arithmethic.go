@@ -185,6 +185,55 @@ func (l Listener) ExitMultiplicativeExpr(ctx *p.MultiplicativeExprContext) {
 
 		resultVar := l.Program.GetNextVariable()
 
+		// Add exception guard
+		if opType == ARITHMETHIC_OPERATION_TYPES.Divide {
+			isZero := l.Program.GetNextVariable()
+
+			l.AppendInstruction(ScopeName(scopeName), NewAssignmentInstruction(AssignmentInstruction{
+				Target: "err",
+				Type:   VARIABLE_TYPES.U32,
+				Value:  "0",
+			}))
+			l.AppendInstruction(ScopeName(scopeName), NewAssignmentInstruction(AssignmentInstruction{
+				Target: "addr",
+				Type:   VARIABLE_TYPES.U32,
+				Value:  "0",
+			}))
+			l.AppendInstruction(scopeName, NewReferenceInstruction(ReferenceInstruction{
+				Target:   "err",
+				Variable: "zero_division_exception",
+			}))
+			l.AppendInstruction(scopeName, NewReferenceInstruction(ReferenceInstruction{
+				Target:   "addr",
+				Variable: "err_pointer",
+			}))
+			l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+				IsWord: true,
+				Target: "addr",
+				Offset: LiteralOrVariable("0"),
+				Value:  "err",
+			}))
+			l.AppendInstruction(scopeName, NewLogicOpInstruction(LogicOpInstruction{
+				Type:   BOOLEAN_OPERATION_TYPES.Equal,
+				Target: isZero,
+				P1:     rightVar,
+				P2:     "0",
+			}))
+			catchScope, found := l.TypeChecker.ScopeManager.SearchScopeByType(type_checker.SCOPE_TYPES.CATCH)
+			gotoTag := ""
+			if !found {
+				gotoTag = "_EXCEPTION_HANDLER"
+			} else {
+				gotoTag = catchScope.Name + "_CATCH"
+			}
+			l.AppendInstruction(scopeName, NewJumpInstruction(JumpInstruction{
+				Condition: lib.NewOpValue(JumpCondition{
+					Simple: lib.NewOpValue(isZero),
+				}),
+				Target: TagName(gotoTag),
+			}))
+		}
+
 		l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
 			Signed: true,
 			Type:   opType,
