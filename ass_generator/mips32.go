@@ -615,16 +615,24 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		manageComparisons("seq")
 
 	case "REFERENCE":
-		destinty := TACVariableOrValue(params[0])
+		destiny := TACVariableOrValue(params[0])
 		target := params[1]
-		aParam, shouldFreeRegister := program.LoadOrDefault(destinty)
-		if shouldFreeRegister {
-			defer program.PushFreeTemporary(aParam)
-		}
+
+		freeReg := program.PopFreeTemporary()
+		defer program.PushFreeTemporary(freeReg)
 
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "la",
-			Params: NewMips32OperationParams(string(aParam), target),
+			Params: NewMips32OperationParams(string(freeReg), target),
+		}))
+
+		stackAddress, found := program.StackVars[destiny]
+		if !found {
+			log.Panicf("Can't use REFERENCE without previously initialized `%s`", destiny)
+		}
+		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
+			OpCode: "sw",
+			Params: NewMips32OperationParams(string(freeReg), stackAddress.String()),
 		}))
 
 	case "OR":
