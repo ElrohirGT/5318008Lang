@@ -106,6 +106,10 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 		switch suffixCtx := suffix.(type) {
 		case *p.MethodCallExprContext:
 			paramCount := 0
+			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
+				Parameter: LiteralOrVariable(previousInChain),
+			}).AddComment("this -> "+primaryExpr+getUntil(suffixes, i-1)))
+
 			if args := suffixCtx.Arguments(); args != nil {
 				paramCount = len(args.AllConditionalExpr())
 
@@ -123,7 +127,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 							)
 						}
 
-						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment("("+arg.GetText()+")"))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment(arg.GetText()))
 					}
 				}
 			}
@@ -153,15 +157,11 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				saveOnReturn = lib.NewOpValue(tempName)
 			}
 
-			l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{
-				Parameter: LiteralOrVariable(previousInChain),
-			}).AddComment("(previousInChain := "+primaryExpr+getUntil(suffixes, i-1)+")"))
-
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
 				NumberOfParams: uint(paramCount) + 1, // Add "this" param
-			}).AddComment("("+varName+")"))
+			}).AddComment(varName))
 
 			previousInChain = tempName
 			if returnNonNull {
@@ -209,7 +209,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 							)
 						}
 
-						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment("("+arg.GetText()+")"))
+						l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(varName)}).AddComment(arg.GetText()))
 					}
 				}
 			}
@@ -254,7 +254,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  l.ResolveFunctionName(procedureName),
 				NumberOfParams: numberOfParams,
-			}).AddComment("("+varName+")"))
+			}).AddComment(varName))
 
 			returnNull := funcInfo.ReturnType == type_checker.BASE_TYPES.NULL ||
 				funcInfo.ReturnType == type_checker.BASE_TYPES.UNKNOWN // FIXME: Funtion with no return type should return NULL
@@ -428,12 +428,12 @@ func handleConstructorCall(
 		}
 	}
 
-	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}).AddComment("(this)"))
+	l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{LiteralOrVariable(classRefTac)}).AddComment("this"))
 	l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 		SaveReturnOn:   lib.NewOpEmpty[VariableName](),
 		ProcedureName:  l.ResolveFunctionName(className + "_" + type_checker.CONSTRUCTOR_NAME),
 		NumberOfParams: argCount,
-	}).AddComment("("+completeExpr+")"))
+	}).AddComment(completeExpr))
 }
 
 func getUntil(suffixes *[]p.ISuffixOpContext, maxIdx int) string {

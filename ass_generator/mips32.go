@@ -807,6 +807,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		contentStackAddress := StackAddress(int(idx))
 
 		freeReg := program.PopFreeTemporary()
+		defer program.PushFreeTemporary(freeReg)
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "la",
 			Params: NewMips32OperationParams(string(freeReg), contentStackAddress.String()),

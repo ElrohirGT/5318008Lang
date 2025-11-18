@@ -21,7 +21,7 @@ func (l Listener) EnterClassDeclaration(ctx *p.ClassDeclarationContext) {
 	l.Program.FunctionScopes.Add(constructorScopeName)
 
 	thisTacName := l.Program.GetNextVariable()
-	l.AppendInstruction(constructorScopeName, NewLoadInstruction(LoadInstruction{thisTacName}).AddComment("(this)"))
+	l.AppendInstruction(constructorScopeName, NewLoadInstruction(LoadInstruction{thisTacName}).AddComment("this"))
 	l.Program.UpsertTranslation(constructorScopeName, "this", thisTacName)
 }
 

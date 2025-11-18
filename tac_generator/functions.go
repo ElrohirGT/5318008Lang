@@ -38,7 +38,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 		l.AppendInstruction(
 			scopeName,
 			NewLoadInstruction(LoadInstruction{thisTacName}).
-				AddComment("(this)"),
+				AddComment("this"),
 		)
 		l.Program.UpsertTranslation(scopeName, "this", thisTacName)
 	}
@@ -51,7 +51,7 @@ func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 			l.AppendInstruction(
 				scopeName,
 				NewLoadInstruction(LoadInstruction{l.Program.GetOrGenerateVariable(paramExpr, scopeName)}).
-					AddComment("("+paramExpr+")"),
+					AddComment(paramExpr),
 			)
 		}
 	}
