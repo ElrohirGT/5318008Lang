@@ -160,7 +160,7 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 			l.AppendInstruction(scopeName, NewCallInstruction(CallInstruction{
 				SaveReturnOn:   saveOnReturn,
 				ProcedureName:  ScopeName(string(previousType) + "_" + methodName),
-				NumberOfParams: uint(paramCount),
+				NumberOfParams: uint(paramCount) + 1, // Add "this" param
 			}).AddComment("("+varName+")"))
 
 			previousInChain = tempName

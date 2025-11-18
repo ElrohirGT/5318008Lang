@@ -10,7 +10,7 @@ import (
 func (l Listener) EnterFunctionDeclaration(ctx *p.FunctionDeclarationContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	if err != nil {
-		log.Println("Something when wrong during Scope management")
+		log.Println("Something went wrong during Scope management")
 	}
 
 	scope := l.GetCurrentScope()
