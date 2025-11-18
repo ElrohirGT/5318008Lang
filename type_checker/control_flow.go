@@ -305,14 +305,33 @@ func (l Listener) ExitCaseBody(ctx *p.CaseBodyContext) {
 // TRY CATCH
 // ===========================
 
+func (l Listener) EnterExceptionStatement(ctx *p.ExceptionStatementContext) {
+	functionScope, found := l.ScopeManager.SearchScopeByType(SCOPE_TYPES.FUNCTION)
+	name := ""
+	if !found {
+		name = fmt.Sprintf("GLOBAL_%d_%s", l.ScopeManager.GetUniqueID(), "EXC")
+	} else {
+		name = fmt.Sprintf("%s_%d%s", functionScope.Name, l.ScopeManager.GetUniqueID(), "EXC")
+	}
+	tryScope := NewScope(name, SCOPE_TYPES.CATCH)
+	l.ScopeManager.AddToCurrent(tryScope)
+	l.ScopeManager.ReplaceCurrent(tryScope)
+}
+
+func (l Listener) ExitExceptionStatement(ctx *p.ExceptionStatementContext) {
+	l.ScopeManager.ReplaceWithParent()
+}
+
 func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
-	tryScope := NewScope(_buildUniqueName(l.ScopeManager, "TRY_"), SCOPE_TYPES.BLOCK)
+	scope := l.ScopeManager.CurrentScope
+	tryScope := NewScope(scope.Name+"_TRY", SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(tryScope)
 	l.ScopeManager.ReplaceCurrent(tryScope)
 }
 
 func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
-	catchScope := NewScope(_buildUniqueName(l.ScopeManager, "CATCH_"), SCOPE_TYPES.BLOCK)
+	scope := l.ScopeManager.CurrentScope
+	catchScope := NewScope(scope.Name+"_CATCH", SCOPE_TYPES.BLOCK)
 	l.ScopeManager.AddToCurrent(catchScope)
 	l.ScopeManager.ReplaceCurrent(catchScope)
 	l.ScopeManager.CurrentScope.UpsertExpressionType(ctx.Identifier().GetText(), BASE_TYPES.STRING)
