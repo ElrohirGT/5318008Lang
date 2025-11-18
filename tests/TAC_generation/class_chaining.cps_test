@@ -33,90 +33,90 @@ color
   .WithB(100)
   .ToArray(buffer);
 ---
-ALLOC t25 12
+ALLOC t22 12
 // this
-PARAM t25
+PARAM t22
 // newColor()
 CALL Color_constructor 1
-ALLOC t26 12
-SWO t26 0 0
-SWO t26 4 0
-SWO t26 8 0
+ALLOC t23 12
+SWO t23 0 0
+SWO t23 4 0
+SWO t23 8 0
 // this -> color
-PARAM t25
+PARAM t22
 PARAM 100
 // color.WithR(100)
-CALLRET t27 Color_WithR 2
+CALLRET t24 Color_WithR 2
 // this -> color.WithR(100)
-PARAM t27
+PARAM t24
 PARAM 100
 // color.WithR(100).WithG(100)
-CALLRET t28 Color_WithG 2
+CALLRET t25 Color_WithG 2
 // this -> color.WithR(100).WithG(100)
-PARAM t28
+PARAM t25
 PARAM 100
 // color.WithR(100).WithG(100).WithB(100)
-CALLRET t29 Color_WithB 2
+CALLRET t26 Color_WithB 2
 // this -> color.WithR(100).WithG(100).WithB(100)
-PARAM t29
-// buffer
 PARAM t26
+// buffer
+PARAM t23
 // color.WithR(100).WithG(100).WithB(100).ToArray(buffer)
 CALL Color_ToArray 2
 END
 
 FUNC Color_ToArray:
 	// this
-	LOAD t17
+	LOAD t14
 	// buffer
-	LOAD t18
-	LWO t19 t17 0
-	ADD t20 0 0
-	ADD t20 t20 0
-	SWO t18 t20 t19
-	LWO t21 t17 4
-	ADD t22 0 0
-	ADD t22 t22 4
-	SWO t18 t22 t21
-	LWO t23 t17 8
-	ADD t24 0 0
-	ADD t24 t24 8
-	SWO t18 t24 t23
+	LOAD t15
+	LWO t16 t14 0
+	ADD t17 0 0
+	ADD t17 t17 0
+	SWO t15 t17 t16
+	LWO t18 t14 4
+	ADD t19 0 0
+	ADD t19 t19 4
+	SWO t15 t19 t18
+	LWO t20 t14 8
+	ADD t21 0 0
+	ADD t21 t21 8
+	SWO t15 t21 t20
 	END
 FUNC Color_WithB:
 	// this
-	LOAD t14
-	// b
-	LOAD t15
-	= t16 i32 8
-	SWO t14 t16 t15
-	RETURN t14
-	END
-FUNC Color_WithG:
-	// this
 	LOAD t11
-	// g
+	// b
 	LOAD t12
-	= t13 i32 4
+	= t13 i32 8
 	SWO t11 t13 t12
 	RETURN t11
 	END
-FUNC Color_WithR:
+FUNC Color_WithG:
 	// this
 	LOAD t8
-	// r
+	// g
 	LOAD t9
-	= t10 i32 0
+	= t10 i32 4
 	SWO t8 t10 t9
 	RETURN t8
+	END
+FUNC Color_WithR:
+	// this
+	LOAD t5
+	// r
+	LOAD t6
+	= t7 i32 0
+	SWO t5 t7 t6
+	RETURN t5
 	END
 FUNC Color_constructor:
 	// this
 	LOAD t1
 	ADD t2 0 0
-	= t3 i32 0
-	ADD t4 0 4
-	= t5 i32 0
-	ADD t6 0 8
-	= t7 i32 0
+	SWO t1 t2 0
+	ADD t3 0 4
+	SWO t1 t3 0
+	ADD t4 0 8
+	SWO t1 t4 0
 	END

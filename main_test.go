@@ -39,7 +39,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "typechecking",
 	// "class_constructor",
 	// "TAC_generation/",
-	// "code_generation/basic_classes",
+	// "code_generation/basic_for",
 	// "code_generation/class_chaining",
 }
 
@@ -306,6 +306,7 @@ func Test_ASMGeneration(t *testing.T) {
 			err = applib.TestableMain(reader, applib.CompilerConfig{
 				TACBuffer: lib.NewOpValue(&tacBuffer),
 				ASMBuffer: lib.NewOpValue(&asmBuffer),
+				// AddASMBuiltins: true,
 			})
 		}
 
