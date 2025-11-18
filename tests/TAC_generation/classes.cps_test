@@ -9,29 +9,29 @@ class Animal {
 let an = new Animal();
 an.setName("Default Name");
 ---
-ALLOC t6 4
+ALLOC t7 4
 // this
-PARAM t6
+PARAM t7
 // newAnimal()
 CALL Animal_constructor 1
-ALLOC t7 16
-SBO t7 0 68
-SBO t7 1 101
-SBO t7 2 102
-SBO t7 3 97
-SBO t7 4 117
-SBO t7 5 108
-SBO t7 6 116
-SBO t7 7 32
-SBO t7 8 78
-SBO t7 9 97
-SBO t7 10 109
-SBO t7 11 101
-SBO t7 15 0
+ALLOC t8 16
+SBO t8 0 68
+SBO t8 1 101
+SBO t8 2 102
+SBO t8 3 97
+SBO t8 4 117
+SBO t8 5 108
+SBO t8 6 116
+SBO t8 7 32
+SBO t8 8 78
+SBO t8 9 97
+SBO t8 10 109
+SBO t8 11 101
+SBO t8 15 0
 // this -> an
-PARAM t6
-// "Default Name"
 PARAM t7
+// "Default Name"
+PARAM t8
 // an.setName("Default Name")
 CALL Animal_setName 2
 END
@@ -39,13 +39,14 @@ END
 FUNC Animal_constructor:
 	// this
 	LOAD t1
-	SWO t1 0 t2
+	ADD t3 0 0
+	SWO t1 t3 t2
 	END
 FUNC Animal_setName:
 	// this
-	LOAD t3
-	// newName
 	LOAD t4
-	= t5 i32 0
-	SWO t3 t5 t4
+	// newName
+	LOAD t5
+	= t6 i32 0
+	SWO t4 t6 t5
 	END

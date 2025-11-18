@@ -506,20 +506,14 @@ func createAssignment(
 	sourceTacName VariableName,
 	offsetTacName VariableName,
 ) {
-	if isLiteral {
-		literalType, literalValue := literalToTAC(exprText, exprType)
-		// l.CreateAssignment(scopeName, variableName, literalType, literalValue)
-		if isAssigment {
-			// fmt.Println("THIS IS AN ASIGMENT OF:" + variableName)
-			l.CreateVariableAssignment(scopeName, variableName, literalType, literalValue)
-		} else {
-			// fmt.Println("THIS IS A DECLARATION OF:" + variableName + " " + string(scopeName))
-			l.CreateVariableDeclaration(scopeName, variableName, literalType, literalValue)
-		}
-	} else if isReference {
-		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
-		if !found {
-			log.Panicf("Failed to find a variable for the expression:\n`%s`", exprText)
+	if isReference {
+		exprVar := VariableName(exprText)
+		if !isLiteral {
+			var found bool
+			exprVar, found = l.Program.GetVariableFor(exprText, scopeName)
+			if !found {
+				log.Panicf("Failed to find a variable for the expression:\n`%s`", exprText)
+			}
 		}
 
 		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
@@ -534,6 +528,16 @@ func createAssignment(
 		// 	Source: previousTacName,
 		// 	Offset: LiteralOrVariable(offset),
 		// }))
+	} else if isLiteral {
+		literalType, literalValue := literalToTAC(exprText, exprType)
+		// l.CreateAssignment(scopeName, variableName, literalType, literalValue)
+		if isAssigment {
+			// fmt.Println("THIS IS AN ASIGMENT OF:" + variableName)
+			l.CreateVariableAssignment(scopeName, variableName, literalType, literalValue)
+		} else {
+			// fmt.Println("THIS IS A DECLARATION OF:" + variableName + " " + string(scopeName))
+			l.CreateVariableDeclaration(scopeName, variableName, literalType, literalValue)
+		}
 	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
 		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
 		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{

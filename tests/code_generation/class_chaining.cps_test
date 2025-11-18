@@ -52,11 +52,11 @@ _start:
 
 main:
 	addiu $sp, $sp, -44
-# ALLOC t19 12
+# ALLOC t25 12
 	la $t0, 4($sp)
 	sw $t0, 0($sp)
 # // this
-# PARAM t19
+# PARAM t25
 	lw $t0, 0($sp)
 	sw $s0, 16($sp)
 	move $s0, $t0
@@ -66,29 +66,29 @@ main:
 	jal Color_constructor
 	lw $ra, 40($sp)
 	lw $s0, 16($sp)
-# ALLOC t20 12
+# ALLOC t26 12
 	la $t0, 20($sp)
 	sw $t0, 16($sp)
-# SWO t20 0 0
+# SWO t26 0 0
 	li $t0, 0
 	li $t1, 0
 	lw $t2, 16($sp)
 	addu $t2, $t2, $t0
 	sw $t1, 0($t2)
-# SWO t20 4 0
+# SWO t26 4 0
 	li $t0, 4
 	li $t1, 0
 	lw $t2, 16($sp)
 	addu $t2, $t2, $t0
 	sw $t1, 0($t2)
-# SWO t20 8 0
+# SWO t26 8 0
 	li $t0, 8
 	li $t1, 0
 	lw $t2, 16($sp)
 	addu $t2, $t2, $t0
 	sw $t1, 0($t2)
 # // this -> color
-# PARAM t19
+# PARAM t25
 	lw $t0, 0($sp)
 	sw $s0, 32($sp)
 	move $s0, $t0
@@ -97,7 +97,7 @@ main:
 	sw $s1, 36($sp)
 	move $s1, $t0
 # // color.WithR(100)
-# CALLRET t21 Color_WithR 2
+# CALLRET t27 Color_WithR 2
 	sw $ra, 40($sp)
 	jal Color_WithR
 	move $t0, $v0
@@ -105,7 +105,7 @@ main:
 	lw $s0, 32($sp)
 	lw $s1, 36($sp)
 # // this -> color.WithR(100)
-# PARAM t21
+# PARAM t27
 	sw $s0, 32($sp)
 	move $s0, $t0
 # PARAM 100
@@ -113,7 +113,7 @@ main:
 	sw $s1, 36($sp)
 	move $s1, $t0
 # // color.WithR(100).WithG(100)
-# CALLRET t22 Color_WithG 2
+# CALLRET t28 Color_WithG 2
 	sw $ra, 40($sp)
 	jal Color_WithG
 	move $t0, $v0
@@ -121,7 +121,7 @@ main:
 	lw $s0, 32($sp)
 	lw $s1, 36($sp)
 # // this -> color.WithR(100).WithG(100)
-# PARAM t22
+# PARAM t28
 	sw $s0, 32($sp)
 	move $s0, $t0
 # PARAM 100
@@ -129,7 +129,7 @@ main:
 	sw $s1, 36($sp)
 	move $s1, $t0
 # // color.WithR(100).WithG(100).WithB(100)
-# CALLRET t23 Color_WithB 2
+# CALLRET t29 Color_WithB 2
 	sw $ra, 40($sp)
 	jal Color_WithB
 	move $t0, $v0
@@ -137,11 +137,11 @@ main:
 	lw $s0, 32($sp)
 	lw $s1, 36($sp)
 # // this -> color.WithR(100).WithG(100).WithB(100)
-# PARAM t23
+# PARAM t29
 	sw $s0, 32($sp)
 	move $s0, $t0
 # // buffer
-# PARAM t20
+# PARAM t26
 	lw $t0, 16($sp)
 	sw $s1, 36($sp)
 	move $s1, $t0
@@ -158,71 +158,115 @@ main:
 # 
 # FUNC Color_ToArray:
 Color_ToArray:
-	addiu $sp, $sp, -28
+	addiu $sp, $sp, -16
 # 	// this
-# 	LOAD t11
+# 	LOAD t17
 # 	// buffer
-# 	LOAD t12
-# 	LWO t13 t11 0
+# 	LOAD t18
+# 	LWO t19 t17 0
 	li $t0, 0
 	move $t2, $s0
 	addu $t2, $t2, $t0
 	lw $t1, 0($t2)
-# 	= t14 u32 0
+# 	ADD t20 0 0
 	li $t0, 0
-	sw $t0, 0($sp)
-# 	ADD t14 t14 0
-	lw $t0, 0($sp)
 	li $t2, 0
 	add $t3, $t0, $t2
-# 	SWO t12 t14 t13
-	move $t0, $s1
-	addu $t0, $t0, $t3
-	sw $t1, 0($t0)
-# 	LWO t15 t11 4
-	li $t3, 4
-	move $t0, $s0
-	addu $t0, $t0, $t3
-	lw $t1, 0($t0)
-# 	= t16 u32 0
-	li $t3, 0
-	sw $t3, 4($sp)
-# 	ADD t16 t16 4
-	lw $t3, 4($sp)
-	li $t0, 4
+# 	ADD t20 t20 0
+	li $t0, 0
 	add $t2, $t3, $t0
-# 	SWO t12 t16 t15
+# 	SWO t18 t20 t19
 	move $t3, $s1
 	addu $t3, $t3, $t2
 	sw $t1, 0($t3)
-# 	LWO t17 t11 8
-	li $t2, 8
+# 	LWO t21 t17 4
+	li $t2, 4
 	move $t3, $s0
 	addu $t3, $t3, $t2
 	lw $t1, 0($t3)
-# 	= t18 u32 0
+# 	ADD t22 0 0
 	li $t2, 0
-	sw $t2, 8($sp)
-# 	ADD t18 t18 8
-	lw $t2, 8($sp)
+	li $t3, 0
+	add $t0, $t2, $t3
+# 	ADD t22 t22 4
+	li $t2, 4
+	add $t3, $t0, $t2
+# 	SWO t18 t22 t21
+	move $t0, $s1
+	addu $t0, $t0, $t3
+	sw $t1, 0($t0)
+# 	LWO t23 t17 8
+	li $t3, 8
+	move $t0, $s0
+	addu $t0, $t0, $t3
+	lw $t1, 0($t0)
+# 	ADD t24 0 0
+	li $t3, 0
+	li $t0, 0
+	add $t2, $t3, $t0
+# 	ADD t24 t24 8
 	li $t3, 8
 	add $t0, $t2, $t3
-# 	SWO t12 t18 t17
+# 	SWO t18 t24 t23
 	move $t2, $s1
 	addu $t2, $t2, $t0
 	sw $t1, 0($t2)
 # 	END
-	addiu $sp, $sp, 28
+	addiu $sp, $sp, 16
 	jr $ra
 # FUNC Color_WithB:
 Color_WithB:
 	addiu $sp, $sp, -20
 # 	// this
-# 	LOAD t8
+# 	LOAD t14
 # 	// b
-# 	LOAD t9
-# 	= t10 i32 8
+# 	LOAD t15
+# 	= t16 i32 8
 	li $t0, 8
+	sw $t0, 0($sp)
+# 	SWO t14 t16 t15
+	lw $t0, 0($sp)
+	move $t1, $s0
+	addu $t1, $t1, $t0
+	sw $s1, 0($t1)
+# 	RETURN t14
+	move $v0, $s0
+	addiu $sp, $sp, 20
+	jr $ra
+# 	END
+	addiu $sp, $sp, 20
+	jr $ra
+# FUNC Color_WithG:
+Color_WithG:
+	addiu $sp, $sp, -20
+# 	// this
+# 	LOAD t11
+# 	// g
+# 	LOAD t12
+# 	= t13 i32 4
+	li $t0, 4
+	sw $t0, 0($sp)
+# 	SWO t11 t13 t12
+	lw $t0, 0($sp)
+	move $t1, $s0
+	addu $t1, $t1, $t0
+	sw $s1, 0($t1)
+# 	RETURN t11
+	move $v0, $s0
+	addiu $sp, $sp, 20
+	jr $ra
+# 	END
+	addiu $sp, $sp, 20
+	jr $ra
+# FUNC Color_WithR:
+Color_WithR:
+	addiu $sp, $sp, -20
+# 	// this
+# 	LOAD t8
+# 	// r
+# 	LOAD t9
+# 	= t10 i32 0
+	li $t0, 0
 	sw $t0, 0($sp)
 # 	SWO t8 t10 t9
 	lw $t0, 0($sp)
@@ -236,75 +280,34 @@ Color_WithB:
 # 	END
 	addiu $sp, $sp, 20
 	jr $ra
-# FUNC Color_WithG:
-Color_WithG:
-	addiu $sp, $sp, -20
-# 	// this
-# 	LOAD t5
-# 	// g
-# 	LOAD t6
-# 	= t7 i32 4
-	li $t0, 4
-	sw $t0, 0($sp)
-# 	SWO t5 t7 t6
-	lw $t0, 0($sp)
-	move $t1, $s0
-	addu $t1, $t1, $t0
-	sw $s1, 0($t1)
-# 	RETURN t5
-	move $v0, $s0
-	addiu $sp, $sp, 20
-	jr $ra
-# 	END
-	addiu $sp, $sp, 20
-	jr $ra
-# FUNC Color_WithR:
-Color_WithR:
-	addiu $sp, $sp, -20
-# 	// this
-# 	LOAD t2
-# 	// r
-# 	LOAD t3
-# 	= t4 i32 0
-	li $t0, 0
-	sw $t0, 0($sp)
-# 	SWO t2 t4 t3
-	lw $t0, 0($sp)
-	move $t1, $s0
-	addu $t1, $t1, $t0
-	sw $s1, 0($t1)
-# 	RETURN t2
-	move $v0, $s0
-	addiu $sp, $sp, 20
-	jr $ra
-# 	END
-	addiu $sp, $sp, 20
-	jr $ra
 # FUNC Color_constructor:
 Color_constructor:
-	addiu $sp, $sp, -12
+	addiu $sp, $sp, -24
 # 	// this
 # 	LOAD t1
-# 	SWO t1 0 0
+# 	ADD t2 0 0
 	li $t0, 0
 	li $t1, 0
-	move $t2, $s0
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
-# 	SWO t1 4 0
-	li $t0, 4
-	li $t1, 0
-	move $t2, $s0
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
-# 	SWO t1 8 0
-	li $t0, 8
-	li $t1, 0
-	move $t2, $s0
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
+	add $t2, $t0, $t1
+# 	= t3 i32 0
+	li $t0, 0
+	sw $t0, 0($sp)
+# 	ADD t4 0 4
+	li $t0, 0
+	li $t1, 4
+	add $t3, $t0, $t1
+# 	= t5 i32 0
+	li $t0, 0
+	sw $t0, 4($sp)
+# 	ADD t6 0 8
+	li $t0, 0
+	li $t1, 8
+	add $t4, $t0, $t1
+# 	= t7 i32 0
+	li $t0, 0
+	sw $t0, 8($sp)
 # 	END
-	addiu $sp, $sp, 12
+	addiu $sp, $sp, 24
 	jr $ra
 
 _EXCEPTION_HANDLER:

@@ -85,4 +85,3 @@ _EXCEPTION_HANDLER:
 
 	li   $v0, 10
 	syscall
-	

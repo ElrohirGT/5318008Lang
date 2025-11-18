@@ -33,87 +33,90 @@ color
   .WithB(100)
   .ToArray(buffer);
 ---
-ALLOC t19 12
+ALLOC t25 12
 // this
-PARAM t19
+PARAM t25
 // newColor()
 CALL Color_constructor 1
-ALLOC t20 12
-SWO t20 0 0
-SWO t20 4 0
-SWO t20 8 0
+ALLOC t26 12
+SWO t26 0 0
+SWO t26 4 0
+SWO t26 8 0
 // this -> color
-PARAM t19
+PARAM t25
 PARAM 100
 // color.WithR(100)
-CALLRET t21 Color_WithR 2
+CALLRET t27 Color_WithR 2
 // this -> color.WithR(100)
-PARAM t21
+PARAM t27
 PARAM 100
 // color.WithR(100).WithG(100)
-CALLRET t22 Color_WithG 2
+CALLRET t28 Color_WithG 2
 // this -> color.WithR(100).WithG(100)
-PARAM t22
+PARAM t28
 PARAM 100
 // color.WithR(100).WithG(100).WithB(100)
-CALLRET t23 Color_WithB 2
+CALLRET t29 Color_WithB 2
 // this -> color.WithR(100).WithG(100).WithB(100)
-PARAM t23
+PARAM t29
 // buffer
-PARAM t20
+PARAM t26
 // color.WithR(100).WithG(100).WithB(100).ToArray(buffer)
 CALL Color_ToArray 2
 END
 
 FUNC Color_ToArray:
 	// this
-	LOAD t11
+	LOAD t17
 	// buffer
-	LOAD t12
-	LWO t13 t11 0
-	= t14 u32 0
-	ADD t14 t14 0
-	SWO t12 t14 t13
-	LWO t15 t11 4
-	= t16 u32 0
-	ADD t16 t16 4
-	SWO t12 t16 t15
-	LWO t17 t11 8
-	= t18 u32 0
-	ADD t18 t18 8
-	SWO t12 t18 t17
+	LOAD t18
+	LWO t19 t17 0
+	ADD t20 0 0
+	ADD t20 t20 0
+	SWO t18 t20 t19
+	LWO t21 t17 4
+	ADD t22 0 0
+	ADD t22 t22 4
+	SWO t18 t22 t21
+	LWO t23 t17 8
+	ADD t24 0 0
+	ADD t24 t24 8
+	SWO t18 t24 t23
 	END
 FUNC Color_WithB:
 	// this
-	LOAD t8
+	LOAD t14
 	// b
-	LOAD t9
-	= t10 i32 8
-	SWO t8 t10 t9
-	RETURN t8
+	LOAD t15
+	= t16 i32 8
+	SWO t14 t16 t15
+	RETURN t14
 	END
 FUNC Color_WithG:
 	// this
-	LOAD t5
+	LOAD t11
 	// g
-	LOAD t6
-	= t7 i32 4
-	SWO t5 t7 t6
-	RETURN t5
+	LOAD t12
+	= t13 i32 4
+	SWO t11 t13 t12
+	RETURN t11
 	END
 FUNC Color_WithR:
 	// this
-	LOAD t2
+	LOAD t8
 	// r
-	LOAD t3
-	= t4 i32 0
-	SWO t2 t4 t3
-	RETURN t2
+	LOAD t9
+	= t10 i32 0
+	SWO t8 t10 t9
+	RETURN t8
 	END
 FUNC Color_constructor:
 	// this
 	LOAD t1
-	SWO t1 0 0
-	SWO t1 4 0
-	SWO t1 8 0
+	ADD t2 0 0
+	= t3 i32 0
+	ADD t4 0 4
+	= t5 i32 0
+	ADD t6 0 8
+	= t7 i32 0
 	END

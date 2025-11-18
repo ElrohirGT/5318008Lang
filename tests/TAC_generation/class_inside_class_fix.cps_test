@@ -17,37 +17,39 @@ class Dog {
 
 let a = new Dog(8);
 ---
-ALLOC t9 4
+ALLOC t13 4
 PARAM 8
 // this
-PARAM t9
+PARAM t13
 // newDog(8)
 CALL Dog_constructor_1 2
 END
 
 FUNC Dog_constructor:
 	// this
-	LOAD t5
-	SWO t5 0 0
+	LOAD t7
+	ADD t8 0 0
+	= t9 i32 0
 	END
 FUNC Dog_constructor_1:
 	// this
-	LOAD t6
+	LOAD t10
 	// age
-	LOAD t7
-	= t8 i32 0
-	SWO t6 t8 t7
+	LOAD t11
+	= t12 i32 0
+	SWO t10 t12 t11
 	END
 FUNC Legs_constructor:
 	// this
 	LOAD t1
-	SWO t1 0 0
+	ADD t2 0 0
+	= t3 i32 0
 	END
 FUNC Legs_constructor_1:
 	// this
-	LOAD t2
+	LOAD t4
 	// legCount
-	LOAD t3
-	= t4 i32 0
-	SWO t2 t4 t3
+	LOAD t5
+	= t6 i32 0
+	SWO t4 t6 t5
 	END

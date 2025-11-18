@@ -28,11 +28,11 @@ _start:
 
 main:
 	addiu $sp, $sp, -40
-# ALLOC t5 4
+# ALLOC t7 4
 	la $t0, 4($sp)
 	sw $t0, 0($sp)
 # // this
-# PARAM t5
+# PARAM t7
 	lw $t0, 0($sp)
 	sw $s0, 8($sp)
 	move $s0, $t0
@@ -42,94 +42,94 @@ main:
 	jal Animal_constructor
 	lw $ra, 36($sp)
 	lw $s0, 8($sp)
-# ALLOC t6 16
+# ALLOC t8 16
 	la $t0, 12($sp)
 	sw $t0, 8($sp)
-# SBO t6 0 68
+# SBO t8 0 68
 	li $t0, 0
 	li $t1, 68
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 1 101
+# SBO t8 1 101
 	li $t0, 1
 	li $t1, 101
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 2 102
+# SBO t8 2 102
 	li $t0, 2
 	li $t1, 102
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 3 97
+# SBO t8 3 97
 	li $t0, 3
 	li $t1, 97
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 4 117
+# SBO t8 4 117
 	li $t0, 4
 	li $t1, 117
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 5 108
+# SBO t8 5 108
 	li $t0, 5
 	li $t1, 108
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 6 116
+# SBO t8 6 116
 	li $t0, 6
 	li $t1, 116
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 7 32
+# SBO t8 7 32
 	li $t0, 7
 	li $t1, 32
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 8 78
+# SBO t8 8 78
 	li $t0, 8
 	li $t1, 78
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 9 97
+# SBO t8 9 97
 	li $t0, 9
 	li $t1, 97
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 10 109
+# SBO t8 10 109
 	li $t0, 10
 	li $t1, 109
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 11 101
+# SBO t8 11 101
 	li $t0, 11
 	li $t1, 101
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
-# SBO t6 15 0
+# SBO t8 15 0
 	li $t0, 15
 	li $t1, 0
 	lw $t2, 8($sp)
 	addu $t2, $t2, $t0
 	sb $t1, 0($t2)
 # // this -> an
-# PARAM t5
+# PARAM t7
 	lw $t0, 0($sp)
 	sw $s0, 28($sp)
 	move $s0, $t0
 # // "Default Name"
-# PARAM t6
+# PARAM t8
 	lw $t0, 8($sp)
 	sw $s1, 32($sp)
 	move $s1, $t0
@@ -146,34 +146,35 @@ main:
 # 
 # FUNC Animal_constructor:
 Animal_constructor:
-	addiu $sp, $sp, -12
+	addiu $sp, $sp, -16
 # 	// this
 # 	LOAD t1
-# 	SWO t1 0 123
+# 	ADD t2 0 0
 	li $t0, 0
-	li $t1, 123
-	move $t2, $s0
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
+	li $t1, 0
+	add $t2, $t0, $t1
+# 	= t3 i32 123
+	li $t0, 123
+	sw $t0, 0($sp)
 # 	END
-	addiu $sp, $sp, 12
+	addiu $sp, $sp, 16
 	jr $ra
 # FUNC Animal_setName:
 Animal_setName:
 	addiu $sp, $sp, -20
 # 	// this
-# 	LOAD t2
+# 	LOAD t4
 # 	// newName
-# 	LOAD t3
-# 	= t4 i32 0
+# 	LOAD t5
+# 	= t6 i32 0
 	li $t0, 0
 	sw $t0, 0($sp)
-# 	SWO t2 t4 4
+# 	SWO t4 t6 4
 	lw $t0, 0($sp)
 	li $t1, 4
-	move $t2, $s0
-	addu $t2, $t2, $t0
-	sw $t1, 0($t2)
+	move $t3, $s0
+	addu $t3, $t3, $t0
+	sw $t1, 0($t3)
 # 	END
 	addiu $sp, $sp, 20
 	jr $ra
@@ -193,4 +194,3 @@ _EXCEPTION_HANDLER:
 
 	li   $v0, 10
 	syscall
-	
