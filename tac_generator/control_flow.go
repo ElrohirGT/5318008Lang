@@ -701,6 +701,36 @@ func (l Listener) ExitCaseValue(ctx *p.CaseValueContext) {
 // 	TRY CATH
 // ================
 
+func (l Listener) EnterExceptionStatement(ctx *p.ExceptionStatementContext) {
+	scope := l.GetCurrentScope()
+	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
+	if err != nil {
+		log.Println("Something when wrong during Scope management")
+	}
+	childScope := l.GetCurrentScope()
+
+	exceptionScope := l.GetCurrentScope()
+	l.AppendInstruction(ScopeName(scope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(exceptionScope.Name),
+	}))
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
+		Name: TagName(exceptionScope.Name + "_RETURN"),
+	}))
+
+	parentName := l.GetParentScopeName()
+	l.Program.UpsertScope(ScopeName(exceptionScope.Name), parentName)
+
+	l.AppendInstruction(ScopeName(childScope.Name), NewJumpInstruction(JumpInstruction{
+		Condition: lib.Optional[JumpCondition]{},
+		Target:    TagName(exceptionScope.Name + "_TRY"),
+	}))
+}
+
+func (l Listener) ExitExceptionStatement(ctx *p.ExceptionStatementContext) {
+	l.TypeChecker.ScopeManager.ReplaceWithParent()
+}
+
 func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
@@ -712,6 +742,23 @@ func (l Listener) EnterTryStatement(ctx *p.TryStatementContext) {
 }
 
 func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
+	parentScope := l.GetCurrentScope()
+
+	// Define err variable
+	l.Program.UpsertTranslation(ScopeName(parentScope.Name),
+		ctx.Identifier().GetText(), "err")
+	l.Program.InsertArraySize("err", 25, ScopeName(parentScope.Name))
+
+	fmt.Println(l.Program.GetArraySize(VariableName("err"), ScopeName(parentScope.Name)))
+
+	// Add dummy definition of err variable at parent scope
+	l.AppendInstruction(ScopeName(parentScope.Name), NewAssignmentInstruction(AssignmentInstruction{
+		Target: "err",
+		Type:   VARIABLE_TYPES.U32,
+		Value:  LiteralOrVariable("0"),
+	}))
+
+	// Enter catch statement
 	err := l.TypeChecker.ScopeManager.ReplaceWithNextChild()
 	scope := l.GetCurrentScope()
 	parentName := l.GetParentScopeName()
@@ -723,13 +770,26 @@ func (l Listener) EnterCatchStatement(ctx *p.CatchStatementContext) {
 
 func (l Listener) ExitTryStatement(ctx *p.TryStatementContext) {
 	scope := l.GetCurrentScope()
-	tryScope := l.GetCurrentScope()
+	i := strings.LastIndex(scope.Name, "_TRY")
+	name := ""
+	if i != -1 {
+		name = scope.Name[:i]
+	}
 	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
-		Name: TagName(tryScope.Name + "_END"),
+		Name: TagName(name + "_RETURN"),
 	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
 
 func (l Listener) ExitCatchStatement(ctx *p.CatchStatementContext) {
+	scope := l.GetCurrentScope()
+	i := strings.LastIndex(scope.Name, "_CATCH")
+	name := ""
+	if i != -1 {
+		name = scope.Name[:i]
+	}
+	l.AppendInstruction(ScopeName(scope.Name), NewSecInstruction(SecInstruction{
+		Name: TagName(name + "_RETURN"),
+	}))
 	l.TypeChecker.ScopeManager.ReplaceWithParent()
 }
