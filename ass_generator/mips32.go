@@ -210,7 +210,7 @@ func (p *Mips32Program) LoadOrDefault(param TACVariableOrValue) (Mips32Register,
 			OpCode: "lw",
 			Params: NewMips32OperationParams(string(freeRegister), address.String()),
 		}))
-		return freeRegister, false
+		return freeRegister, true
 	} else {
 		log.Panicf("Variable `%s` not found in registers nor RAM!", param)
 	}
@@ -441,12 +441,12 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		freeRegister := program.PopFreeTemporary()
+		program.UpsertTemporary(TACVariableOrValue(varName), freeRegister)
+
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: opCode,
 			Params: NewMips32OperationParams(string(freeRegister), string(aParam), string(bParam)),
 		}))
-
-		program.UpsertTemporary(TACVariableOrValue(varName), freeRegister)
 	}
 
 	manageDivMultOp := func(opCode string) {
@@ -465,6 +465,8 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		freeRegister := program.PopFreeTemporary()
+		program.UpsertTemporary(TACVariableOrValue(varName), freeRegister)
+
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: opCode,
 			Params: NewMips32OperationParams(string(aParam), string(bParam)),
@@ -474,8 +476,6 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 			OpCode: "mflo",
 			Params: NewMips32OperationParams(string(freeRegister)),
 		}))
-
-		program.UpsertTemporary(TACVariableOrValue(varName), freeRegister)
 	}
 
 	manageSetWithOffset := func(opCode string) {
@@ -934,11 +934,11 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		// Save return value on temporary
 		temporary := program.PopFreeTemporary()
+		program.UpsertTemporary(varName, temporary)
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "move",
 			Params: NewMips32OperationParams(string(temporary), "$v0"),
 		}))
-		program.UpsertTemporary(varName, temporary)
 
 		// Restore $ra from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{

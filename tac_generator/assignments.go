@@ -103,7 +103,7 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			Value:  LiteralOrVariable(variableValue),
 		}))
 	} else {
-		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false)
+		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false, false, VariableName("**INVALID**"), VariableName("**INVALID**"))
 	}
 }
 
@@ -317,7 +317,7 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 		)
 	}
 
-	previousTacName, found := l.Program.GetVariableFor(varName, scopeName)
+	sourceTacName, found := l.Program.GetVariableFor(varName, scopeName)
 	if !found {
 		log.Panicf(
 			"Failed to get tac name for variable: %s",
@@ -326,109 +326,133 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 	}
 	varNameUntilNow += varName
 
-	for _, part := range parts {
-		switch partCtx := part.(type) {
-		case *p.FieldAssignmentPartExprContext:
-			newFieldName := partCtx.Identifier().GetText()
-			classInfo := previousTypeInfo.ClassType.GetValue()
+	var offsetTacName VariableName
+	isReference := len(parts) > 0
+	if isReference {
+		offsetTacName = l.Program.GetNextVariable()
+		l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+			Target: offsetTacName,
+			Type:   VARIABLE_TYPES.U32,
+			Value:  LiteralOrVariable("0"),
+		}))
 
-			computedOffset := classInfo.GetFieldOffset(l.TypeChecker, newFieldName)
-			offset := strconv.FormatUint(uint64(computedOffset), 10)
+		for _, part := range parts {
+			switch partCtx := part.(type) {
+			case *p.FieldAssignmentPartExprContext:
+				newFieldName := partCtx.Identifier().GetText()
+				classInfo := previousTypeInfo.ClassType.GetValue()
 
-			varNameUntilNow += partCtx.GetText()
-			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
-			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
-				IsWord: true,
-				Target: target,
-				Source: previousTacName,
-				Offset: LiteralOrVariable(offset),
-			}))
+				computedOffset := classInfo.GetFieldOffset(l.TypeChecker, newFieldName)
+				l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+					Signed: false,
+					Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+					Target: offsetTacName,
+					P1:     LiteralOrVariable(offsetTacName),
+					P2:     LiteralOrVariable(strconv.FormatUint(uint64(computedOffset), 10)),
+				}))
 
-			previousTacName = target
-			previousType, found = classInfo.GetFieldType(newFieldName, l.TypeChecker)
-			if !found {
-				log.Panicf(
-					"Can't find field `%s` for class `%s`",
-					newFieldName,
-					classInfo.Name,
-				)
-			}
+				varNameUntilNow += partCtx.GetText()
+				// target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
+				// l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				// 	IsWord: true,
+				// 	Target: target,
+				// 	Source: previousTacName,
+				// 	Offset: LiteralOrVariable(offset),
+				// }))
 
-			previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
-			if !found {
-				log.Panicf(
-					"Can't find type information for: `%s`",
-					previousType,
-				)
-			}
-
-		case *p.IndexAssignmentPartExprContext:
-			offset := "**INVALID OFFSET**"
-
-			elemType := previousTypeInfo.ArrayType.GetValue().Type
-			elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
-			if !found {
-				log.Panicf(
-					"Failed to find the type information for the element in:\n%s",
-					varNameUntilNow,
-				)
-			}
-
-			condExpr := partCtx.ConditionalExpr().GetText()
-			litType, found := l.TypeChecker.GetLiteralType(condExpr)
-			if !found {
-				varName, found := l.Program.GetVariableFor(condExpr, scopeName)
+				// previousTacName = target
+				previousType, found = classInfo.GetFieldType(newFieldName, l.TypeChecker)
 				if !found {
-					log.Panicf("Can't find the result variable for expr: `%s`", condExpr)
+					log.Panicf(
+						"Can't find field `%s` for class `%s`",
+						newFieldName,
+						classInfo.Name,
+					)
 				}
-				offset = string(varName)
-			} else {
-				if litType != type_checker.BASE_TYPES.INTEGER {
-					log.Panicf("Can't index with type that is not integer: %s", litType)
+
+				previousTypeInfo, found = l.TypeChecker.GetTypeInfo(previousType)
+				if !found {
+					log.Panicf(
+						"Can't find type information for: `%s`",
+						previousType,
+					)
+				}
+
+			case *p.IndexAssignmentPartExprContext:
+				offset := "**INVALID OFFSET**"
+
+				elemType := previousTypeInfo.ArrayType.GetValue().Type
+				elemTypeInfo, found := l.TypeChecker.GetTypeInfo(elemType)
+				if !found {
+					log.Panicf(
+						"Failed to find the type information for the element in:\n%s",
+						varNameUntilNow,
+					)
+				}
+
+				condExpr := partCtx.ConditionalExpr().GetText()
+				litType, found := l.TypeChecker.GetLiteralType(condExpr)
+				if !found {
+					varName, found := l.Program.GetVariableFor(condExpr, scopeName)
+					if !found {
+						log.Panicf("Can't find the result variable for expr: `%s`", condExpr)
+					}
+					offset = string(varName)
 				} else {
-					idx, err := strconv.ParseInt(condExpr, 10, 64)
-					if err != nil {
-						log.Panicf(
-							"Failed to parse integer literal: `%s`",
-							condExpr,
-						)
+					if litType != type_checker.BASE_TYPES.INTEGER {
+						log.Panicf("Can't index with type that is not integer: %s", litType)
+					} else {
+						idx, err := strconv.ParseInt(condExpr, 10, 64)
+						if err != nil {
+							log.Panicf(
+								"Failed to parse integer literal: `%s`",
+								condExpr,
+							)
 
-					}
+						}
 
-					if idx < 0 {
-						l.AddError(
-							partCtx.GetStart().GetLine(),
-							partCtx.GetStart().GetColumn(),
-							partCtx.GetStop().GetColumn(),
-							"Can't index an array with a negative value!",
-						)
-						return
-					}
+						if idx < 0 {
+							l.AddError(
+								partCtx.GetStart().GetLine(),
+								partCtx.GetStart().GetColumn(),
+								partCtx.GetStop().GetColumn(),
+								"Can't index an array with a negative value!",
+							)
+							return
+						}
 
-					elemSize := int64(elemTypeInfo.Size)
-					if elemSize <= 0 {
-						log.Panicf(
-							"The element size is 0 or negative! But it should be at least 1.\nElem type: %s\n%s",
-							elemType,
-							varNameUntilNow,
-						)
+						elemSize := int64(elemTypeInfo.Size)
+						if elemSize <= 0 {
+							log.Panicf(
+								"The element size is 0 or negative! But it should be at least 1.\nElem type: %s\n%s",
+								elemType,
+								varNameUntilNow,
+							)
+						}
+						offset = strconv.FormatInt(elemSize*idx, 10)
 					}
-					offset = strconv.FormatInt(elemSize*idx, 10)
 				}
+
+				varNameUntilNow += partCtx.GetText()
+				// target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
+				l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+					Signed: false,
+					Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+					Target: offsetTacName,
+					P1:     LiteralOrVariable(offsetTacName),
+					P2:     LiteralOrVariable(offset),
+				}))
+				// l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+				// 	IsWord: true,
+				// 	Target: target,
+				// 	Source: previousTacName,
+				// 	Offset: LiteralOrVariable(offset),
+				// }))
+
+				// previousTacName = target
+				previousType = elemType
+				previousTypeInfo = elemTypeInfo
 			}
-
-			varNameUntilNow += partCtx.GetText()
-			target := l.Program.GetOrGenerateVariable(varNameUntilNow, scopeName)
-			l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
-				IsWord: true,
-				Target: target,
-				Source: previousTacName,
-				Offset: LiteralOrVariable(offset),
-			}))
-
-			previousTacName = target
-			previousType = elemType
-			previousTypeInfo = elemTypeInfo
 		}
 	}
 
@@ -449,7 +473,7 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 		isLiteral,
 	)
 
-	createAssignment(l, scope, scopeName, isLiteral, varNameUntilNow, exprType, exprText, true)
+	createAssignment(l, scope, scopeName, isLiteral, varNameUntilNow, exprType, exprText, true, isReference, sourceTacName, offsetTacName)
 }
 
 func createAssignment(
@@ -460,7 +484,10 @@ func createAssignment(
 	variableName string,
 	exprType type_checker.TypeIdentifier,
 	exprText string,
-	isAssigment bool, // Flag to decide  if its and assignmetn or not
+	isAssigment bool, // Flag to decide  if its an assignment or not
+	isReference bool, // Flag to decide if its an assignment to a variable or to a reference of something
+	sourceTacName VariableName,
+	offsetTacName VariableName,
 ) {
 	if isLiteral {
 		literalType, literalValue := literalToTAC(exprText, exprType)
@@ -484,6 +511,24 @@ func createAssignment(
 			Value:  "0",
 		}))
 		l.Program.UpsertTranslation(scopeName, variableName, strRef)
+	} else if isReference {
+		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
+		if !found {
+			log.Panicf("Failed to find a variable for the expression:\n`%s`", exprText)
+		}
+
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			IsWord: true,
+			Target: sourceTacName,
+			Value:  LiteralOrVariable(exprVar),
+			Offset: LiteralOrVariable(offsetTacName),
+		}))
+		// l.AppendInstruction(scopeName, NewLoadWithOffsetInstruction(LoadWithOffsetInstruction{
+		// 	IsWord: true,
+		// 	Target: target,
+		// 	Source: previousTacName,
+		// 	Offset: LiteralOrVariable(offset),
+		// }))
 	} else {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
