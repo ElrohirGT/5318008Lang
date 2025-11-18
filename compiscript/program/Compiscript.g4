@@ -22,7 +22,7 @@ statement
   | doWhileStatement    // DONE: Rayo
   | forStatement        // DONE: Rayo
   | foreachStatement    // TODO: Rayo
-  | tryStatement        // DONE: Rayo
+  | exceptionStatement        // DONE: Rayo
   | switchStatement     // DONE: Rayo
   | breakStatement      // DONE: Rayo
   | continueStatement   // DONE: Rayo
@@ -83,7 +83,8 @@ continueStatement: 'continue' ';';
 returnStatement: 'return' conditionalExpr? ';';
 blockStatement: block;
 
-tryStatement: 'try' block catchStatement;
+exceptionStatement : tryStatement catchStatement;
+tryStatement: 'try' block ;
 catchStatement : 'catch' '(' Identifier ')' block;
 
 switchValue : conditionalExpr;

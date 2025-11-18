@@ -104,6 +104,9 @@ type CompiscriptListener interface {
 	// EnterBlockStatement is called when entering the blockStatement production.
 	EnterBlockStatement(c *BlockStatementContext)
 
+	// EnterExceptionStatement is called when entering the exceptionStatement production.
+	EnterExceptionStatement(c *ExceptionStatementContext)
+
 	// EnterTryStatement is called when entering the tryStatement production.
 	EnterTryStatement(c *TryStatementContext)
 
@@ -319,6 +322,9 @@ type CompiscriptListener interface {
 
 	// ExitBlockStatement is called when exiting the blockStatement production.
 	ExitBlockStatement(c *BlockStatementContext)
+
+	// ExitExceptionStatement is called when exiting the exceptionStatement production.
+	ExitExceptionStatement(c *ExceptionStatementContext)
 
 	// ExitTryStatement is called when exiting the tryStatement production.
 	ExitTryStatement(c *TryStatementContext)

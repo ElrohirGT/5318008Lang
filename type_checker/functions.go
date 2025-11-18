@@ -849,9 +849,9 @@ func (l *Listener) statementAllPathsReturn(stmt p.IStatementContext) bool {
 	}
 
 	// Check try statement
-	if tryStmt := stmt.TryStatement(); tryStmt != nil {
+	if tryStmt := stmt.ExceptionStatement(); tryStmt != nil {
 		// Try-catch guarantees return only if both try and catch blocks return
-		tryReturns := l.blockAllPathsReturn(tryStmt.Block())
+		tryReturns := l.blockAllPathsReturn(tryStmt.TryStatement().Block())
 		catchReturns := l.blockAllPathsReturn(tryStmt.CatchStatement().Block())
 		return tryReturns && catchReturns
 	}
