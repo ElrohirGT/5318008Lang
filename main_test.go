@@ -38,8 +38,8 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "tests/semantic_analysis/scopes/break_outside_loop",
 	// "typechecking",
 	// "class_constructor",
-	// "TAC_generation/a.cps",
-	// "tests/code_generation/strcmp",
+	// "TAC_generation/",
+	"code_generation/basic_classes",
 }
 
 var IGNORE_SPECIFIC = []string{
@@ -48,10 +48,7 @@ var IGNORE_SPECIFIC = []string{
 	// "tests/code_generation/booleans.cps_test",
 	// "tests/code_generation/control_flow_with_functions.cps_test",
 	// "tests/code_generation/recursive.cps_test",
-	"tests/code_generation/basic_classes.cps_test",
-	// "code_generation/int_to_str.cps_test",
-	// "code_generation/int_to_str.cps_test",
-	// "code_generation/int_to_str.cps_test",
+	// "tests/code_generation/basic_classes.cps_test",
 	// "tests/code_generation/functions.cps_test",
 	// "tests/code_generation/basic_control_flow.cps_test",
 }
@@ -290,7 +287,6 @@ func Test_ASMGeneration(t *testing.T) {
 
 		tacBuffer := bytes.Buffer{}
 		asmBuffer := bytes.Buffer{}
-		addASMBuiltins := false
 		reader := bytes.NewReader([]byte(cpsContents))
 
 		if ENABLE_PANIC_RECOV {
@@ -301,16 +297,14 @@ func Test_ASMGeneration(t *testing.T) {
 					}
 				}()
 				return applib.TestableMain(reader, applib.CompilerConfig{
-					TACBuffer:      lib.NewOpValue(&tacBuffer),
-					ASMBuffer:      lib.NewOpValue(&asmBuffer),
-					AddASMBuiltins: addASMBuiltins,
+					TACBuffer: lib.NewOpValue(&tacBuffer),
+					ASMBuffer: lib.NewOpValue(&asmBuffer),
 				})
 			}()
 		} else {
 			err = applib.TestableMain(reader, applib.CompilerConfig{
-				TACBuffer:      lib.NewOpValue(&tacBuffer),
-				ASMBuffer:      lib.NewOpValue(&asmBuffer),
-				AddASMBuiltins: addASMBuiltins,
+				TACBuffer: lib.NewOpValue(&tacBuffer),
+				ASMBuffer: lib.NewOpValue(&asmBuffer),
 			})
 		}
 

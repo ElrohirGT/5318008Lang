@@ -65,9 +65,10 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 					log.Panicf("Could not find array size for %s \n", rightVar)
 				}
 
+				newStrSize := s1 + s2 - 1
 				l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
 					Target: resultVar,
-					Size:   s1 + s2 - 1, // minus one null terminator
+					Size:   lib.AlignSize(newStrSize, lib.MIPS32_WORD_BYTE_SIZE), // minus one null terminator
 				}))
 
 				l.AppendInstruction(scopeName, NewParamInstruction(ParamInstruction{

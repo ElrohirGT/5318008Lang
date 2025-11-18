@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 	"github.com/antlr4-go/antlr/v4"
@@ -349,7 +350,7 @@ func (l Listener) processStringLiteral(literal string, scopeName ScopeName) Vari
 	stringVar := l.Program.GetNextVariable()
 
 	// Calculate the size needed (length + 1 for null terminator)
-	stringSize := uint(len(unquoted) + 1)
+	stringSize := lib.AlignSize(uint(len(unquoted)+1), lib.MIPS32_WORD_BYTE_SIZE)
 
 	// Allocate memory for the string
 	l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{

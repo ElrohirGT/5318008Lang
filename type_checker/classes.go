@@ -5,6 +5,7 @@ import (
 	"log"
 	"slices"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
@@ -29,7 +30,7 @@ func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 	}
 	classInfo := typeInfo.ClassType.GetValue()
 
-	classSize := uint(1)
+	classSize := uint(0)
 	for fieldName, fieldType := range classInfo.Fields {
 		typeInfo, found := l.GetTypeInfo(fieldType)
 		if !found {
@@ -41,7 +42,8 @@ func (l Listener) ExitClassDeclaration(ctx *p.ClassDeclarationContext) {
 			)
 		}
 
-		classSize += typeInfo.Size
+		fieldSize := lib.AlignSize(typeInfo.Size, lib.MIPS32_WORD_BYTE_SIZE)
+		classSize += fieldSize
 	}
 	l.UpsertTypeInfo(classInfo.Name, NewTypeInfo_Class(classInfo, classSize))
 

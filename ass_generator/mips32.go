@@ -13,8 +13,6 @@ import (
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
-const MIPS32_WORD_BYTE_SIZE uint = 4
-
 type Mips32Generator struct {
 	listener         *tac_generator.Listener
 	source           *bytes.Buffer
@@ -263,14 +261,14 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 		opCode := parts[0]
 		switch opCode {
 		case "=", "LOAD":
-			stackSize += MIPS32_WORD_BYTE_SIZE
+			stackSize += lib.MIPS32_WORD_BYTE_SIZE
 		case "ALLOC":
 			customSize, err := strconv.ParseUint(parts[2], 10, 32)
 			if err != nil {
 				log.Panicf("Failed to parse `%s` as an integer on ALLOC!", parts[2])
 			}
 			stackSize += uint(customSize)
-			stackSize += MIPS32_WORD_BYTE_SIZE // Space reserved for saving the ref to this memory.
+			stackSize += lib.MIPS32_WORD_BYTE_SIZE // Space reserved for saving the ref to this memory.
 		case "CALL", "CALLRET":
 			idx := 3
 			if opCode == "CALL" {
@@ -283,14 +281,12 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 			maxParamCount = max(maxParamCount, paramCount)
 
 			if !callsAnotherProcedure {
-				stackSize += MIPS32_WORD_BYTE_SIZE
+				stackSize += lib.MIPS32_WORD_BYTE_SIZE
 				callsAnotherProcedure = true
 			}
 		case "FUNC":
-			stackSize += uint(maxParamCount) * MIPS32_WORD_BYTE_SIZE
-			if stackSize%4 != 0 {
-				stackSize += stackSize % 4
-			}
+			stackSize += uint(maxParamCount) * lib.MIPS32_WORD_BYTE_SIZE
+			stackSize = lib.AlignSize(stackSize, lib.MIPS32_WORD_BYTE_SIZE)
 
 			m.UpsertSizeByScope(scopeName, stackSize)
 
@@ -302,10 +298,8 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 	}
 
 	if _, found := (*m.stackSizeByScope)[scopeName]; !found {
-		stackSize += uint(maxParamCount) * MIPS32_WORD_BYTE_SIZE
-		if stackSize%4 != 0 {
-			stackSize += stackSize % 4
-		}
+		stackSize += uint(maxParamCount) * lib.MIPS32_WORD_BYTE_SIZE
+		stackSize = lib.AlignSize(stackSize, lib.MIPS32_WORD_BYTE_SIZE)
 		m.UpsertSizeByScope(scopeName, stackSize)
 	}
 }
@@ -699,7 +693,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 
 		stackAddress, found := program.StackVars[varName]
 		if !found {
-			stackAddress = StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+			stackAddress = StackAddress(int(m.AllocateOnStack(lib.MIPS32_WORD_BYTE_SIZE)))
 		}
 
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
@@ -749,7 +743,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}
 
 		// Back up previous value on stack and modify to actual param
-		stackBackupAddr := StackAddress(int(m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)))
+		stackBackupAddr := StackAddress(int(m.AllocateOnStack(lib.MIPS32_WORD_BYTE_SIZE)))
 		paramReg := program.ReserveParam(stackBackupAddr)
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
@@ -791,7 +785,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 			log.Panicf("Failed to parse `%s` as an uint for ALLOC instruction", params[1])
 		}
 
-		idx := m.AllocateOnStack(MIPS32_WORD_BYTE_SIZE)
+		idx := m.AllocateOnStack(lib.MIPS32_WORD_BYTE_SIZE)
 		refStackAddress := StackAddress(int(idx))
 		program.UpsertRAM(varName, refStackAddress)
 
@@ -873,7 +867,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		// }
 
 		// Save $ra in the stack
-		stackAddress := StackAddress(stackSize - MIPS32_WORD_BYTE_SIZE) // Last reserved space from the stack
+		stackAddress := StackAddress(stackSize - lib.MIPS32_WORD_BYTE_SIZE) // Last reserved space from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
 			Params: NewMips32OperationParams("$ra", stackAddress.String()),
@@ -910,7 +904,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		// }
 
 		// Save $ra in the stack
-		stackAddress := StackAddress(int(stackSize - MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
+		stackAddress := StackAddress(int(stackSize - lib.MIPS32_WORD_BYTE_SIZE)) // Last reserved space from the stack
 		program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
 			OpCode: "sw",
 			Params: NewMips32OperationParams("$ra", stackAddress.String()),

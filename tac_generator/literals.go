@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 )
 
@@ -25,7 +26,7 @@ func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	}
 
 	strTacVar := l.Program.GetOrGenerateVariable(literal, scopeName)
-	strLength := len(literal) - 2 + 1
+	strLength := lib.AlignSize(uint(len(literal)-2+1), lib.MIPS32_WORD_BYTE_SIZE) // Minus "" +1 for null terminator
 	l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
 		Size:   uint(strLength),
 		Target: strTacVar,

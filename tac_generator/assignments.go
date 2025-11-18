@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
 	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
@@ -475,7 +476,7 @@ func createAssignment(
 		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
 		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
 			Target: strRef,
-			Size:   1,
+			Size:   lib.AlignSize(1, lib.MIPS32_WORD_BYTE_SIZE),
 		}))
 		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
 			Target: strRef,
