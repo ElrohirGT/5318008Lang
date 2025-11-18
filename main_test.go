@@ -40,7 +40,7 @@ var RUN_ONLY_THAT_MATCH = []string{
 	// "class_constructor",
 	// "TAC_generation/",
 	// "code_generation/basic_classes",
-	"code_generation/class_chaining",
+	// "code_generation/class_chaining",
 }
 
 var IGNORE_SPECIFIC = []string{
