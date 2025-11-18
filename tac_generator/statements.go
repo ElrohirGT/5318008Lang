@@ -185,11 +185,13 @@ func handleAtomAndSuffixes(l Listener, primaryCtx any, suffixes *[]p.ISuffixOpCo
 					Target: tempName,
 					Size:   6,
 				}))
+				l.Program.InsertArraySize(tempName, 6, scopeName)
 			case "int_to_str":
 				l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
 					Target: tempName,
 					Size:   12,
 				}))
+				l.Program.InsertArraySize(tempName, 12, scopeName)
 			}
 
 			if args := suffixCtx.Arguments(); args != nil {
