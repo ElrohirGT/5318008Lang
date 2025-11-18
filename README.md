@@ -209,7 +209,7 @@ https://github.com/ElrohirGT/5318008Lang/blob/8769ca38b85e435295e5d54c3c96e3c69e
   - Destruir:
     - FREE <variable>
 - Asignaciones de Direcciones:
-  - Obtener dirección (&)
+  - REFERENCE <destiny> <variable> Obtener dirección
   - Obtener valor de dirección (@)
 - Secciones/Tags:
   - SEC <name of section>

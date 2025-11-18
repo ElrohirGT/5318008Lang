@@ -210,8 +210,8 @@ func instructionToBuffer(inst *Instruction, buff *bytes.Buffer, tab string) erro
 
 	case inst.Reference.HasValue():
 		ref := inst.Reference.GetValue()
-		_, err = fmt.Fprintf(buff, "%s&%s",
-			tab, ref.Target)
+		_, err = fmt.Fprintf(buff, "%sREFERENCE %s %s",
+			tab, ref.Target, ref.Variable)
 
 	case inst.Dereference.HasValue():
 		def := inst.Dereference.GetValue()

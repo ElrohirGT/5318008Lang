@@ -290,7 +290,8 @@ func NewSetWithOffsetInstruction(instruction SetWithOffsetInstruction) Instructi
 // Get's the memory address from the specified variable target.
 // Equivalent to: &.
 type ReferenceInstruction struct {
-	Target VariableName
+	Target   VariableName
+	Variable VariableName
 }
 
 func NewReferenceInstruction(instruction ReferenceInstruction) Instruction {
