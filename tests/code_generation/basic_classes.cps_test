@@ -13,6 +13,11 @@ an.setName("Default Name");
 # Checkout our repository here: https://github.com/ElrohirGT/5318008Lang
 # The following code is designed to run on the compiler: https://cpulator.01xz.net/?sys=mipsr5-spim
 .data
+panic_prefix:		.asciiz		"panic: "
+zero_division_exception:		.asciiz		"division by zero"
+idx_out_of_range_exception:		.asciiz		"idx out of range"
+err_pointer:		.word		0
+
 .text
 # Main start of our program
 .global _start
@@ -172,3 +177,20 @@ Animal_setName:
 # 	END
 	addiu $sp, $sp, 20
 	jr $ra
+
+_EXCEPTION_HANDLER:
+	la   $a0, panic_prefix
+	li   $v0, 4
+	syscall
+
+	lw   $a0, err_pointer
+	li   $v0, 4
+	syscall
+
+	li   $a0, 10
+	li   $v0, 11
+	syscall
+
+	li   $v0, 10
+	syscall
+	

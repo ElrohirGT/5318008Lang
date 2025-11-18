@@ -1,0 +1,36 @@
+let b :integer = -314;
+let c :integer = b + 200;
+let a = int_to_str(c);
+let m = "number: " + a;
+print(a);
+---
+SUB t1 0 314
+= t2 i32 t1
+ADD t3 t2 200
+= t4 i32 t3
+ALLOC t6 12
+// c
+PARAM t4
+PARAM t6
+// int_to_str(c)
+CALLRET t6 int_to_str 2
+ALLOC t7 12
+SBO t7 0 110
+SBO t7 1 117
+SBO t7 2 109
+SBO t7 3 98
+SBO t7 4 101
+SBO t7 5 114
+SBO t7 6 58
+SBO t7 7 32
+SBO t7 11 0
+ALLOC t8 24
+PARAM t7
+PARAM t6
+PARAM t8
+CALLRET t8 concat_str 3
+// a
+PARAM t6
+// print(a)
+CALL print 1
+END

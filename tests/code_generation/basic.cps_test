@@ -5,6 +5,11 @@ let y = 2 + x;
 # Checkout our repository here: https://github.com/ElrohirGT/5318008Lang
 # The following code is designed to run on the compiler: https://cpulator.01xz.net/?sys=mipsr5-spim
 .data
+panic_prefix:		.asciiz		"panic: "
+zero_division_exception:		.asciiz		"division by zero"
+idx_out_of_range_exception:		.asciiz		"idx out of range"
+err_pointer:		.word		0
+
 .text
 # Main start of our program
 .global _start
@@ -14,24 +19,65 @@ _start:
 	syscall		# Use syscall 10 to stop simulation
 
 main:
-	addiu $sp, $sp, -8
+	addiu $sp, $sp, -16
+# = err u32 0
+	li $t0, 0
+	sw $t0, 0($sp)
+# = addr u32 0
+	li $t0, 0
+	sw $t0, 4($sp)
+# REFERENCE err zero_division_exception
+	la $t0, zero_division_exception
+	sw $t0, 0($sp)
+# REFERENCE addr err_pointer
+	la $t0, err_pointer
+	sw $t0, 4($sp)
+# SWO addr 0 err
+	li $t0, 0
+	lw $t1, 0($sp)
+	lw $t2, 4($sp)
+	addu $t2, $t2, $t0
+	sw $t1, 0($t2)
+# EQ t2 2 0
+	li $t0, 2
+	li $t2, 0
+	seq $t3, $t0, $t2
+# IF t2 GOTO _EXCEPTION_HANDLER
+	bne $t3, $zero, _EXCEPTION_HANDLER
 # DIV t1 9 2
-	li $t0, 9
-	li $t1, 2
-	div $t0, $t1
+	li $t3, 9
+	li $t0, 2
+	div $t3, $t0
 	mflo $t2
-# ADD t2 5 t1
-	li $t0, 5
-	add $t1, $t0, $t2
-# = t3 i32 t2
-	sw $t1, 0($sp)
-# ADD t4 2 t3
-	li $t1, 2
-	lw $t0, 0($sp)
-	add $t2, $t1, $t0
-# = t5 i32 t4
-	sw $t2, 4($sp)
+# ADD t3 5 t1
+	li $t3, 5
+	add $t0, $t3, $t2
+# = t4 i32 t3
+	sw $t0, 8($sp)
+# ADD t5 2 t4
+	li $t0, 2
+	lw $t3, 8($sp)
+	add $t2, $t0, $t3
+# = t6 i32 t5
+	sw $t2, 12($sp)
 # END
-	addiu $sp, $sp, 8
+	addiu $sp, $sp, 16
 	jr $ra
-#
+# 
+
+_EXCEPTION_HANDLER:
+	la   $a0, panic_prefix
+	li   $v0, 4
+	syscall
+
+	lw   $a0, err_pointer
+	li   $v0, 4
+	syscall
+
+	li   $a0, 10
+	li   $v0, 11
+	syscall
+
+	li   $v0, 10
+	syscall
+	

@@ -1,0 +1,14 @@
+let a = 0;
+let b = 3 / a;
+---
+= t1 i32 0
+= err u32 0
+= addr u32 0
+REFERENCE err zero_division_exception
+REFERENCE addr err_pointer
+SWO addr 0 err
+EQ t3 t1 0
+IF t3 GOTO _EXCEPTION_HANDLER
+DIV t2 3 t1
+= t4 i32 t2
+END
