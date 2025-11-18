@@ -32,6 +32,13 @@ func (m *Mips32Generator) AllocateOnStack(size uint) uint {
 	return freeIdx
 }
 
+// Absolutely iconic.
+func (m *Mips32Generator) FreeOnStack(size uint) uint {
+	freeIdx := *m.freeStackIdx
+	*m.freeStackIdx -= size
+	return freeIdx
+}
+
 func (m *Mips32Generator) ResetStackIdx() {
 	*m.freeStackIdx = 0
 }
@@ -281,7 +288,7 @@ func (m Mips32Generator) ComputeScopeStackSizes() {
 			maxParamCount = max(maxParamCount, paramCount)
 
 			if !callsAnotherProcedure {
-				stackSize += lib.MIPS32_WORD_BYTE_SIZE
+				stackSize += lib.MIPS32_WORD_BYTE_SIZE // Save space for $ra register, only once
 				callsAnotherProcedure = true
 			}
 		case "FUNC":
@@ -901,6 +908,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}))
 
 		// Restore current scope params
+		m.FreeOnStack(uint(len(program.SavedParamsAddress)) * lib.MIPS32_WORD_BYTE_SIZE)
 		for i, stackAddress := range program.SavedParamsAddress {
 			paramReg := fmt.Sprintf("$s%d", i)
 			log.Printf("Restoring param `%s` from `%s`", paramReg, stackAddress)
@@ -946,6 +954,7 @@ func (m *Mips32Generator) translate(functionName *string, opCode string, params 
 		}))
 
 		// Restore current scope params
+		m.FreeOnStack(uint(len(program.SavedParamsAddress)) * lib.MIPS32_WORD_BYTE_SIZE)
 		for i, stackAddress := range program.SavedParamsAddress {
 			paramReg := fmt.Sprintf("$s%d", i)
 			log.Printf("Restoring param `%s` from `%s`", paramReg, stackAddress)
