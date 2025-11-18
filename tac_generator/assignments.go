@@ -95,13 +95,23 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			)
 		}
 		fieldOffset := classInfo.GetFieldOffset(l.TypeChecker, ctx.Identifier().GetText())
+		fieldOffsetVar := l.Program.GetNextVariable()
 
-		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
-			IsWord: true,
-			Target: thisTacName,
-			Offset: LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
-			Value:  LiteralOrVariable(variableValue),
+		l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+			Signed: false,
+			Type:   ARITHMETHIC_OPERATION_TYPES.Add,
+			Target: fieldOffsetVar,
+			P1:     LiteralOrVariable("0"),
+			P2:     LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
 		}))
+
+		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false, true, thisTacName, fieldOffsetVar)
+		// l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+		// 	IsWord: true,
+		// 	Target: thisTacName,
+		// 	Offset: LiteralOrVariable(strconv.FormatUint(uint64(fieldOffset), 10)),
+		// 	Value:  LiteralOrVariable(variableValue),
+		// }))
 	} else {
 		createAssignment(l, scope, scopeName, isLiteral, variableName, exprType, variableValue, false, false, VariableName("**INVALID**"), VariableName("**INVALID**"))
 	}
@@ -330,11 +340,18 @@ func (l Listener) ExitVariableAssignment(ctx *p.VariableAssignmentContext) {
 	isReference := len(parts) > 0
 	if isReference {
 		offsetTacName = l.Program.GetNextVariable()
-		l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+		l.AppendInstruction(scopeName, NewArithmethicInstruction(ArithmethicInstruction{
+			Signed: false,
+			Type:   ARITHMETHIC_OPERATION_TYPES.Add,
 			Target: offsetTacName,
-			Type:   VARIABLE_TYPES.U32,
-			Value:  LiteralOrVariable("0"),
+			P1:     LiteralOrVariable("0"),
+			P2:     LiteralOrVariable("0"),
 		}))
+		// l.AppendInstruction(scopeName, NewAssignmentInstruction(AssignmentInstruction{
+		// 	Target: offsetTacName,
+		// 	Type:   VARIABLE_TYPES.U32,
+		// 	Value:  LiteralOrVariable("0"),
+		// }))
 
 		for _, part := range parts {
 			switch partCtx := part.(type) {

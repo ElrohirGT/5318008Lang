@@ -7,6 +7,7 @@ import (
 
 	"github.com/ElrohirGT/5318008Lang/lib"
 	p "github.com/ElrohirGT/5318008Lang/parser"
+	"github.com/ElrohirGT/5318008Lang/type_checker"
 )
 
 // let a = [1,2,3];
@@ -14,6 +15,10 @@ import (
 func (l Listener) ExitLiteralExpr(ctx *p.LiteralExprContext) {
 	scope := l.GetCurrentScope()
 	scopeName := ScopeName(scope.Name)
+	isClassScope := scope.Type == type_checker.SCOPE_TYPES.CLASS
+	if isClassScope {
+		scopeName = ScopeName(scope.Name + "_" + type_checker.CONSTRUCTOR_NAME)
+	}
 
 	if ctx.Literal() == nil {
 		return
