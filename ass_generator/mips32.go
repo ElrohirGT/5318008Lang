@@ -330,6 +330,7 @@ func (m Mips32Generator) GenerateTo(buff *bytes.Buffer, addBuiltins bool) error 
 		opCode := parts[0]
 
 		log.Printf("Parsing line: %s", line)
+		m.program.AppendInstruction(NewMips32CommentInstruction(line))
 		err := m.translate(&functionName, opCode, parts[1:])
 		if err != nil {
 			return err
@@ -369,23 +370,6 @@ main:
 	if err != nil {
 		return err
 	}
-
-	// onlyGlobalScope := len(*m.stackSizeByScope) == 1
-	// if onlyGlobalScope { //
-	// 	// Return $sp to normal
-	// 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-	// 		OpCode: "addiu",
-	// 		Params: NewMips32OperationParams("$sp", "$sp", strconv.FormatUint(uint64(stackSize), 10)),
-	// 	}))
-	//
-	// 	// Add:
-	// 	// jr $ra
-	// 	// at the end of main
-	// 	m.program.AppendInstruction(NewMips32OperationInstruction(Mips32Operation{
-	// 		OpCode: "jr",
-	// 		Params: NewMips32OperationParams("$ra"),
-	// 	}))
-	// }
 
 	for _, inst := range m.program.Text {
 		switch {
