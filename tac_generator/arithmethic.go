@@ -60,7 +60,7 @@ func (l Listener) ExitAdditiveExpr(ctx *p.AdditiveExprContext) {
 				if !found {
 					log.Panicf("Could not find array size for %s \n", currentResult)
 				}
-				s2, found := l.Program.GetArraySize(currentResult, scopeName)
+				s2, found := l.Program.GetArraySize(rightVar, scopeName)
 				if !found {
 					log.Panicf("Could not find array size for %s \n", rightVar)
 				}
