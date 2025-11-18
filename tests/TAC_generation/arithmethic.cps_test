@@ -15,7 +15,7 @@ ADD t2 5 t1
 = t3 i32 t2
 ADD t4 2 t3
 = t5 i32 t4
-ALLOC t8 1
+ALLOC t8 0
 // (this)
 PARAM t8
 // (newNumber())
@@ -23,7 +23,7 @@ CALL Number_constructor 1
 // (previousInChain := a)
 PARAM t8
 // (a.getNumber())
-CALLRET t9 Number_getNumber 0
+CALLRET t9 Number_getNumber 1
 ADD t10 t9 t5
 = t11 i32 t10
 END

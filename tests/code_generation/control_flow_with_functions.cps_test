@@ -20,30 +20,50 @@ _start:
 
 main:
 	addiu $sp, $sp, -12
+# PARAM 20
 	li $t0, 20
 	sw $s0, 0($sp)
 	move $s0, $t0
+# PARAM 12
 	li $t0, 12
 	sw $s1, 4($sp)
 	move $s1, $t0
+# // (addNumbers(20,12))
+# CALL addNumbers 2
 	sw $ra, 8($sp)
 	jal addNumbers
 	lw $ra, 8($sp)
 	lw $s0, 0($sp)
 	lw $s1, 4($sp)
+# END
 	addiu $sp, $sp, 12
 	jr $ra
+# 
+# FUNC addNumbers:
 addNumbers:
 	addiu $sp, $sp, -20
+# 	// (a)
+# 	LOAD t1
+# 	// (b)
+# 	LOAD t2
+# 	GOTO addNumbers_IF_0
 	b addNumbers_IF_0
+# 	SEC addNumbers_IF_0_RETURN:
 addNumbers_IF_0_RETURN:
+# 	END
 	addiu $sp, $sp, 20
 	jr $ra
+# SEC addNumbers_IF_0:
 addNumbers_IF_0:
+# 	IF -1 GOTO addNumbers_IF_0_BODY
 	li $t0, -1
 	bne $t0, $zero, addNumbers_IF_0_BODY
+# 	GOTO addNumbers_IF_0_RETURN
 	b addNumbers_IF_0_RETURN
+# SEC addNumbers_IF_0_BODY:
 addNumbers_IF_0_BODY:
+# 	= t3 i32 2
 	li $t0, 2
 	sw $t0, 0($sp)
+# 	GOTO addNumbers_IF_0_RETURN
 	b addNumbers_IF_0_RETURN

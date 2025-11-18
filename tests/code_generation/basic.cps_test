@@ -15,16 +15,23 @@ _start:
 
 main:
 	addiu $sp, $sp, -8
+# DIV t1 9 2
 	li $t0, 9
 	li $t1, 2
 	div $t0, $t1
 	mflo $t2
+# ADD t2 5 t1
 	li $t0, 5
 	add $t1, $t0, $t2
+# = t3 i32 t2
 	sw $t1, 0($sp)
+# ADD t4 2 t3
 	li $t1, 2
 	lw $t0, 0($sp)
 	add $t2, $t1, $t0
+# = t5 i32 t4
 	sw $t2, 4($sp)
+# END
 	addiu $sp, $sp, 8
 	jr $ra
+#

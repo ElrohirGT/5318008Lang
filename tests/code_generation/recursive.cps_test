@@ -22,45 +22,71 @@ _start:
 
 main:
 	addiu $sp, $sp, -12
+# PARAM 5
 	li $t0, 5
 	sw $s0, 0($sp)
 	move $s0, $t0
+# // (factorial(5))
+# CALLRET t8 factorial 1
 	sw $ra, 8($sp)
 	jal factorial
 	move $t0, $v0
 	lw $ra, 8($sp)
 	lw $s0, 0($sp)
-	sw $t0, 4($sp)
+# = t9 i32 t8
+	sw $t0, 0($sp)
+# END
 	addiu $sp, $sp, 12
 	jr $ra
+# 
+# FUNC factorial:
 factorial:
 	addiu $sp, $sp, -8
+# 	// (a)
+# 	LOAD t1
+# 	GOTO factorial_IF_0
 	b factorial_IF_0
+# 	SEC factorial_IF_0_RETURN:
 factorial_IF_0_RETURN:
+# 	SUB t3 t1 1
 	li $t0, 1
 	sub $t1, $s0, $t0
+# 	// (a-1)
+# 	PARAM t3
 	sw $s0, 0($sp)
 	move $s0, $t1
+# 	// (factorial(a-1))
+# 	CALLRET t5 factorial 1
 	sw $ra, 4($sp)
 	jal factorial
 	move $t1, $v0
 	lw $ra, 4($sp)
 	lw $s0, 0($sp)
+# 	MULT t6 t1 t5
 	mult $s0, $t1
 	mflo $t0
+# 	RETURN t6
 	move $v0, $t0
 	addiu $sp, $sp, 8
 	jr $ra
+# 	END
 	addiu $sp, $sp, 8
 	jr $ra
+# SEC factorial_IF_0:
 factorial_IF_0:
+# 	LTE t2 t1 1
 	li $t0, 1
 	sle $t1, $s0, $t0
+# 	IF t2 GOTO factorial_IF_0_BODY
 	bne $t1, $zero, factorial_IF_0_BODY
+# 	GOTO factorial_IF_0_RETURN
 	b factorial_IF_0_RETURN
+# SEC factorial_IF_0_BODY:
 factorial_IF_0_BODY:
+# 	RETURN 1
 	li $t1, 1
 	move $v0, $t1
 	addiu $sp, $sp, 8
 	jr $ra
+# 	GOTO factorial_IF_0_RETURN
 	b factorial_IF_0_RETURN

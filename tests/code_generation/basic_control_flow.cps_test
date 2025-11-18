@@ -24,37 +24,61 @@ _start:
 
 main:
 	addiu $sp, $sp, -20
+# = t1 i8 -1
 	li $t0, -1
 	sw $t0, 0($sp)
+# = t2 i32 3
 	li $t0, 3
 	sw $t0, 4($sp)
+# GOTO GLOBAL_IF_0
 	b GLOBAL_IF_0
+# SEC GLOBAL_IF_0_RETURN:
 GLOBAL_IF_0_RETURN:
+# GOTO GLOBAL_IF_1
 	b GLOBAL_IF_1
+# SEC GLOBAL_IF_1_RETURN:
 GLOBAL_IF_1_RETURN:
+# ADD t5 1 t2
 	li $t0, 1
 	lw $t1, 4($sp)
 	add $t2, $t0, $t1
+# = t6 i32 t5
 	sw $t2, 8($sp)
+# END
 	addiu $sp, $sp, 20
 	jr $ra
+# 
+# SEC GLOBAL_IF_0:
 GLOBAL_IF_0:
+# 	IF t1 GOTO GLOBAL_IF_0_BODY
 	lw $t2, 0($sp)
 	bne $t2, $zero, GLOBAL_IF_0_BODY
+# 	GOTO GLOBAL_IF_0_RETURN
 	b GLOBAL_IF_0_RETURN
+# SEC GLOBAL_IF_0_BODY:
 GLOBAL_IF_0_BODY:
+# 	ADD t3 t2 2
 	lw $t0, 4($sp)
 	li $t3, 2
 	add $t4, $t0, $t3
+# 	= t2 i32 t3
 	sw $t4, 4($sp)
+# 	GOTO GLOBAL_IF_0_RETURN
 	b GLOBAL_IF_0_RETURN
+# SEC GLOBAL_IF_1:
 GLOBAL_IF_1:
+# 	IF 0 GOTO GLOBAL_IF_1_BODY
 	li $t4, 0
 	bne $t4, $zero, GLOBAL_IF_1_BODY
+# 	GOTO GLOBAL_IF_1_RETURN
 	b GLOBAL_IF_1_RETURN
+# SEC GLOBAL_IF_1_BODY:
 GLOBAL_IF_1_BODY:
+# 	ADD t4 t2 3
 	lw $t4, 4($sp)
 	li $t3, 3
 	add $t5, $t4, $t3
+# 	= t2 i32 t4
 	sw $t5, 4($sp)
+# 	GOTO GLOBAL_IF_1_RETURN
 	b GLOBAL_IF_1_RETURN

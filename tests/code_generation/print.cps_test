@@ -15,34 +15,45 @@ _start:
 
 main:
 	addiu $sp, $sp, -16
+# ALLOC t1 4
 	la $t0, 4($sp)
 	sw $t0, 0($sp)
+# SBO t1 0 97
 	li $t1, 0
 	li $t2, 97
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sb $t2, 0($t3)
+# SBO t1 1 98
 	li $t1, 1
 	li $t2, 98
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sb $t2, 0($t3)
+# SBO t1 2 99
 	li $t1, 2
 	li $t2, 99
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sb $t2, 0($t3)
+# SBO t1 3 0
 	li $t1, 3
 	li $t2, 0
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sb $t2, 0($t3)
+# // (a)
+# PARAM t1
 	lw $t1, 0($sp)
 	sw $s0, 8($sp)
 	move $s0, $t1
+# // (print(a))
+# CALL print 1
 	sw $ra, 12($sp)
 	jal print
 	lw $ra, 12($sp)
 	lw $s0, 8($sp)
+# END
 	addiu $sp, $sp, 16
 	jr $ra
+#

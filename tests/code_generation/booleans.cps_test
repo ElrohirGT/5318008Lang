@@ -18,25 +18,36 @@ _start:
 
 main:
 	addiu $sp, $sp, -20
+# = t1 i8 -1
 	li $t0, -1
 	sw $t0, 0($sp)
+# = t2 i8 0
 	li $t0, 0
 	sw $t0, 4($sp)
+# AND t3 t1 t2
 	lw $t0, 0($sp)
 	lw $t1, 4($sp)
 	mult $t0, $t1
 	mflo $t2
+# = t4 i8 t3
 	sw $t2, 8($sp)
+# OR t5 t1 t2
 	lw $t2, 0($sp)
 	lw $t3, 4($sp)
 	add $t4, $t2, $t3
+# = t4 i8 t5
 	sw $t4, 8($sp)
+# AND t6 t1 t1
 	lw $t4, 0($sp)
 	lw $t5, 0($sp)
 	mult $t4, $t5
 	mflo $t6
+# OR t7 t6 t2
 	lw $t7, 4($sp)
 	add $t8, $t6, $t7
+# = t4 i8 t7
 	sw $t8, 8($sp)
+# END
 	addiu $sp, $sp, 20
 	jr $ra
+#

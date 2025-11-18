@@ -15,27 +15,35 @@ _start:
 
 main:
 	addiu $sp, $sp, -20
+# ALLOC t1 12
 	la $t0, 4($sp)
 	sw $t0, 0($sp)
+# SWO t1 0 1
 	li $t1, 0
 	li $t2, 1
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sw $t2, 0($t3)
+# SWO t1 4 2
 	li $t1, 4
 	li $t2, 2
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sw $t2, 0($t3)
+# SWO t1 8 3
 	li $t1, 8
 	li $t2, 3
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	sw $t2, 0($t3)
+# LWO t2 t1 8
 	li $t1, 8
 	lw $t3, 0($sp)
 	addu $t3, $t3, $t1
 	lw $t2, 0($t3)
+# = t3 i32 t2
 	sw $t2, 16($sp)
+# END
 	addiu $sp, $sp, 20
 	jr $ra
+#

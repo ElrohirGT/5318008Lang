@@ -17,7 +17,7 @@ class Dog {
 
 let a = new Dog(8);
 ---
-ALLOC t9 5
+ALLOC t9 4
 PARAM 8
 // (this)
 PARAM t9

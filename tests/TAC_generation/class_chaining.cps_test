@@ -33,7 +33,7 @@ color
   .WithB(100)
   .ToArray(buffer);
 ---
-ALLOC t19 13
+ALLOC t19 12
 // (this)
 PARAM t19
 // (newColor())
@@ -46,23 +46,23 @@ PARAM 100
 // (previousInChain := color)
 PARAM t19
 // (color.WithR(100))
-CALLRET t21 Color_WithR 1
+CALLRET t21 Color_WithR 2
 PARAM 100
 // (previousInChain := color.WithR(100))
 PARAM t21
 // (color.WithR(100).WithG(100))
-CALLRET t22 Color_WithG 1
+CALLRET t22 Color_WithG 2
 PARAM 100
 // (previousInChain := color.WithR(100).WithG(100))
 PARAM t22
 // (color.WithR(100).WithG(100).WithB(100))
-CALLRET t23 Color_WithB 1
+CALLRET t23 Color_WithB 2
 // (buffer)
 PARAM t20
 // (previousInChain := color.WithR(100).WithG(100).WithB(100))
 PARAM t23
 // (color.WithR(100).WithG(100).WithB(100).ToArray(buffer))
-CALL Color_ToArray 1
+CALL Color_ToArray 2
 END
 
 FUNC Color_ToArray:

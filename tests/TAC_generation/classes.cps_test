@@ -9,12 +9,12 @@ class Animal {
 let an = new Animal();
 an.setName("Default Name");
 ---
-ALLOC t6 5
+ALLOC t6 4
 // (this)
 PARAM t6
 // (newAnimal())
 CALL Animal_constructor 1
-ALLOC t7 13
+ALLOC t7 16
 SBO t7 0 68
 SBO t7 1 101
 SBO t7 2 102
@@ -27,13 +27,13 @@ SBO t7 8 78
 SBO t7 9 97
 SBO t7 10 109
 SBO t7 11 101
-SBO t7 12 0
+SBO t7 15 0
 // ("Default Name")
 PARAM t7
 // (previousInChain := an)
 PARAM t6
 // (an.setName("Default Name"))
-CALL Animal_setName 1
+CALL Animal_setName 2
 END
 
 FUNC Animal_constructor:

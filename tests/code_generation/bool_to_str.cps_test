@@ -16,27 +16,40 @@ _start:
 
 main:
 	addiu $sp, $sp, -28
+# = t1 i8 -1
 	li $t0, -1
 	sw $t0, 0($sp)
+# ALLOC t3 6
 	la $t0, 8($sp)
 	sw $t0, 4($sp)
+# // (b)
+# PARAM t1
 	lw $t1, 0($sp)
 	sw $s0, 14($sp)
 	move $s0, $t1
+# PARAM t3
 	lw $t2, 4($sp)
 	sw $s1, 18($sp)
 	move $s1, $t2
+# // (bool_to_str(b))
+# CALLRET t3 bool_to_str 2
 	sw $ra, 24($sp)
 	jal bool_to_str
 	move $t3, $v0
 	lw $ra, 24($sp)
 	lw $s0, 14($sp)
 	lw $s1, 18($sp)
-	sw $s0, 22($sp)
+# // (a)
+# PARAM t3
+	sw $s0, 14($sp)
 	move $s0, $t3
+# // (print(a))
+# CALL print 1
 	sw $ra, 24($sp)
 	jal print
 	lw $ra, 24($sp)
-	lw $s0, 22($sp)
+	lw $s0, 14($sp)
+# END
 	addiu $sp, $sp, 28
 	jr $ra
+#
