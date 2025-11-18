@@ -56,8 +56,8 @@ func (l Listener) ExitVariableDeclaration(ctx *p.VariableDeclarationContext) {
 			variableValue = "0"
 		}
 	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
-		varName := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
-		variableValue = string(varName)
+		variableValue = "EMPTY STRING"
+		l.Program.GetOrGenerateVariable(variableValue, scopeName)
 	} else if exprText != "" {
 		_, isLiteral = l.TypeChecker.GetLiteralType(exprText)
 	} else {
@@ -516,18 +516,6 @@ func createAssignment(
 			// fmt.Println("THIS IS A DECLARATION OF:" + variableName + " " + string(scopeName))
 			l.CreateVariableDeclaration(scopeName, variableName, literalType, literalValue)
 		}
-	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
-		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
-		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
-			Target: strRef,
-			Size:   lib.AlignSize(1, lib.MIPS32_WORD_BYTE_SIZE),
-		}))
-		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
-			Target: strRef,
-			Offset: "0",
-			Value:  "0",
-		}))
-		l.Program.UpsertTranslation(scopeName, variableName, strRef)
 	} else if isReference {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
@@ -546,6 +534,18 @@ func createAssignment(
 		// 	Source: previousTacName,
 		// 	Offset: LiteralOrVariable(offset),
 		// }))
+	} else if exprText == "" && exprType == type_checker.BASE_TYPES.STRING {
+		strRef := l.Program.GetOrGenerateVariable("EMPTY STRING", scopeName)
+		l.AppendInstruction(scopeName, NewAllocInstruction(AllocInstruction{
+			Target: strRef,
+			Size:   lib.AlignSize(1, lib.MIPS32_WORD_BYTE_SIZE),
+		}))
+		l.AppendInstruction(scopeName, NewSetWithOffsetInstruction(SetWithOffsetInstruction{
+			Target: strRef,
+			Offset: "0",
+			Value:  "0",
+		}))
+		l.Program.UpsertTranslation(scopeName, variableName, strRef)
 	} else {
 		exprVar, found := l.Program.GetVariableFor(exprText, scopeName)
 		if !found {
