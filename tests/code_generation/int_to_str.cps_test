@@ -32,119 +32,119 @@ main:
 # ALLOC t6 12
 	la $t1, 12($sp)
 	sw $t1, 8($sp)
-# // (c)
+# // c
 # PARAM t4
-	lw $t0, 4($sp)
+	lw $t1, 4($sp)
 	sw $s0, 24($sp)
-	move $s0, $t0
+	move $s0, $t1
 # PARAM t6
-	lw $t3, 8($sp)
+	lw $t0, 8($sp)
 	sw $s1, 28($sp)
-	move $s1, $t3
-# // (int_to_str(c))
+	move $s1, $t0
+# // int_to_str(c)
 # CALLRET t6 int_to_str 2
 	sw $ra, 80($sp)
 	jal int_to_str
-	move $t4, $v0
+	move $t3, $v0
 	lw $ra, 80($sp)
 	lw $s0, 24($sp)
 	lw $s1, 28($sp)
 # ALLOC t7 12
-	la $t5, 28($sp)
-	sw $t5, 24($sp)
+	la $t4, 28($sp)
+	sw $t4, 24($sp)
 # SBO t7 0 114
-	li $t6, 0
-	li $t7, 114
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 0
+	li $t5, 114
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 1 101
-	li $t6, 1
-	li $t7, 101
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 1
+	li $t5, 101
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 2 115
-	li $t6, 2
-	li $t7, 115
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 2
+	li $t5, 115
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 3 112
-	li $t6, 3
-	li $t7, 112
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 3
+	li $t5, 112
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 4 117
-	li $t6, 4
-	li $t7, 117
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 4
+	li $t5, 117
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 5 101
-	li $t6, 5
-	li $t7, 101
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 5
+	li $t5, 101
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 6 115
-	li $t6, 6
-	li $t7, 115
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 6
+	li $t5, 115
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 7 116
-	li $t6, 7
-	li $t7, 116
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 7
+	li $t5, 116
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 8 97
-	li $t6, 8
-	li $t7, 97
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 8
+	li $t5, 97
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 9 58
-	li $t6, 9
-	li $t7, 58
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 9
+	li $t5, 58
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # SBO t7 11 0
-	li $t6, 11
-	li $t7, 0
-	lw $t8, 24($sp)
-	addu $t8, $t8, $t6
-	sb $t7, 0($t8)
+	li $t4, 11
+	li $t5, 0
+	lw $t6, 24($sp)
+	addu $t6, $t6, $t4
+	sb $t5, 0($t6)
 # ALLOC t8 24
-	la $t6, 44($sp)
-	sw $t6, 40($sp)
+	la $t4, 44($sp)
+	sw $t4, 40($sp)
 # PARAM t7
-	lw $t7, 24($sp)
+	lw $t4, 24($sp)
 	sw $s0, 68($sp)
-	move $s0, $t7
+	move $s0, $t4
 # PARAM t6
 	sw $s1, 72($sp)
-	move $s1, $t4
+	move $s1, $t3
 # PARAM t8
-	lw $t4, 40($sp)
+	lw $t3, 40($sp)
 	sw $s2, 76($sp)
-	move $s2, $t4
+	move $s2, $t3
 # CALLRET t8 concat_str 3
 	sw $ra, 80($sp)
 	jal concat_str
-	move $t8, $v0
+	move $t5, $v0
 	lw $ra, 80($sp)
 	lw $s0, 68($sp)
 	lw $s1, 72($sp)
 	lw $s2, 76($sp)
-# // ("respuesta:"+a)
+# // "respuesta:"+a
 # PARAM t8
 	sw $s0, 68($sp)
-	move $s0, $t8
-# // (print("respuesta:"+a))
+	move $s0, $t5
+# // print("respuesta:"+a)
 # CALL print 1
 	sw $ra, 80($sp)
 	jal print

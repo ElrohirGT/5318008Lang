@@ -10,9 +10,9 @@ let an = new Animal();
 an.setName("Default Name");
 ---
 ALLOC t6 4
-// (this)
+// this
 PARAM t6
-// (newAnimal())
+// newAnimal()
 CALL Animal_constructor 1
 ALLOC t7 16
 SBO t7 0 68
@@ -28,23 +28,23 @@ SBO t7 9 97
 SBO t7 10 109
 SBO t7 11 101
 SBO t7 15 0
-// ("Default Name")
-PARAM t7
-// (previousInChain := an)
+// this -> an
 PARAM t6
-// (an.setName("Default Name"))
+// "Default Name"
+PARAM t7
+// an.setName("Default Name")
 CALL Animal_setName 2
 END
 
 FUNC Animal_constructor:
-	// (this)
+	// this
 	LOAD t1
 	SWO t1 0 t2
 	END
 FUNC Animal_setName:
-	// (this)
+	// this
 	LOAD t3
-	// (newName)
+	// newName
 	LOAD t4
 	= t5 i32 0
 	SWO t3 t5 t4

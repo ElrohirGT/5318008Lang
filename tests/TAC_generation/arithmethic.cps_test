@@ -16,24 +16,24 @@ ADD t2 5 t1
 ADD t4 2 t3
 = t5 i32 t4
 ALLOC t8 0
-// (this)
+// this
 PARAM t8
-// (newNumber())
+// newNumber()
 CALL Number_constructor 1
-// (previousInChain := a)
+// this -> a
 PARAM t8
-// (a.getNumber())
+// a.getNumber()
 CALLRET t9 Number_getNumber 1
 ADD t10 t9 t5
 = t11 i32 t10
 END
 
 FUNC Number_constructor:
-	// (this)
+	// this
 	LOAD t6
 	END
 FUNC Number_getNumber:
-	// (this)
+	// this
 	LOAD t7
 	RETURN 5
 	END

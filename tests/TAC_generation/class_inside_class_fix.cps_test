@@ -19,34 +19,34 @@ let a = new Dog(8);
 ---
 ALLOC t9 4
 PARAM 8
-// (this)
+// this
 PARAM t9
-// (newDog(8))
+// newDog(8)
 CALL Dog_constructor_1 2
 END
 
 FUNC Dog_constructor:
-	// (this)
+	// this
 	LOAD t5
 	SWO t5 0 0
 	END
 FUNC Dog_constructor_1:
-	// (this)
+	// this
 	LOAD t6
-	// (age)
+	// age
 	LOAD t7
 	= t8 i32 0
 	SWO t6 t8 t7
 	END
 FUNC Legs_constructor:
-	// (this)
+	// this
 	LOAD t1
 	SWO t1 0 0
 	END
 FUNC Legs_constructor_1:
-	// (this)
+	// this
 	LOAD t2
-	// (legCount)
+	// legCount
 	LOAD t3
 	= t4 i32 0
 	SWO t2 t4 t3

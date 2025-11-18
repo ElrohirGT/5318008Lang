@@ -28,7 +28,7 @@ main:
 	li $t0, 12
 	sw $s1, 4($sp)
 	move $s1, $t0
-# // (addNumbers(20,12))
+# // addNumbers(20,12)
 # CALL addNumbers 2
 	sw $ra, 8($sp)
 	jal addNumbers
@@ -42,9 +42,9 @@ main:
 # FUNC addNumbers:
 addNumbers:
 	addiu $sp, $sp, -20
-# 	// (a)
+# 	// a
 # 	LOAD t1
-# 	// (b)
+# 	// b
 # 	LOAD t2
 # 	GOTO addNumbers_IF_0
 	b addNumbers_IF_0

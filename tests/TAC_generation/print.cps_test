@@ -3,8 +3,8 @@ print("a");
 ALLOC t1 4
 SBO t1 0 97
 SBO t1 3 0
-// ("a")
+// "a"
 PARAM t1
-// (print("a"))
+// print("a")
 CALL print 1
 END

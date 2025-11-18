@@ -15,7 +15,7 @@ function sumar(n: integer): integer {
 END
 
 FUNC sumar:
-	// (n)
+	// n
 	LOAD t1
 	GOTO sumar_IF_0
 	SEC sumar_IF_0_RETURN:
@@ -29,9 +29,9 @@ SEC sumar_IF_0_BODY:
 	GOTO sumar_IF_0_RETURN
 SEC sumar_IF_0_ELSE:
 	SUB t3 t1 1
-	// (n-1)
+	// n-1
 	PARAM t3
-	// (sumar(n-1))
+	// sumar(n-1)
 	CALLRET t5 sumar 1
 	ADD t6 t1 t5
 	RETURN t6

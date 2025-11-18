@@ -27,7 +27,7 @@ main:
 	li $t0, 8
 	sw $s1, 4($sp)
 	move $s1, $t0
-# // (addNumbers(200,8))
+# // addNumbers(200,8)
 # CALLRET t7 addNumbers 2
 	sw $ra, 12($sp)
 	jal addNumbers
@@ -44,9 +44,9 @@ main:
 # FUNC addNumbers:
 addNumbers:
 	addiu $sp, $sp, -20
-# 	// (a)
+# 	// a
 # 	LOAD t1
-# 	// (b)
+# 	// b
 # 	LOAD t2
 # 	MULT t3 t1 10
 	li $t0, 10

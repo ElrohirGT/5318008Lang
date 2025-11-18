@@ -34,41 +34,41 @@ color
   .ToArray(buffer);
 ---
 ALLOC t19 12
-// (this)
+// this
 PARAM t19
-// (newColor())
+// newColor()
 CALL Color_constructor 1
 ALLOC t20 12
 SWO t20 0 0
 SWO t20 4 0
 SWO t20 8 0
-PARAM 100
-// (previousInChain := color)
+// this -> color
 PARAM t19
-// (color.WithR(100))
+PARAM 100
+// color.WithR(100)
 CALLRET t21 Color_WithR 2
-PARAM 100
-// (previousInChain := color.WithR(100))
+// this -> color.WithR(100)
 PARAM t21
-// (color.WithR(100).WithG(100))
-CALLRET t22 Color_WithG 2
 PARAM 100
-// (previousInChain := color.WithR(100).WithG(100))
+// color.WithR(100).WithG(100)
+CALLRET t22 Color_WithG 2
+// this -> color.WithR(100).WithG(100)
 PARAM t22
-// (color.WithR(100).WithG(100).WithB(100))
+PARAM 100
+// color.WithR(100).WithG(100).WithB(100)
 CALLRET t23 Color_WithB 2
-// (buffer)
-PARAM t20
-// (previousInChain := color.WithR(100).WithG(100).WithB(100))
+// this -> color.WithR(100).WithG(100).WithB(100)
 PARAM t23
-// (color.WithR(100).WithG(100).WithB(100).ToArray(buffer))
+// buffer
+PARAM t20
+// color.WithR(100).WithG(100).WithB(100).ToArray(buffer)
 CALL Color_ToArray 2
 END
 
 FUNC Color_ToArray:
-	// (this)
+	// this
 	LOAD t11
-	// (buffer)
+	// buffer
 	LOAD t12
 	LWO t13 t11 0
 	LWO t14 t12 0
@@ -81,34 +81,34 @@ FUNC Color_ToArray:
 	= t18 i32 t17
 	END
 FUNC Color_WithB:
-	// (this)
+	// this
 	LOAD t8
-	// (b)
+	// b
 	LOAD t9
 	= t10 i32 8
 	SWO t8 t10 t9
 	RETURN t8
 	END
 FUNC Color_WithG:
-	// (this)
+	// this
 	LOAD t5
-	// (g)
+	// g
 	LOAD t6
 	= t7 i32 4
 	SWO t5 t7 t6
 	RETURN t5
 	END
 FUNC Color_WithR:
-	// (this)
+	// this
 	LOAD t2
-	// (r)
+	// r
 	LOAD t3
 	= t4 i32 0
 	SWO t2 t4 t3
 	RETURN t2
 	END
 FUNC Color_constructor:
-	// (this)
+	// this
 	LOAD t1
 	SWO t1 0 0
 	SWO t1 4 0

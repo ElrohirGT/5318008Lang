@@ -18,41 +18,41 @@ main:
 	la $t0, 4($sp)
 	sw $t0, 0($sp)
 # SBO t1 0 72
-	li $t1, 0
-	li $t2, 72
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 0
+	li $t1, 72
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # SBO t1 1 111
-	li $t1, 1
-	li $t2, 111
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 1
+	li $t1, 111
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # SBO t1 2 108
-	li $t1, 2
-	li $t2, 108
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 2
+	li $t1, 108
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # SBO t1 3 97
-	li $t1, 3
-	li $t2, 97
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 3
+	li $t1, 97
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # SBO t1 4 33
-	li $t1, 4
-	li $t2, 33
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 4
+	li $t1, 33
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # SBO t1 7 0
-	li $t1, 7
-	li $t2, 0
-	lw $t3, 0($sp)
-	addu $t3, $t3, $t1
-	sb $t2, 0($t3)
+	li $t0, 7
+	li $t1, 0
+	lw $t2, 0($sp)
+	addu $t2, $t2, $t0
+	sb $t1, 0($t2)
 # END
 	addiu $sp, $sp, 12
 	jr $ra

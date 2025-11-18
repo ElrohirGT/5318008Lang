@@ -26,7 +26,7 @@ main:
 	li $t0, 5
 	sw $s0, 0($sp)
 	move $s0, $t0
-# // (factorial(5))
+# // factorial(5)
 # CALLRET t8 factorial 1
 	sw $ra, 8($sp)
 	jal factorial
@@ -42,7 +42,7 @@ main:
 # FUNC factorial:
 factorial:
 	addiu $sp, $sp, -8
-# 	// (a)
+# 	// a
 # 	LOAD t1
 # 	GOTO factorial_IF_0
 	b factorial_IF_0
@@ -51,11 +51,11 @@ factorial_IF_0_RETURN:
 # 	SUB t3 t1 1
 	li $t0, 1
 	sub $t1, $s0, $t0
-# 	// (a-1)
+# 	// a-1
 # 	PARAM t3
 	sw $s0, 0($sp)
 	move $s0, $t1
-# 	// (factorial(a-1))
+# 	// factorial(a-1)
 # 	CALLRET t5 factorial 1
 	sw $ra, 4($sp)
 	jal factorial
